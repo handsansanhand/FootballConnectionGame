@@ -2,7 +2,7 @@ import SearchBar from "../../Components/SearchBar/SearchBar";
 import { getShortestPath } from "../../Scripts/getShortestPath";
 import { getRandomPlayer } from "../../Scripts/players";
 import { useState, useEffect } from "react";
-
+import Graph from "../../Components/Graph/Graph";
 function ShortestPath() {
   const [player1, setPlayer1] = useState(null);
   const [player2, setPlayer2] = useState(null);
@@ -44,7 +44,7 @@ function ShortestPath() {
       {/* Path display */}
       <div className="relative mt-6 p-4 bg-gray-100 rounded border-4 border-red-500 min-h-[350px] md:min-h-[550px]">
         {path ? (
-          <pre>{JSON.stringify(path, null, 2)}</pre>
+          <Graph pathJson={path} />
         ) : (
           <p className="text-gray-500">
             No path calculated yet. Enter players below.
