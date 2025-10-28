@@ -47,18 +47,26 @@ print("Finished creating PLAYED_FOR relationships.")
 # --- 2️⃣ Build teammate pairs in bulk ---
 print("Building teammate pairs for bulk import...")
 
-def overlap(s1, e1, s2, e2):
-    return not (e1 < s2 or e2 < s1)
+def overlap_years(s1, e1, s2, e2):
+    """Return overlapping year range as (start, end) or None if no overlap."""
+    overlap_start = max(s1, s2)
+    overlap_end = min(e1, e2)
+    if overlap_start <= overlap_end:
+        return (overlap_start, overlap_end)
+    return None
 
 rows = []
 for team, group in df.groupby("team_name"):
     players = group.to_dict("records")
     for p1, p2 in itertools.combinations(players, 2):
-        if overlap(p1["start_year"], p1["end_year"], p2["start_year"], p2["end_year"]):
-            rows.append((p1["player_name"], p2["player_name"], team))
+        result = overlap_years(p1["start_year"], p1["end_year"], p2["start_year"], p2["end_year"])
+        if result:
+            overlap_start, overlap_end = result
+            overlap_range = f"{overlap_start}-{overlap_end}"
+            rows.append((p1["player_name"], p2["player_name"], team, overlap_range))
 
 pairs_path = os.path.join(os.getcwd(), "datasets", "teammates.csv")
-pd.DataFrame(rows, columns=["player1", "player2", "team"]).to_csv(pairs_path, index=False)
+pd.DataFrame(rows, columns=["player1", "player2", "team", "overlapping_years"]).to_csv(pairs_path, index=False)
+
 print(f"✅ Teammate pairs CSV saved to {pairs_path}")
 print(f"Total teammate pairs: {len(rows):,}")
-
