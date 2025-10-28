@@ -17,7 +17,8 @@ async function getShortestPath(req, res) {
       MATCH path = shortestPath((p1)-[:PLAYED_WITH*]-(p2))
       RETURN 
         [n IN nodes(path) | n.name] AS players_in_path,
-        [r IN relationships(path) | r.team] AS teams_in_path
+        [r IN relationships(path) | r.team] AS teams_in_path,
+        [r IN relationships(path) | r.overlapping_years] AS overlapping_years_in_path;
     `;
     const result = await session.run(query, { player1, player2 });
     
@@ -27,9 +28,10 @@ async function getShortestPath(req, res) {
     const record = result.records[0];
     const players = record.get('players_in_path');
     const teams = record.get('teams_in_path');
-    res.json({ players, teams });
+    const overlapping_years = record.get('overlapping_years_in_path');
+    res.json({ players, teams, overlapping_years });
   } catch (error) {
-    console.error('Neo4j query error:', err);
+    console.error('Neo4j query error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   } finally {
     await session.close();
