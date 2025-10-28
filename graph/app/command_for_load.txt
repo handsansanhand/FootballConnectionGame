@@ -1,3 +1,5 @@
+CREATE INDEX player_name_index IF NOT EXISTS FOR (p:Player) ON (p.name);
+
 :auto
 LOAD CSV WITH HEADERS FROM 'file:///teammates.csv' AS row
 CALL {
