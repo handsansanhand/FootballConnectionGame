@@ -1,0 +1,8 @@
+GAME MODES:
+
+1) Find a path between two players (player a and player b)
+    a) enter a and b manually
+    b) get two random players
+
+2) find the shortest path automatically
+    a) between two players
