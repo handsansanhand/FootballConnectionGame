@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer } from "../../Scripts/searchPlayer";
 
-function SearchBar() {
+function SearchBar({ onSubmit, onReset }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [locked, setLocked] = useState(false); // lock state
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    if (query.trim().length < 2) {
+    if (query.trim().length < 2 || locked) {
       setResults([]);
       return;
     }
@@ -25,69 +26,87 @@ function SearchBar() {
     }, 300);
 
     return () => clearTimeout(debounceRef.current);
-  }, [query]);
+  }, [query, locked]);
 
   const handleSelectPlayer = (player) => {
-    setQuery(player);
-    setResults([]);
-    setSelectedPlayer(player);
+    if (!locked) {
+      setQuery(player);
+      setResults([]);
+      setSelectedPlayer(player);
+    }
   };
 
   const handleChange = (e) => {
-    setQuery(e.target.value);
-    setSelectedPlayer(null);
+    if (!locked) {
+      setQuery(e.target.value);
+      setSelectedPlayer(null);
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (!locked && selectedPlayer) {
+      setLocked(true);
+      if (onSubmit) onSubmit(selectedPlayer);
+    } else if (locked) {
+      setLocked(false);
+      setQuery("");
+      setSelectedPlayer(null);
+      setResults([]);
+      if (onReset) onReset(); // 🔹 clear path in parent
+    }
   };
 
   return (
-    <div className="max-w-md mx-auto relative">
-      {/* Search input + inline button */}
-      <div className="relative">
+    <div className="max-w-md mx-auto">
+      {/* Input + dynamic button */}
+      <div className="relative w-full">
         <input
           type="search"
           value={query}
           onChange={handleChange}
-          className="block w-full p-4 pr-20 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          disabled={locked}
+          className={`block w-full p-4 pr-28 ps-10 text-sm border rounded-lg ${
+            locked
+              ? "bg-gray-200 cursor-not-allowed text-gray-700"
+              : "bg-gray-50 text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          }`}
           placeholder="Search for a player..."
         />
 
-        {/* Enter button inside input, right aligned */}
         <button
           type="button"
-          disabled={!selectedPlayer}
+          onClick={handleButtonClick}
           className={`absolute top-1/2 end-1 -translate-y-1/2 py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm ${
-            selectedPlayer
+            locked
+              ? "bg-red-600 hover:bg-red-700"
+              : selectedPlayer
               ? "bg-green-600 hover:bg-green-700"
               : "bg-gray-400 cursor-not-allowed"
           }`}
-          onClick={() => {
-            if (selectedPlayer) {
-              console.log("Submitted player:", selectedPlayer);
-              // handle submission logic here
-            }
-          }}
+          disabled={!selectedPlayer && !locked}
         >
-          Enter
+          {locked ? "Reset" : "Enter"}
         </button>
+
+        {/* Results dropdown */}
+        {!locked && results.length > 0 && (
+          <div className="absolute top-full left-0 w-full mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
+            {results.map((player, index) => (
+              <div
+                key={index}
+                className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition"
+                onClick={() => handleSelectPlayer(player)}
+              >
+                <p className="text-gray-900 dark:text-gray-100 font-medium">
+                  {player}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* results dropdown */}
-      {results.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
-          {results.map((player, index) => (
-            <div
-              key={index}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition"
-              onClick={() => handleSelectPlayer(player)}
-            >
-              <p className="text-gray-900 dark:text-gray-100 font-medium">
-                {player}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {results.length === 0 && query.trim().length >= 2 && (
+      {!locked && results.length === 0 && query.trim().length >= 2 && (
         <p className="text-sm text-gray-500 mt-2 text-center">
           No players found.
         </p>
