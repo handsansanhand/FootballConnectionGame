@@ -5,6 +5,15 @@ const shortestPath = require("./routes/shortestPath");
 const players = require("./routes/players");
 const app = express();
 
+//TODO: CHANGE CORS TO SOMETHING LIKE:
+/*app.use(cors({
+  origin: ["http://localhost:3000", "https://your-frontend-domain.com"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}));
+AND PUT THE ORIGIN AS THE AWS FRONTEND LOCATION ?
+*/
+app.use(cors());
+
 app.use("/shortestPath", shortestPath);
 app.use("/players", players);
 
