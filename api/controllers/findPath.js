@@ -42,7 +42,7 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
     );
 
     if (result.records.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: "Guessed player does not overlap with any path player",
       });
@@ -93,7 +93,7 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
     });
 
     // Determine if this guessed player connects both paths
-    const winner = overlapsWithA.size > 0 && overlapsWithB.size > 0 ? guessedPlayer : null;
+    const winner = overlapsWithA.size > 0 && overlapsWithB.size > 0 ? true : null;
 
     res.json({ success: true, pathA, pathB, winner });
   } catch (err) {

@@ -5,10 +5,15 @@ import PathDisplay from "../../Components/PathDisplay/PathDisplay";
 import { useState, useEffect } from "react";
 import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import { initializeGuessPath, makeGuess } from "../../Scripts/guessPlayer";
+import { simplifyPathJSON } from "../../Components/Graph/graphUtils";
 function GuessPath() {
   // initialize state from localStorage if available
   const [showModal, setShowModal] = useState(false);
   const [guessedPlayer, setGuessedPlayer] = useState(null);
+  const [path, setPath] = useState(() => {
+    const storedPath = localStorage.getItem("path");
+    return storedPath ? JSON.parse(storedPath) : null;
+  });
 
   const [player1, setPlayer1] = useState(
     () => localStorage.getItem("player1") || null
@@ -26,10 +31,24 @@ function GuessPath() {
 
   //now it should make a guess
   useEffect(() => {
-    if (guessedPlayer) {
-      console.log("Updated guess is now:", guessedPlayer);
+    if (guessedPlayer && path) {
+      handleGuess(path, guessedPlayer);
     }
   }, [guessedPlayer]);
+
+  const handleGuess = async (path, guessedPlayer) => {
+    if (!guessedPlayer) return;
+
+    console.log("Current path:", JSON.stringify(path, null, 2));
+    console.log("Guessing player:", guessedPlayer);
+
+    const res = await makeGuess(path, guessedPlayer);
+    console.log("Response path:", JSON.stringify(res, null, 2));
+
+    // optionally update local state if backend returns updated data
+    if (res) setPath(res);
+  };
+  //after players are initialized
   const handlePlayersSubmit = async (p1, p2) => {
     setPlayer1(p1);
     setPlayer2(p2);
@@ -41,18 +60,60 @@ function GuessPath() {
     setShowModal(false); // hide modal after submission
     const path = await initializeGuessPath(p1, p2);
     console.log("Initial path:", JSON.stringify(path, null, 2));
+    setPath(path);
     console.log("Selected Players:", p1, p2);
   };
+  //a correct guess was made, update the graph and the connected graph
+  useEffect(() => {
+    if (path) {
+      localStorage.setItem("path", JSON.stringify(path));
 
+      // Only simplify and update if the path exists
+      const simplified = simplifyPathJSON(path); // returns { pathA: {...}, pathB: {...} }
+      setConnectedGraph(simplified);
+      console.log(
+        "Updated simplified graphs:",
+        JSON.stringify(simplified, null, 2)
+      );
+    }
+  }, [path]);
   const resetPlayers = () => {
     setPlayer1(null);
     setPlayer2(null);
   };
   const errorMessage =
     !player1 || !player2 ? "Please select both players." : null;
-  // Unconnected graph for now
-  const unconnectedGraph =
-    player1 && player2 ? { players: [player1, player2] } : null;
+  // connected graph will start with the two initial players
+  const [connectedGraph, setConnectedGraph] = useState(() => {
+    const storedPath = localStorage.getItem("path");
+    if (storedPath) {
+      const parsed = JSON.parse(storedPath);
+      const simplified = simplifyPathJSON(parsed);
+      return {
+        pathA: simplified.pathA || {
+          players: [],
+          teams: [],
+          overlapping_years: [],
+        },
+        pathB: simplified.pathB || {
+          players: [],
+          teams: [],
+          overlapping_years: [],
+        },
+      };
+    }
+    // default empty paths if no stored path
+    return {
+      pathA:
+        player1 && player2
+          ? { players: [player1], teams: [], overlapping_years: [] }
+          : { players: [], teams: [], overlapping_years: [] },
+      pathB:
+        player1 && player2
+          ? { players: [player2], teams: [], overlapping_years: [] }
+          : { players: [], teams: [], overlapping_years: [] },
+    };
+  });
   return (
     <div className="p-4">
       <div className="absolute top-4 left-4">
@@ -70,8 +131,9 @@ function GuessPath() {
       <PathDisplay
         player1={player1}
         player2={player2}
-        path={unconnectedGraph}
+        path={connectedGraph}
         errorMessage={errorMessage}
+        isMulti={true}
       />
       {/* Guess a player here*/}
       <PlayerInput
