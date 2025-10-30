@@ -11,6 +11,7 @@ function GuessPath() {
   // initialize state from localStorage if available
   const [showModal, setShowModal] = useState(false);
   const [guessedPlayer, setGuessedPlayer] = useState(null);
+
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
     return storedPath ? JSON.parse(storedPath) : null;
@@ -37,6 +38,7 @@ function GuessPath() {
     }
   }, [guessedPlayer]);
 
+  //a guess has been made
   const handleGuess = async (path, guessedPlayer) => {
     if (!guessedPlayer) return;
 
@@ -47,8 +49,11 @@ function GuessPath() {
     console.log("Response path:", JSON.stringify(res, null, 2));
 
     // optionally update local state if backend returns updated data
-    if (res.success) setPath(res);
+    if (res.success) {
+      setPath(res);
+    }
   };
+
   //after players are initialized
   const handlePlayersSubmit = async (p1, p2) => {
     setPlayer1(p1);
@@ -64,9 +69,10 @@ function GuessPath() {
     setPath(path);
     console.log("Selected Players:", p1, p2);
   };
+
   //a correct guess was made, update the graph and the connected graph
   useEffect(() => {
-    if (path ) {
+    if (path) {
       localStorage.setItem("path", JSON.stringify(path));
 
       // Only simplify and update if the path exists
@@ -78,6 +84,7 @@ function GuessPath() {
       );
     }
   }, [path]);
+
   const resetPlayers = () => {
     setPlayer1(null);
     setPlayer2(null);
@@ -115,6 +122,7 @@ function GuessPath() {
           : { players: [], teams: [], overlapping_years: [] },
     };
   });
+
   return (
     <div className="p-4">
       <div className="absolute top-4 left-4">

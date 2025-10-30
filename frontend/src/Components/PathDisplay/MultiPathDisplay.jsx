@@ -2,7 +2,7 @@ import SearchBar from "../../Components/SearchBar/SearchBar";
 import { useNavigate } from "react-router-dom";
 import Graph from "../Graph/Graph";
 import MultiGraph from "../Graph/MultiGraph";
-function MultiPathDisplay( { player1, player2, path, errorMessage, isMulti} ) {
+function MultiPathDisplay( { player1, player2, path, errorMessage, isMulti, winner} ) {
     console.log("Initial multi path:", JSON.stringify(path, null, 2));
 
   return (
@@ -11,7 +11,7 @@ function MultiPathDisplay( { player1, player2, path, errorMessage, isMulti} ) {
         {errorMessage ? (
           <p className="text-red-600 font-semibold">{errorMessage}</p>
         ) : path ? (
-          <MultiGraph pathA={path.pathA} pathB={path.pathB} />
+          <MultiGraph pathA={path.pathA} pathB={path.pathB} winner={path.winner} />
         ) : (
           <p className="text-gray-500">
             No path calculated yet. Enter players below.

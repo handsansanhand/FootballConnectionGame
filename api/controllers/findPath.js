@@ -77,6 +77,7 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
 
       // --- Path A ---
       if (pathA.players.includes(overlappingPlayer)) {
+        overlapsWithA.add(overlappingPlayer);
         if (!pathA.players.includes(guessedPlayer))
           pathA.players.push(guessedPlayer);
 
@@ -106,6 +107,7 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
 
       // --- Path B ---
       if (pathB.players.includes(overlappingPlayer)) {
+         overlapsWithB.add(overlappingPlayer);
         if (!pathB.players.includes(guessedPlayer))
           pathB.players.push(guessedPlayer);
 
@@ -131,7 +133,8 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
         }
       }
     });
-
+    console.log(overlapsWithA);
+    console.log(overlapsWithB);
     // Determine if guessed player connects both paths
     const winner =
       overlapsWithA.size > 0 && overlapsWithB.size > 0 ? true : null;
