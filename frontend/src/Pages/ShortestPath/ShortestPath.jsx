@@ -1,8 +1,6 @@
-import SearchBar from "../../Components/SearchBar/SearchBar";
 import { getShortestPath } from "../../Scripts/getShortestPath";
-import { getRandomPlayer } from "../../Scripts/players";
 import { useState, useEffect } from "react";
-import Graph from "../../Components/Graph/Graph";
+import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import PathDisplay from "../../Components/PathDisplay/PathDisplay";
 function ShortestPath() {
   const [player1, setPlayer1] = useState(null);
@@ -60,29 +58,18 @@ function ShortestPath() {
 
       {/* Player inputs */}
       <div className="flex flex-col md:flex-row gap-6 mt-6 text-center">
-        <div className="flex-1">
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-300 dark:border-gray-600 shadow">
-            <h2 className="text-xl font-bold mb-2 text-gray-700 dark:text-gray-200">
-              Player 1
-            </h2>
-            <SearchBar
-              onSubmit={(selected) => setPlayer1(selected)}
-              onReset={() => handleReset("player1")}
-            />
-          </div>
-        </div>
-
-        <div className="flex-1">
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-300 dark:border-gray-600 shadow">
-            <h2 className="text-xl font-bold mb-2 text-gray-700 dark:text-gray-200">
-              Player 2
-            </h2>
-            <SearchBar
-              onSubmit={(selected) => setPlayer2(selected)}
-              onReset={() => handleReset("player2")}
-            />
-          </div>
-        </div>
+        <PlayerInput
+          label="Player 1"
+          playerKey="player1"
+          setPlayer={setPlayer1}
+          handleReset={handleReset}
+        />
+        <PlayerInput
+          label="Player 2"
+          playerKey="player2"
+          setPlayer={setPlayer2}
+          handleReset={handleReset}
+        />
       </div>
     </div>
   );
