@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import { initializeGuessPath, makeGuess } from "../../Scripts/guessPlayer";
 import { simplifyPathJSON } from "../../Components/Graph/graphUtils";
+import MultiPathDisplay from "../../Components/PathDisplay/MultiPathDisplay";
 function GuessPath() {
   // initialize state from localStorage if available
   const [showModal, setShowModal] = useState(false);
@@ -46,7 +47,7 @@ function GuessPath() {
     console.log("Response path:", JSON.stringify(res, null, 2));
 
     // optionally update local state if backend returns updated data
-    if (res) setPath(res);
+    if (res.success) setPath(res);
   };
   //after players are initialized
   const handlePlayersSubmit = async (p1, p2) => {
@@ -65,7 +66,7 @@ function GuessPath() {
   };
   //a correct guess was made, update the graph and the connected graph
   useEffect(() => {
-    if (path) {
+    if (path ) {
       localStorage.setItem("path", JSON.stringify(path));
 
       // Only simplify and update if the path exists
@@ -128,7 +129,7 @@ function GuessPath() {
       />
 
       {/* Path segment here */}
-      <PathDisplay
+      <MultiPathDisplay
         player1={player1}
         player2={player2}
         path={connectedGraph}
