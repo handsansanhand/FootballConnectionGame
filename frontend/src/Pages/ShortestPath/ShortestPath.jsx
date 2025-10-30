@@ -50,6 +50,7 @@ function ShortestPath() {
         player2={player2}
         path={path}
         errorMessage={errorMessage}
+        isMulti={false}
       />
 
       {/* Player inputs */}
