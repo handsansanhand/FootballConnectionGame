@@ -7,11 +7,13 @@ import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import { initializeGuessPath, makeGuess } from "../../Scripts/guessPlayer";
 import { simplifyPathJSON } from "../../Components/Graph/graphUtils";
 import MultiPathDisplay from "../../Components/PathDisplay/MultiPathDisplay";
+import WinningModal from "../../Components/WinningModal/WinningModal";
 function GuessPath() {
   // initialize state from localStorage if available
   const [showModal, setShowModal] = useState(false);
+  const [ winningModal, setWinningModal ] = useState(false);
   const [guessedPlayer, setGuessedPlayer] = useState(null);
-
+  const [ isWinner, setIsWinner ] = useState(false);
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
     return storedPath ? JSON.parse(storedPath) : null;
@@ -85,9 +87,24 @@ function GuessPath() {
     }
   }, [path]);
 
+  useEffect(() => {
+    if(isWinner) {
+        setWinningModal(true);
+    }
+  }, [isWinner])
+
   const resetPlayers = () => {
+    setIsWinner(false);
     setPlayer1(null);
     setPlayer2(null);
+    setPath(null);
+    setConnectedGraph({
+      pathA: { players: [], edges: [], teams: [], overlapping_years: [] },
+      pathB: { players: [], edges: [], teams: [], overlapping_years: [] },
+    });
+    localStorage.removeItem("player1");
+    localStorage.removeItem("player2");
+    localStorage.removeItem("path");
   };
   const errorMessage =
     !player1 || !player2 ? "Please select both players." : null;
@@ -98,28 +115,35 @@ function GuessPath() {
       const parsed = JSON.parse(storedPath);
       const simplified = simplifyPathJSON(parsed);
       return {
-        pathA: simplified.pathA || {
+        pathA: {
+          edges: [],
           players: [],
           teams: [],
           overlapping_years: [],
+          ...simplified.pathA,
         },
-        pathB: simplified.pathB || {
+        pathB: {
+          edges: [],
           players: [],
           teams: [],
           overlapping_years: [],
+          ...simplified.pathB,
         },
       };
     }
-    // default empty paths if no stored path
     return {
-      pathA:
-        player1 && player2
-          ? { players: [player1], teams: [], overlapping_years: [] }
-          : { players: [], teams: [], overlapping_years: [] },
-      pathB:
-        player1 && player2
-          ? { players: [player2], teams: [], overlapping_years: [] }
-          : { players: [], teams: [], overlapping_years: [] },
+      pathA: {
+        edges: [],
+        players: player1 ? [player1] : [],
+        teams: [],
+        overlapping_years: [],
+      },
+      pathB: {
+        edges: [],
+        players: player2 ? [player2] : [],
+        teams: [],
+        overlapping_years: [],
+      },
     };
   });
 
@@ -135,6 +159,11 @@ function GuessPath() {
         onClose={() => setShowModal(false)}
         onSubmit={handlePlayersSubmit}
       />
+      < WinningModal 
+      show={winningModal}
+      onClose={() => setWinningModal(false)}
+      />
+
 
       {/* Path segment here */}
       <MultiPathDisplay
@@ -143,6 +172,7 @@ function GuessPath() {
         path={connectedGraph}
         errorMessage={errorMessage}
         isMulti={true}
+        onWin={(won) => setIsWinner(won)}
       />
       {/* Guess a player here*/}
       <PlayerInput

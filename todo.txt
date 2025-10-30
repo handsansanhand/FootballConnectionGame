@@ -1,0 +1,3 @@
+make winning modal fade in
+redecorate everything
+deal with entering two players who have played together

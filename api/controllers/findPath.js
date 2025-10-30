@@ -61,7 +61,6 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
     const addedYearsA = new Set(pathA.overlapping_years);
     const addedTeamsB = new Set(pathB.teams);
     const addedYearsB = new Set(pathB.overlapping_years);
-
     // Process each overlap record
     const addedEdgesA = new Set(
       pathA.edges.map((e) => `${e.from}-${e.to}-${e.team}-${e.years}`)
@@ -107,7 +106,7 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
 
       // --- Path B ---
       if (pathB.players.includes(overlappingPlayer)) {
-         overlapsWithB.add(overlappingPlayer);
+        overlapsWithB.add(overlappingPlayer);
         if (!pathB.players.includes(guessedPlayer))
           pathB.players.push(guessedPlayer);
 
@@ -136,10 +135,44 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
     console.log(overlapsWithA);
     console.log(overlapsWithB);
     // Determine if guessed player connects both paths
-    const winner =
-      overlapsWithA.size > 0 && overlapsWithB.size > 0 ? true : null;
+    // --- Now determine winner and winningEdges ---
+    let winner = null;
+    const winningEdgesSet = new Set();
+    const winningEdges = [];
+    function addEdgeUnique(e) {
+      const key = `${e.from}-${e.to}-${e.team}-${e.years}`;
+      if (!winningEdgesSet.has(key)) {
+        winningEdgesSet.add(key);
+        winningEdges.push(e);
+      }
+    }
+    if (overlapsWithA.size > 0 && overlapsWithB.size > 0) {
+      winner = true;
 
-    res.json({ success: true, pathA, pathB, winner });
+      // find edges connecting guessedPlayer to overlaps in both paths
+      pathA.edges.forEach((e) => {
+        if (
+          e.to === guessedPlayer ||
+          e.from === guessedPlayer ||
+          overlapsWithA.has(e.from) ||
+          overlapsWithA.has(e.to)
+        ) {
+          addEdgeUnique(e);
+        }
+      });
+      pathB.edges.forEach((e) => {
+        if (
+          e.to === guessedPlayer ||
+          e.from === guessedPlayer ||
+          overlapsWithB.has(e.from) ||
+          overlapsWithB.has(e.to)
+        ) {
+          addEdgeUnique(e);
+        }
+      });
+    }
+
+    res.json({ success: true, pathA, pathB, winner, winningEdges });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });

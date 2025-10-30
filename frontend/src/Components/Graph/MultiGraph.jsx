@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import GraphNode from "./GraphNode";
 
-const MultiGraph = ({ pathA, pathB, winner }) => {
+const MultiGraph = ({ pathA, pathB, winner, onWin }) => {
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
@@ -22,9 +22,10 @@ const MultiGraph = ({ pathA, pathB, winner }) => {
     const nodesReady = allNodes.every((n) => n.x !== 0 || n.y !== 0);
     if (!nodesReady) return;
 
-    alert("Congratulations! You won!");
+    //alert("Congratulations! You won!");
+    if (onWin) onWin(true);
     setWinnerAlerted(true);
-  }, [winner, nodesA, nodesB, winnerAlerted]);
+  }, [winner, nodesA, nodesB, winnerAlerted, onWin]);
   // --- Handle container resize ---
   useEffect(() => {
     if (!containerRef.current) return;
