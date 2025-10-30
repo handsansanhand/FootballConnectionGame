@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const shortestPath = require("./routes/shortestPath");
 const players = require("./routes/players");
+const findPath = require("./routes/findPath");
 const app = express();
 
 //TODO: CHANGE CORS TO SOMETHING LIKE:
@@ -13,9 +14,10 @@ const app = express();
 AND PUT THE ORIGIN AS THE AWS FRONTEND LOCATION ?
 */
 app.use(cors());
-
+app.use(express.json());
 app.use("/shortestPath", shortestPath);
 app.use("/players", players);
+app.use("/findPath", findPath);
 
 app.listen(PORT || 3030, () => {
   console.log("App is listening on port ", PORT || 3030);
