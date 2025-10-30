@@ -2,6 +2,7 @@ import { getShortestPath } from "../../Scripts/getShortestPath";
 import { useState, useEffect } from "react";
 import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import PathDisplay from "../../Components/PathDisplay/PathDisplay";
+import HomeButton from "../../Components/HomeButton/HomeButton";
 function ShortestPath() {
   const [player1, setPlayer1] = useState(null);
   const [player2, setPlayer2] = useState(null);
@@ -39,12 +40,7 @@ function ShortestPath() {
   return (
     <div className="p-4">
       <div className="absolute top-4 left-4">
-        <button
-          onClick={() => (window.location.href = "/")} // navigate home
-          className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
-        >
-          Home
-        </button>
+        < HomeButton />
       </div>
       <h1 className="text-2xl font-bold mb-6 text-center">Enter Players</h1>
 
