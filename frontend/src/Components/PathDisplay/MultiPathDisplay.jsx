@@ -23,6 +23,7 @@ function MultiPathDisplay({
             pathB={path.pathB}
             winner={path.winner}
             onWin={onWin}
+            winningEdges={path.winningEdges}
           />
         ) : (
           <p className="text-gray-500">

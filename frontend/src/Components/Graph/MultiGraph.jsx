@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import GraphNode from "./GraphNode";
 
-const MultiGraph = ({ pathA, pathB, winner, onWin }) => {
+const MultiGraph = ({ pathA, pathB, winner, onWin, winningEdges }) => {
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
@@ -11,7 +11,9 @@ const MultiGraph = ({ pathA, pathB, winner, onWin }) => {
   const [dragSource, setDragSource] = useState(null);
   const [winnerAlerted, setWinnerAlerted] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-
+  const winningEdgeKeys = new Set(
+    (winningEdges || []).map((e) => `${e.from}-${e.to}-${e.team}-${e.years}`)
+  );
   // --- Clamp helper ---
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
   useLayoutEffect(() => {
@@ -194,8 +196,12 @@ const MultiGraph = ({ pathA, pathB, winner, onWin }) => {
             const flip = dx < 0;
             const textRotation = flip ? angle + 180 : angle;
 
-            const color = pathA.edges.includes(edge) ? "red" : "blue";
-
+            const edgeKey = `${edge.from}-${edge.to}-${edge.team}-${edge.years}`;
+            const color = winningEdgeKeys.has(edgeKey)
+              ? "gold" // highlight color
+              : pathA.edges.includes(edge)
+              ? "red"
+              : "blue";
             return (
               <g key={`edge-${i}`}>
                 <line
