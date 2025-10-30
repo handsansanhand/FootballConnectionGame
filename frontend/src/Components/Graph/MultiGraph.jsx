@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import GraphNode from "./GraphNode";
 
-const MultiGraph = ({ pathA, pathB }) => {
+const MultiGraph = ({ pathA, pathB, winner }) => {
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
@@ -9,11 +9,22 @@ const MultiGraph = ({ pathA, pathB }) => {
   const [nodesB, setNodesB] = useState([]);
   const [draggingNode, setDraggingNode] = useState(null);
   const [dragSource, setDragSource] = useState(null);
+  const [winnerAlerted, setWinnerAlerted] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   // --- Clamp helper ---
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+  useLayoutEffect(() => {
+    if (!winner || winnerAlerted) return;
 
+    const allNodes = [...nodesA, ...nodesB];
+    if (allNodes.length === 0) return;
+    const nodesReady = allNodes.every((n) => n.x !== 0 || n.y !== 0);
+    if (!nodesReady) return;
+
+    alert("Congratulations! You won!");
+    setWinnerAlerted(true);
+  }, [winner, nodesA, nodesB, winnerAlerted]);
   // --- Handle container resize ---
   useEffect(() => {
     if (!containerRef.current) return;
@@ -25,12 +36,11 @@ const MultiGraph = ({ pathA, pathB }) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
   // --- Compute initial node positions ---
   useEffect(() => {
     if (!pathA || !pathB || containerWidth === 0 || containerHeight === 0)
       return;
-    
+
     const midY = containerHeight / 2;
     const halfWidth = containerWidth / 2;
 
@@ -46,7 +56,7 @@ const MultiGraph = ({ pathA, pathB }) => {
 
     const addNodes = (prevNodes, path, isPathA = true) => {
       const existingIds = new Set(prevNodes.map((n) => n.id));
-      const spacing = (containerWidth / 2) / (path.players.length + 1);
+      const spacing = containerWidth / 2 / (path.players.length + 1);
 
       const newNodes = path.players
         .filter((player) => !existingIds.has(player))
@@ -83,6 +93,21 @@ const MultiGraph = ({ pathA, pathB }) => {
     setNodesB((prev) => addNodes(prev, pathB, false));
   }, [pathA, pathB, containerWidth, containerHeight]);
 
+  useEffect(() => {
+    if (!winner || winnerAlerted) return;
+
+    const allNodes = [...nodesA, ...nodesB];
+    if (allNodes.length === 0) return;
+    const nodesReady = allNodes.every((n) => n.x !== 0 || n.y !== 0);
+    if (!nodesReady) return;
+
+    const id = requestAnimationFrame(() => {
+      alert("Congratulations! You won!");
+      setWinnerAlerted(true);
+    });
+
+    return () => cancelAnimationFrame(id);
+  }, [winner, nodesA, nodesB, winnerAlerted]);
   if (containerWidth === 0 || containerHeight === 0)
     return <div ref={containerRef} className="w-full h-full" />;
 
@@ -100,6 +125,9 @@ const MultiGraph = ({ pathA, pathB }) => {
     setDragSource(source);
     setOffset({ x: cursor.x - node.x, y: cursor.y - node.y });
   };
+  const allNodesExist =
+    pathA.players.every((p) => nodesA.some((n) => n.id === p)) &&
+    pathB.players.every((p) => nodesB.some((n) => n.id === p));
 
   const handleMouseMove = (e) => {
     if (!draggingNode) return;
@@ -153,47 +181,70 @@ const MultiGraph = ({ pathA, pathB }) => {
         onMouseUp={handleMouseUp}
       >
         {/* Render edges */}
-        {[...pathA.edges, ...pathB.edges].map((edge, i) => {
-          const from = getNodePosition(edge.from);
-          const to = getNodePosition(edge.to);
-          const midX = (from.x + to.x) / 2;
-          const midY = (from.y + to.y) / 2;
-          const dx = to.x - from.x;
-          const dy = to.y - from.y;
-          const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-          const flip = dx < 0;
-          const textRotation = flip ? angle + 180 : angle;
+        {allNodesExist &&
+          [...pathA.edges, ...pathB.edges].map((edge, i) => {
+            const from = getNodePosition(edge.from);
+            const to = getNodePosition(edge.to);
+            const midX = (from.x + to.x) / 2;
+            const midY = (from.y + to.y) / 2;
+            const dx = to.x - from.x;
+            const dy = to.y - from.y;
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+            const flip = dx < 0;
+            const textRotation = flip ? angle + 180 : angle;
 
-          const color = pathA.edges.includes(edge) ? "red" : "blue";
+            const color = pathA.edges.includes(edge) ? "red" : "blue";
 
-          return (
-            <g key={`edge-${i}`}>
-              <line
-                x1={from.x}
-                y1={from.y}
-                x2={to.x}
-                y2={to.y}
-                stroke={color}
-                strokeWidth={3}
-              />
-              <g transform={`rotate(${textRotation}, ${midX}, ${midY})`}>
-                <text x={midX} y={midY - 10} textAnchor="middle" fontSize="12" fill="black">
-                  {edge.team}
-                </text>
-                <text x={midX} y={midY + 15} textAnchor="middle" fontSize="12" fill="black">
-                  {edge.years}
-                </text>
+            return (
+              <g key={`edge-${i}`}>
+                <line
+                  x1={from.x}
+                  y1={from.y}
+                  x2={to.x}
+                  y2={to.y}
+                  stroke={color}
+                  strokeWidth={3}
+                />
+                <g transform={`rotate(${textRotation}, ${midX}, ${midY})`}>
+                  <text
+                    x={midX}
+                    y={midY - 10}
+                    textAnchor="middle"
+                    fontSize="12"
+                    fill="black"
+                  >
+                    {edge.team}
+                  </text>
+                  <text
+                    x={midX}
+                    y={midY + 15}
+                    textAnchor="middle"
+                    fontSize="12"
+                    fill="black"
+                  >
+                    {edge.years}
+                  </text>
+                </g>
               </g>
-            </g>
-          );
-        })}
+            );
+          })}
 
         {/* Render nodes */}
         {nodesA.map((n) => (
-          <GraphNode key={n.id} node={n} color="red" onMouseDown={handleMouseDown} />
+          <GraphNode
+            key={n.id}
+            node={n}
+            color="red"
+            onMouseDown={handleMouseDown}
+          />
         ))}
         {nodesB.map((n) => (
-          <GraphNode key={n.id} node={n} color="blue" onMouseDown={handleMouseDown} />
+          <GraphNode
+            key={n.id}
+            node={n}
+            color="blue"
+            onMouseDown={handleMouseDown}
+          />
         ))}
       </svg>
     </div>

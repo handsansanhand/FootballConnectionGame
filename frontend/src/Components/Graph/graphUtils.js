@@ -14,13 +14,20 @@ export const buildConnections = (nodes, pathJson) => {
   }));
 };
 
-export function simplifyPathJSON(json) {
-  const result = {};
-  if (json.pathA) result.pathA = json.pathA;
-  else result.pathA = { players: [], teams: [], overlapping_years: [] };
-
-  if (json.pathB) result.pathB = json.pathB;
-  else result.pathB = { players: [], teams: [], overlapping_years: [] };
-
-  return result;
+export function simplifyPathJSON(path) {
+  return {
+    pathA: {
+      players: path.pathA.players || [],
+      teams: path.pathA.teams || [],
+      overlapping_years: path.pathA.overlapping_years || [],
+      edges: path.pathA.edges || [],
+    },
+    pathB: {
+      players: path.pathB.players || [],
+      teams: path.pathB.teams || [],
+      overlapping_years: path.pathB.overlapping_years || [],
+      edges: path.pathB.edges || [],
+    },
+    winner: path.winner || null, 
+  };
 }
