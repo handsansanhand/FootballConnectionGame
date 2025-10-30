@@ -3,15 +3,23 @@ import { getShortestPath } from "../../Scripts/getShortestPath";
 import { getRandomPlayer } from "../../Scripts/players";
 import { useState, useEffect } from "react";
 import Graph from "../../Components/Graph/Graph";
+import PathDisplay from "../../Components/PathDisplay/PathDisplay";
 function ShortestPath() {
   const [player1, setPlayer1] = useState(null);
   const [player2, setPlayer2] = useState(null);
   const [path, setPath] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (player1 && player2) {
+      if (player1 === player2) {
+        setErrorMessage("It can't be the same player!");
+        setPath(null);
+        return;
+      }
       const fetchPath = async () => {
         try {
+          setErrorMessage("");
           const result = await getShortestPath(player1, player2);
           setPath(result);
         } catch (error) {
@@ -25,6 +33,7 @@ function ShortestPath() {
   // Handle resets from child components
   const handleReset = (which) => {
     setPath(null);
+    setErrorMessage("");
     if (which === "player1") setPlayer1(null);
     if (which === "player2") setPlayer2(null);
   };
@@ -42,17 +51,13 @@ function ShortestPath() {
       <h1 className="text-2xl font-bold mb-6 text-center">Enter Players</h1>
 
       {/* Path display */}
-      <div className="relative mt-6 p-4 bg-gray-100 rounded border-4 border-red-500 min-h-[350px] md:min-h-[550px]">
-        {path ? (
-          <Graph pathJson={path} />
-        ) : (
-          <p className="text-gray-500">
-            No path calculated yet. Enter players below.
-          </p>
-        )}
-      </div>
+      <PathDisplay
+        player1={player1}
+        player2={player2}
+        path={path}
+        errorMessage={errorMessage}
+      />
 
-      {/* Player inputs */}
       {/* Player inputs */}
       <div className="flex flex-col md:flex-row gap-6 mt-6 text-center">
         <div className="flex-1">
