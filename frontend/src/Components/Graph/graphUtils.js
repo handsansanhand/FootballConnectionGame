@@ -6,7 +6,6 @@ export const formatYear = (yearStr) => {
 };
 
 export const buildConnections = (nodes, pathJson) => {
-      if (!pathJson?.connections) return [];
   return nodes.slice(1).map((node, index) => ({
     from: nodes[index],
     to: node,
@@ -14,3 +13,14 @@ export const buildConnections = (nodes, pathJson) => {
     year: pathJson.overlapping_years[index] || "",
   }));
 };
+
+export function simplifyPathJSON(json) {
+  const result = {};
+  if (json.pathA) result.pathA = json.pathA;
+  else result.pathA = { players: [], teams: [], overlapping_years: [] };
+
+  if (json.pathB) result.pathB = json.pathB;
+  else result.pathB = { players: [], teams: [], overlapping_years: [] };
+
+  return result;
+}
