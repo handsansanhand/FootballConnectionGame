@@ -9,7 +9,6 @@ const Graph = ({ pathJson }) => {
   const [nodes, setNodes] = useState([]);
   const [draggingNode, setDraggingNode] = useState(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
-
   // Handle container resize
   useEffect(() => {
     if (!containerRef.current) return;
