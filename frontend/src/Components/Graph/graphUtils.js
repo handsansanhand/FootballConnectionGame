@@ -29,5 +29,6 @@ export function simplifyPathJSON(path) {
       edges: path.pathB.edges || [],
     },
     winner: path.winner || null, 
+    winningEdges: path.winningEdges || []
   };
 }
