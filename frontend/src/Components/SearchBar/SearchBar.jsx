@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer, getRandomPlayer } from "../../Scripts/players";
 
-function SearchBar({ onSubmit, onReset }) {
+function SearchBar({ onSubmit, onReset, hasRandomChoice }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -88,13 +88,15 @@ function SearchBar({ onSubmit, onReset }) {
         />
 
         <div className="flex gap-2 ml-2">
-          <button
-            type="button"
-            onClick={handleRandom}
-            className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
-          >
-            Random
-          </button>
+          {hasRandomChoice && (
+  <button
+    type="button"
+    onClick={handleRandom}
+    className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+  >
+    Random
+  </button>
+)}
 
           <button
             type="button"

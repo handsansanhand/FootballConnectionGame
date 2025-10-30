@@ -59,12 +59,14 @@ function ShortestPath() {
           playerKey="player1"
           setPlayer={setPlayer1}
           handleReset={handleReset}
+          hasRandomChoice={true}
         />
         <PlayerInput
           label="Player 2"
           playerKey="player2"
           setPlayer={setPlayer2}
           handleReset={handleReset}
+          hasRandomChoice={true}
         />
       </div>
     </div>

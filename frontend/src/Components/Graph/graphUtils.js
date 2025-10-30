@@ -6,6 +6,7 @@ export const formatYear = (yearStr) => {
 };
 
 export const buildConnections = (nodes, pathJson) => {
+      if (!pathJson?.connections) return [];
   return nodes.slice(1).map((node, index) => ({
     from: nodes[index],
     to: node,

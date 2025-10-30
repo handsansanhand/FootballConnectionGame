@@ -1,6 +1,6 @@
 import SearchBar from "../SearchBar/SearchBar";
 
-function PlayerInput({ label, playerKey, setPlayer, handleReset }) {
+function PlayerInput({ label, playerKey, setPlayer, handleReset, hasRandomChoice }) {
 
   return (
     <>
@@ -12,6 +12,7 @@ function PlayerInput({ label, playerKey, setPlayer, handleReset }) {
           <SearchBar
             onSubmit={(selected) => setPlayer(selected)}
             onReset={() => handleReset(playerKey)}
+            hasRandomChoice={hasRandomChoice}
           />
         </div>
       </div>
