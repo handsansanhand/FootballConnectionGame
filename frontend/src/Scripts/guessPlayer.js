@@ -2,21 +2,26 @@ const backendPort = process.env.REACT_APP_BACKEND_PORT;
 const backendHost = process.env.REACT_APP_BACKEND_HOST;
 
 export async function initializeGuessPath(playerA, playerB) {
-  console.log(`pA ${playerA}, pB ${playerB}`);
-  return {
-    playerA: playerA,
-    playerB: playerB,
-    pathA: {
-      players: [playerA],
-      teams: [],
-      overlapping_years: [],
-    },
-    pathB: {
-      players: [playerB],
-      teams: [],
-      overlapping_years: [],
-    },
-  };
+  const initURL = `http://${backendHost}:${backendPort}/findPath/initialize`;
+  try {
+    const response = await fetch(initURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ playerA, playerB }),
+    });
+    if (!response.ok) throw new Error("Failed to initialize path");
+    const result = await response.json();
+    return result;
+  } catch (err) {
+    console.error("Initialization failed:", err);
+    return {
+      playerA,
+      playerB,
+      pathA: { players: [playerA], edges: [], teams: [], overlapping_years: [] },
+      pathB: { players: [playerB], edges: [], teams: [], overlapping_years: [] },
+      winner: null,
+    };
+  }
 }
 export async function makeGuess(currentJSON, guessedPlayer) {
   const playerGuessURL = `http://${backendHost}:${backendPort}/findPath`;

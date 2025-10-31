@@ -10,6 +10,86 @@ const driver = require("../config/neo4j");
  *   pathB: { players: [], edges: [], teams: [], overlapping_years: [] }
  * }
  */
+
+async function initializePath(req, res) {
+  const { playerA, playerB } = req.body;
+
+  if (!playerA || !playerB) {
+    return res.status(400).json({ message: "Missing playerA or playerB" });
+  }
+
+  const session = driver.session();
+
+  try {
+    // --- 1️⃣ Check for direct connection between playerA and playerB ---
+    const result = await session.run(
+      `
+      MATCH (a:Player {name: $playerA})-[r:PLAYED_WITH]-(b:Player {name: $playerB})
+      RETURN r.team AS team, r.overlapping_years AS years
+      `,
+      { playerA, playerB }
+    );
+
+    if (result.records.length > 0) {
+      // --- 2️⃣ They are directly connected → return immediate win ---
+      const record = result.records[0];
+      const team = record.get("team");
+      const years = record.get("years");
+
+      const edge = {
+        from: playerA,
+        to: playerB,
+        team,
+        years,
+      };
+
+      return res.json({
+        success: true,
+        playerA,
+        playerB,
+        pathA: {
+          players: [playerA, playerB],
+          edges: [edge],
+          teams: [team],
+          overlapping_years: [years],
+        },
+        pathB: { players: [], edges: [], teams: [], overlapping_years: [] },
+        winner: true,
+        winningEdges: [edge],
+      });
+    }
+
+    // --- 3️⃣ Otherwise → initialize empty paths ---
+    const pathA = {
+      players: [playerA],
+      edges: [],
+      teams: [],
+      overlapping_years: [],
+    };
+
+    const pathB = {
+      players: [playerB],
+      edges: [],
+      teams: [],
+      overlapping_years: [],
+    };
+
+    return res.json({
+      success: true,
+      playerA,
+      playerB,
+      pathA,
+      pathB,
+      winner: false,
+      winningEdges: [],
+    });
+  } catch (err) {
+    console.error("Error initializing path:", err);
+    res.status(500).json({ message: "Internal server error" });
+  } finally {
+    await session.close();
+  }
+}
 async function guess(req, res) {
   const { playerA, playerB, guessedPlayer, pathA, pathB } = req.body;
 
@@ -181,4 +261,4 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
   }
 }
 
-module.exports = { guess };
+module.exports = { guess, initializePath };

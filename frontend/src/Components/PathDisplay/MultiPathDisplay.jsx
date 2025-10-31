@@ -10,7 +10,7 @@ function MultiPathDisplay({
   isMulti,
   onWin,
 }) {
-  console.log("Initial multi path:", JSON.stringify(path, null, 2));
+  //console.log("Initial multi path:", JSON.stringify(path, null, 2));
 
   return (
     <>
@@ -24,6 +24,8 @@ function MultiPathDisplay({
             winner={path.winner}
             onWin={onWin}
             winningEdges={path.winningEdges}
+            playerA={player1}
+            playerB={player2}
           />
         ) : (
           <p className="text-gray-500">
