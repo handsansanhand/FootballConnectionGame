@@ -1,120 +1,119 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import GraphNode from "./GraphNode";
+import { findWinningPath } from "./graphUtils";
 
-const MultiGraph = ({ pathA, pathB, winner, onWin, winningEdges }) => {
+const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
+  // --- Refs & State ---
   const containerRef = useRef(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [nodesA, setNodesA] = useState([]);
   const [nodesB, setNodesB] = useState([]);
-  const [draggingNode, setDraggingNode] = useState(null);
-  const [dragSource, setDragSource] = useState(null);
+  const [dragging, setDragging] = useState({ id: null, source: null, offset: { x: 0, y: 0 } });
   const [winnerAlerted, setWinnerAlerted] = useState(false);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const winningEdgeKeys = new Set(
-    (winningEdges || []).map((e) => `${e.from}-${e.to}-${e.team}-${e.years}`)
-  );
-  // --- Clamp helper ---
+  const [winningPath, setWinningPath] = useState([]);
+
+  // --- Helpers ---
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-  useLayoutEffect(() => {
-    if (!winner || winnerAlerted) return;
 
-    const allNodes = [...nodesA, ...nodesB];
-    if (allNodes.length === 0) return;
-    const nodesReady = allNodes.every((n) => n.x !== 0 || n.y !== 0);
-    if (!nodesReady) return;
+  const getNodePosition = (id) =>
+    nodesA.find((n) => n.id === id) ||
+    nodesB.find((n) => n.id === id) ||
+    { x: 0, y: 0 };
 
-    //alert("Congratulations! You won!");
-    if (onWin) onWin(true);
-    setWinnerAlerted(true);
-  }, [winner, nodesA, nodesB, winnerAlerted, onWin]);
-  // --- Handle container resize ---
+  // --- Handle Container Resize ---
   useEffect(() => {
-    if (!containerRef.current) return;
     const handleResize = () => {
-      setContainerWidth(containerRef.current.offsetWidth);
-      setContainerHeight(containerRef.current.offsetHeight);
+      if (!containerRef.current) return;
+      setContainerSize({
+        width: containerRef.current.offsetWidth,
+        height: containerRef.current.offsetHeight,
+      });
     };
+
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  // --- Compute initial node positions ---
-  useEffect(() => {
-    if (!pathA || !pathB || containerWidth === 0 || containerHeight === 0)
-      return;
 
-    const midY = containerHeight / 2;
-    const halfWidth = containerWidth / 2;
+  // --- Compute Initial Node Positions ---
+  useEffect(() => {
+    const { width, height } = containerSize;
+    if (!pathA || !pathB || width === 0 || height === 0) return;
+
+    const midY = height / 2;
 
     const getRandomOffset = () => {
-      const radiusX = containerWidth * 0.2; // 10% of width
-      const radiusY = containerHeight * 0.2; // 10% of height
+      const radiusX = width * 0.2;
+      const radiusY = height * 0.2;
       const angle = Math.random() * 2 * Math.PI;
-      return {
-        dx: Math.cos(angle) * radiusX,
-        dy: Math.sin(angle) * radiusY,
-      };
+      return { dx: Math.cos(angle) * radiusX, dy: Math.sin(angle) * radiusY };
     };
 
-    const addNodes = (prevNodes, path, isPathA = true) => {
-      const existingIds = new Set(prevNodes.map((n) => n.id));
-      const spacing = containerWidth / 2 / (path.players.length + 1);
+    const addNodes = (prev, path, isA) => {
+      const existing = new Set(prev.map((n) => n.id));
+      const spacing = width / 2 / (path.players.length + 1);
 
       const newNodes = path.players
-        .filter((player) => !existingIds.has(player))
-        .map((player, i) => {
-          // Check for connected node
-          const edge = (path.edges || []).find(
-            (e) => e.to === player || e.from === player
-          );
-          if (edge) {
-            const connectedId = edge.from === player ? edge.to : edge.from;
-            const connectedNode = prevNodes.find((n) => n.id === connectedId);
-            if (connectedNode) {
-              const { dx, dy } = getRandomOffset();
-              return {
-                id: player,
-                x: clamp(connectedNode.x + dx, 0, containerWidth),
-                y: clamp(connectedNode.y + dy, 0, containerHeight),
-              };
-            }
+        .filter((p) => !existing.has(p))
+        .map((p, i) => {
+          const connectedEdge = (path.edges || []).find((e) => e.to === p || e.from === p);
+          const connectedId = connectedEdge
+            ? connectedEdge.from === p
+              ? connectedEdge.to
+              : connectedEdge.from
+            : null;
+          const connectedNode = prev.find((n) => n.id === connectedId);
+
+          if (connectedNode) {
+            const { dx, dy } = getRandomOffset();
+            return {
+              id: p,
+              x: clamp(connectedNode.x + dx, 0, width),
+              y: clamp(connectedNode.y + dy, 0, height),
+            };
           }
 
-          // Fallback default position
           return {
-            id: player,
-            x: isPathA ? spacing * (i + 1) : containerWidth - spacing * (i + 1),
-            y: isPathA ? midY - 50 : midY + 50,
+            id: p,
+            x: isA ? spacing * (i + 1) : width - spacing * (i + 1),
+            y: isA ? midY - 50 : midY + 50,
           };
         });
 
-      return [...prevNodes, ...newNodes];
+      return [...prev, ...newNodes];
     };
 
     setNodesA((prev) => addNodes(prev, pathA, true));
     setNodesB((prev) => addNodes(prev, pathB, false));
-  }, [pathA, pathB, containerWidth, containerHeight]);
+  }, [pathA, pathB, containerSize]);
 
+  // --- Compute Winning Path ---
   useEffect(() => {
-    if (!winner || winnerAlerted) return;
+    if (!pathA || !pathB || !playerA || !playerB) return;
 
+    const allEdges = [...(pathA.edges || []), ...(pathB.edges || [])];
+    const path = findWinningPath(playerA, playerB, allEdges);
+    setWinningPath(path);
+
+    console.log("Winning Path:", JSON.stringify(path, null, 2));
+  }, [pathA, pathB, playerA, playerB]);
+
+  const winningPathKeys = new Set(
+    winningPath.map((e) => `${e.from}-${e.to}-${e.team}-${e.years}`)
+  );
+
+  // --- Handle Win Condition ---
+  useLayoutEffect(() => {
+    if (!winner || winnerAlerted) return;
     const allNodes = [...nodesA, ...nodesB];
     if (allNodes.length === 0) return;
-    const nodesReady = allNodes.every((n) => n.x !== 0 || n.y !== 0);
-    if (!nodesReady) return;
+    if (!allNodes.every((n) => n.x !== 0 || n.y !== 0)) return;
 
-    const id = requestAnimationFrame(() => {
-      alert("Congratulations! You won!");
-      setWinnerAlerted(true);
-    });
+    if (onWin) onWin(true);
+    setWinnerAlerted(true);
+  }, [winner, nodesA, nodesB, winnerAlerted, onWin]);
 
-    return () => cancelAnimationFrame(id);
-  }, [winner, nodesA, nodesB, winnerAlerted]);
-  if (containerWidth === 0 || containerHeight === 0)
-    return <div ref={containerRef} className="w-full h-full" />;
-
-  // --- Drag handlers ---
+  // --- Drag Handlers ---
   const handleMouseDown = (e, node) => {
     e.stopPropagation();
     const svg = e.currentTarget.closest("svg");
@@ -124,94 +123,62 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, winningEdges }) => {
     const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
     const source = nodesA.some((n) => n.id === node.id) ? "A" : "B";
 
-    setDraggingNode(node.id);
-    setDragSource(source);
-    setOffset({ x: cursor.x - node.x, y: cursor.y - node.y });
+    setDragging({ id: node.id, source, offset: { x: cursor.x - node.x, y: cursor.y - node.y } });
   };
-  const allNodesExist =
-    pathA.players.every((p) => nodesA.some((n) => n.id === p)) &&
-    pathB.players.every((p) => nodesB.some((n) => n.id === p));
 
   const handleMouseMove = (e) => {
-    if (!draggingNode) return;
+    if (!dragging.id) return;
     const svg = e.currentTarget;
     const pt = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
     const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
 
-    const clampedX = clamp(cursor.x - offset.x, 0, containerWidth);
-    const clampedY = clamp(cursor.y - offset.y, 0, containerHeight);
+    const { width, height } = containerSize;
+    const clampedX = clamp(cursor.x - dragging.offset.x, 0, width);
+    const clampedY = clamp(cursor.y - dragging.offset.y, 0, height);
 
-    if (dragSource === "A") {
-      setNodesA((prev) =>
-        prev.map((n) =>
-          n.id === draggingNode ? { ...n, x: clampedX, y: clampedY } : n
-        )
-      );
-    } else {
-      setNodesB((prev) =>
-        prev.map((n) =>
-          n.id === draggingNode ? { ...n, x: clampedX, y: clampedY } : n
-        )
-      );
-    }
+    const updateNodes = (nodes, source) =>
+      nodes.map((n) => (n.id === dragging.id ? { ...n, x: clampedX, y: clampedY } : n));
+
+    if (dragging.source === "A") setNodesA((prev) => updateNodes(prev, "A"));
+    else setNodesB((prev) => updateNodes(prev, "B"));
   };
 
-  const handleMouseUp = () => {
-    setDraggingNode(null);
-    setDragSource(null);
-  };
-
-  // --- Helper to get node positions by id ---
-  const getNodePosition = (id) => {
-    return (
-      nodesA.find((n) => n.id === id) ||
-      nodesB.find((n) => n.id === id) || { x: 0, y: 0 }
-    );
-  };
+  const handleMouseUp = () => setDragging({ id: null, source: null, offset: { x: 0, y: 0 } });
 
   // --- Render ---
+  const allNodesExist =
+    pathA.players.every((p) => nodesA.some((n) => n.id === p)) &&
+    pathB.players.every((p) => nodesB.some((n) => n.id === p));
+
+  if (containerSize.width === 0 || containerSize.height === 0)
+    return <div ref={containerRef} className="w-full h-full" />;
+
   return (
-    <div
-      ref={containerRef}
-      className="w-full h-[500px] bg-gray-100 rounded-lg shadow-inner"
-    >
-      <svg
-        width="100%"
-        height="100%"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      >
-        {/* Render edges */}
+    <div ref={containerRef} className="w-full h-[500px] bg-gray-100 rounded-lg shadow-inner">
+      <svg width="100%" height="100%" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+        {/* --- Render Edges --- */}
         {allNodesExist &&
           [...pathA.edges, ...pathB.edges].map((edge, i) => {
             const from = getNodePosition(edge.from);
             const to = getNodePosition(edge.to);
             const midX = (from.x + to.x) / 2;
             const midY = (from.y + to.y) / 2;
-            const dx = to.x - from.x;
-            const dy = to.y - from.y;
-            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-            const flip = dx < 0;
+            const angle = Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI);
+            const flip = to.x - from.x < 0;
             const textRotation = flip ? angle + 180 : angle;
 
             const edgeKey = `${edge.from}-${edge.to}-${edge.team}-${edge.years}`;
-            const color = winningEdgeKeys.has(edgeKey)
-              ? "gold" // highlight color
+            const color = winningPathKeys.has(edgeKey)
+              ? "gold"
               : pathA.edges.includes(edge)
               ? "red"
               : "blue";
+
             return (
               <g key={`edge-${i}`}>
-                <line
-                  x1={from.x}
-                  y1={from.y}
-                  x2={to.x}
-                  y2={to.y}
-                  stroke={color}
-                  strokeWidth={3}
-                />
+                <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke={color} strokeWidth={3} />
                 <g transform={`rotate(${textRotation}, ${midX}, ${midY})`}>
                   <text
                     x={midX}
@@ -236,22 +203,12 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, winningEdges }) => {
             );
           })}
 
-        {/* Render nodes */}
+        {/* --- Render Nodes --- */}
         {nodesA.map((n) => (
-          <GraphNode
-            key={n.id}
-            node={n}
-            color="red"
-            onMouseDown={handleMouseDown}
-          />
+          <GraphNode key={n.id} node={n} color="red" onMouseDown={handleMouseDown} />
         ))}
         {nodesB.map((n) => (
-          <GraphNode
-            key={n.id}
-            node={n}
-            color="blue"
-            onMouseDown={handleMouseDown}
-          />
+          <GraphNode key={n.id} node={n} color="blue" onMouseDown={handleMouseDown} />
         ))}
       </svg>
     </div>
