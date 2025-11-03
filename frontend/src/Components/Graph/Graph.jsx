@@ -25,7 +25,8 @@ const Graph = ({ pathJson }) => {
 
   // Compute initial node positions
   useEffect(() => {
-    if (!pathJson?.players || containerWidth === 0 || containerHeight === 0) return;
+    if (!pathJson?.players || containerWidth === 0 || containerHeight === 0)
+      return;
 
     const numNodes = pathJson.players.length;
     const spacing = containerWidth / (numNodes + 1);
@@ -94,6 +95,11 @@ const Graph = ({ pathJson }) => {
           const dx = c.to.x - c.from.x;
           const dy = c.to.y - c.from.y;
           const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+          // flip text if edge goes left
+          const flip = dx < 0;
+          const textRotation = flip ? angle + 180 : angle;
+
           const isActive =
             pathPlayers.includes(c.from.id) && pathPlayers.includes(c.to.id);
 
@@ -107,7 +113,7 @@ const Graph = ({ pathJson }) => {
                 stroke={isActive ? "red" : "gray"}
                 strokeWidth={isActive ? 4 : 2}
               />
-              <g transform={`rotate(${angle}, ${midX}, ${midY})`}>
+              <g transform={`rotate(${textRotation}, ${midX}, ${midY})`}>
                 <text
                   x={midX}
                   y={midY - 10}
