@@ -1,8 +1,7 @@
 import SearchBar from "../../Components/SearchBar/SearchBar";
 import { useNavigate } from "react-router-dom";
 import Graph from "../Graph/Graph";
-function PathDisplay( { player1, player2, path, errorMessage } ) {
-    console.log("Initial path:", JSON.stringify(path, null, 2));
+function PathDisplay( { path, errorMessage } ) {
 
   return (
     <>

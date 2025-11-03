@@ -2,7 +2,7 @@ import EnterPlayerModal from "../../Components/EnterPlayerModal/EnterPlayerModal
 import Graph from "../../Components/Graph/Graph";
 import HomeButton from "../../Components/HomeButton/HomeButton";
 import PathDisplay from "../../Components/PathDisplay/PathDisplay";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import { initializeGuessPath, makeGuess } from "../../Scripts/guessPlayer";
 import { simplifyPathJSON } from "../../Components/Graph/graphUtils";
@@ -17,6 +17,7 @@ function GuessPath() {
   const [winningPath, setWinningPath] = useState([]);
   const [wrongGuessTrigger, setWrongGuessTrigger] = useState(0);
   const [correctGuessTrigger, setCorrectGuessTrigger] = useState(0);
+  const [ resultMessage, setResultMessage ] = useState("");
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
     return storedPath ? JSON.parse(storedPath) : null;
@@ -43,6 +44,9 @@ function GuessPath() {
     }
   }, [guessedPlayer]);
 
+    useEffect(() => {
+    setResultMessage(resultMessage);
+  }, [resultMessage]);
   //a guess has been made
   const handleGuess = async (path, guessedPlayer) => {
     if (!guessedPlayer) return;
@@ -50,10 +54,12 @@ function GuessPath() {
     const res = await makeGuess(path, guessedPlayer);
 
     if (res.success) {
+      setResultMessage(`Found a connection for ${guessedPlayer}`);
       setCorrectGuessTrigger((prev) => prev + 1);
       setPath(res);
     } else {
       // Wrong guess → increment trigger
+      setResultMessage(`Could not find a connection for ${guessedPlayer}`);
       setWrongGuessTrigger((prev) => prev + 1);
     }
   };
@@ -109,6 +115,7 @@ function GuessPath() {
     setPlayer1(null);
     setPlayer2(null);
     setPath(null);
+    setResultMessage(``);
     setConnectedGraph({
       pathA: { players: [], edges: [], teams: [], overlapping_years: [] },
       pathB: { players: [], edges: [], teams: [], overlapping_years: [] },
@@ -176,6 +183,8 @@ function GuessPath() {
         show={winningModal}
         onClose={() => setWinningModal(false)}
         winningPath={winningPath}
+        playerA={player1}
+        playerB={player2}
       />
 
       {/* Path segment here */}
@@ -187,6 +196,8 @@ function GuessPath() {
         isMulti={true}
         onWin={(won) => setIsWinner(won)}
         onWinningPathFound={(path) => setWinningPath(path)}
+        resultMessage={resultMessage}
+        onNewGameClick={resetPlayers}
       />
       {/* Guess a player here*/}
       <PlayerInput
@@ -197,14 +208,8 @@ function GuessPath() {
         wrongGuessTrigger={wrongGuessTrigger}
         correctGuessTrigger={correctGuessTrigger}
         hasGuess={true}
+        setResultMessage={setResultMessage}
       />
-      {/* Reset players button here */}
-      <button
-        onClick={resetPlayers} // reset players
-        className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
-      >
-        New Game
-      </button>
     </div>
   );
 }
