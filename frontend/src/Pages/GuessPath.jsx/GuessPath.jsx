@@ -16,6 +16,7 @@ function GuessPath() {
   const [isWinner, setIsWinner] = useState(false);
   const [winningPath, setWinningPath] = useState([]);
   const [wrongGuessTrigger, setWrongGuessTrigger] = useState(0);
+  const [correctGuessTrigger, setCorrectGuessTrigger] = useState(0);
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
     return storedPath ? JSON.parse(storedPath) : null;
@@ -49,6 +50,7 @@ function GuessPath() {
     const res = await makeGuess(path, guessedPlayer);
 
     if (res.success) {
+      setCorrectGuessTrigger((prev) => prev + 1);
       setPath(res);
     } else {
       // Wrong guess → increment trigger
@@ -193,6 +195,8 @@ function GuessPath() {
         setPlayer={setGuessedPlayer}
         handleReset={() => setGuessedPlayer(null)}
         wrongGuessTrigger={wrongGuessTrigger}
+        correctGuessTrigger={correctGuessTrigger}
+        hasGuess={true}
       />
       {/* Reset players button here */}
       <button
