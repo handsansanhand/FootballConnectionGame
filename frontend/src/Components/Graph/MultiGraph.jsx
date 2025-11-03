@@ -8,7 +8,11 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [nodesA, setNodesA] = useState([]);
   const [nodesB, setNodesB] = useState([]);
-  const [dragging, setDragging] = useState({ id: null, source: null, offset: { x: 0, y: 0 } });
+  const [dragging, setDragging] = useState({
+    id: null,
+    source: null,
+    offset: { x: 0, y: 0 },
+  });
   const [winnerAlerted, setWinnerAlerted] = useState(false);
   const [winningPath, setWinningPath] = useState([]);
 
@@ -17,8 +21,7 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
 
   const getNodePosition = (id) =>
     nodesA.find((n) => n.id === id) ||
-    nodesB.find((n) => n.id === id) ||
-    { x: 0, y: 0 };
+    nodesB.find((n) => n.id === id) || { x: 0, y: 0 };
 
   // --- Handle Container Resize ---
   useEffect(() => {
@@ -56,7 +59,9 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
       const newNodes = path.players
         .filter((p) => !existing.has(p))
         .map((p, i) => {
-          const connectedEdge = (path.edges || []).find((e) => e.to === p || e.from === p);
+          const connectedEdge = (path.edges || []).find(
+            (e) => e.to === p || e.from === p
+          );
           const connectedId = connectedEdge
             ? connectedEdge.from === p
               ? connectedEdge.to
@@ -95,7 +100,6 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
     const path = findWinningPath(playerA, playerB, allEdges);
     setWinningPath(path);
 
-    console.log("Winning Path:", JSON.stringify(path, null, 2));
   }, [pathA, pathB, playerA, playerB]);
 
   const winningPathKeys = new Set(
@@ -123,7 +127,11 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
     const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
     const source = nodesA.some((n) => n.id === node.id) ? "A" : "B";
 
-    setDragging({ id: node.id, source, offset: { x: cursor.x - node.x, y: cursor.y - node.y } });
+    setDragging({
+      id: node.id,
+      source,
+      offset: { x: cursor.x - node.x, y: cursor.y - node.y },
+    });
   };
 
   const handleMouseMove = (e) => {
@@ -139,13 +147,16 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
     const clampedY = clamp(cursor.y - dragging.offset.y, 0, height);
 
     const updateNodes = (nodes, source) =>
-      nodes.map((n) => (n.id === dragging.id ? { ...n, x: clampedX, y: clampedY } : n));
+      nodes.map((n) =>
+        n.id === dragging.id ? { ...n, x: clampedX, y: clampedY } : n
+      );
 
     if (dragging.source === "A") setNodesA((prev) => updateNodes(prev, "A"));
     else setNodesB((prev) => updateNodes(prev, "B"));
   };
 
-  const handleMouseUp = () => setDragging({ id: null, source: null, offset: { x: 0, y: 0 } });
+  const handleMouseUp = () =>
+    setDragging({ id: null, source: null, offset: { x: 0, y: 0 } });
 
   // --- Render ---
   const allNodesExist =
@@ -156,8 +167,16 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
     return <div ref={containerRef} className="w-full h-full" />;
 
   return (
-    <div ref={containerRef} className="w-full h-[500px] bg-gray-100 rounded-lg shadow-inner">
-      <svg width="100%" height="100%" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
+    <div
+      ref={containerRef}
+      className="w-full h-[500px] bg-gray-100 rounded-lg shadow-inner"
+    >
+      <svg
+        width="100%"
+        height="100%"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      >
         {/* --- Render Edges --- */}
         {allNodesExist &&
           [...pathA.edges, ...pathB.edges].map((edge, i) => {
@@ -165,7 +184,8 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
             const to = getNodePosition(edge.to);
             const midX = (from.x + to.x) / 2;
             const midY = (from.y + to.y) / 2;
-            const angle = Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI);
+            const angle =
+              Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI);
             const flip = to.x - from.x < 0;
             const textRotation = flip ? angle + 180 : angle;
 
@@ -178,7 +198,14 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
 
             return (
               <g key={`edge-${i}`}>
-                <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke={color} strokeWidth={3} />
+                <line
+                  x1={from.x}
+                  y1={from.y}
+                  x2={to.x}
+                  y2={to.y}
+                  stroke={color}
+                  strokeWidth={3}
+                />
                 <g transform={`rotate(${textRotation}, ${midX}, ${midY})`}>
                   <text
                     x={midX}
@@ -204,12 +231,26 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
           })}
 
         {/* --- Render Nodes --- */}
-        {nodesA.map((n) => (
-          <GraphNode key={n.id} node={n} color="red" onMouseDown={handleMouseDown} />
-        ))}
-        {nodesB.map((n) => (
-          <GraphNode key={n.id} node={n} color="blue" onMouseDown={handleMouseDown} />
-        ))}
+        {(() => {
+          const seen = new Set();
+          const mergedNodes = [...nodesA, ...nodesB].filter((n) => {
+            if (seen.has(n.id)) return false;
+            seen.add(n.id);
+            return true;
+          });
+
+          return mergedNodes.map((n) => {
+            const color = nodesA.some((a) => a.id === n.id) ? "red" : "blue";
+            return (
+              <GraphNode
+                key={n.id}
+                node={n}
+                color={color}
+                onMouseDown={handleMouseDown}
+              />
+            );
+          });
+        })()}
       </svg>
     </div>
   );
