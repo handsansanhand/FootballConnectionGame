@@ -2,7 +2,15 @@ import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import GraphNode from "./GraphNode";
 import { findWinningPath } from "./graphUtils";
 
-const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
+const MultiGraph = ({
+  pathA,
+  pathB,
+  winner,
+  onWin,
+  playerA,
+  playerB,
+  onWinningPathFound,
+}) => {
   // --- Refs & State ---
   const containerRef = useRef(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -99,7 +107,9 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB }) => {
     const allEdges = [...(pathA.edges || []), ...(pathB.edges || [])];
     const path = findWinningPath(playerA, playerB, allEdges);
     setWinningPath(path);
-
+    if (onWinningPathFound && path.length > 0) {
+      onWinningPathFound(path);
+    }
   }, [pathA, pathB, playerA, playerB]);
 
   const winningPathKeys = new Set(
