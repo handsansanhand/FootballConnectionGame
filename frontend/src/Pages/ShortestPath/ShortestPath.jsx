@@ -38,7 +38,7 @@ function ShortestPath() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-2">
       <div className="absolute top-4 left-4">
         < HomeButton />
       </div>
@@ -54,7 +54,7 @@ function ShortestPath() {
       />
 
       {/* Player inputs */}
-      <div className="flex flex-col md:flex-row gap-6 mt-6 text-center">
+      <div className="flex flex-col md:flex-row gap-2 text-center rounded-none">
         <PlayerInput
           label="Player 1"
           playerKey="player1"

@@ -168,11 +168,11 @@ function GuessPath() {
   });
 
   return (
-    <div className="p-4">
+    <div className="p-2">
       <div className="absolute top-4 left-4">
         <HomeButton />
       </div>
-      <h1 className="text-2xl font-bold mb-6 text-center">Enter Players</h1>
+      <h1 className="text-2xl font-bold text-center">Enter Players</h1>
 
       <EnterPlayerModal
         show={showModal}

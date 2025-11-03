@@ -1,6 +1,10 @@
 import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import GraphNode from "./GraphNode";
-import { findWinningPath, findConnectedNode, placeNearNode } from "./graphUtils";
+import {
+  findWinningPath,
+  findConnectedNode,
+  placeNearNode,
+} from "./graphUtils";
 
 const MultiGraph = ({
   pathA,
@@ -55,36 +59,41 @@ const MultiGraph = ({
     const spacing = width / 2;
 
     // Helper to add new nodes if they don't exist
-const addMissingNodes = (existingNodes, path, edges, isA) => {
-  const midX = containerSize.width / 2;
-  const midY = containerSize.height / 2;
-  const spacing = 100;
+    const addMissingNodes = (existingNodes, path, edges, isA) => {
+      const midX = containerSize.width / 2;
+      const midY = containerSize.height / 2;
+      const spacing = 100;
 
-  const newNodes = path.players
-    .filter((p) => !existingNodes.some((n) => n.id === p))
-    .map((p, i) => {
-      const connectedNode = findConnectedNode(p, edges, existingNodes);
-      let x, y;
-      if (connectedNode) {
-        const pos = placeNearNode(connectedNode, containerSize.width, containerSize.height, spacing);
-        x = pos.x;
-        y = pos.y;
-      } else {
-        // fallback: spawn near center
-        x = isA ? midX - spacing * i : midX + spacing * i;
-        y = isA ? midY - 50 : midY + 50;
-      }
-      return { id: p, x, y };
-    });
+      const newNodes = path.players
+        .filter((p) => !existingNodes.some((n) => n.id === p))
+        .map((p, i) => {
+          const connectedNode = findConnectedNode(p, edges, existingNodes);
+          let x, y;
+          if (connectedNode) {
+            const pos = placeNearNode(
+              connectedNode,
+              containerSize.width,
+              containerSize.height,
+              spacing
+            );
+            x = pos.x;
+            y = pos.y;
+          } else {
+            // fallback: spawn near center
+            x = isA ? midX - spacing * i : midX + spacing * i;
+            y = isA ? midY - 50 : midY + 50;
+          }
+          return { id: p, x, y };
+        });
 
-  return [...existingNodes, ...newNodes];
-};
+      return [...existingNodes, ...newNodes];
+    };
     // Load stored nodes or initialize empty
     let storedNodesA = JSON.parse(localStorage.getItem("nodesA") || "[]");
     let storedNodesB = JSON.parse(localStorage.getItem("nodesB") || "[]");
 
-storedNodesA = addMissingNodes(storedNodesA, pathA, pathA.edges, true);
-storedNodesB = addMissingNodes(storedNodesB, pathB, pathB.edges, false);
+    storedNodesA = addMissingNodes(storedNodesA, pathA, pathA.edges, true);
+    storedNodesB = addMissingNodes(storedNodesB, pathB, pathB.edges, false);
     // Persist updated nodes
     localStorage.setItem("nodesA", JSON.stringify(storedNodesA));
     localStorage.setItem("nodesB", JSON.stringify(storedNodesB));
@@ -179,7 +188,7 @@ storedNodesB = addMissingNodes(storedNodesB, pathB, pathB.edges, false);
   return (
     <div
       ref={containerRef}
-      className="w-full h-[500px] bg-gray-100 rounded-lg shadow-inner"
+      className="w-full h-full bg-gray-100 rounded-lg shadow-inner"
     >
       <svg
         width="100%"
