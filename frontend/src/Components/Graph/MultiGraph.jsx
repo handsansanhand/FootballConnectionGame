@@ -2,7 +2,15 @@ import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
 import GraphNode from "./GraphNode";
 import { findWinningPath } from "./graphUtils";
 
-const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB, onWinningPathFound }) => {
+const MultiGraph = ({
+  pathA,
+  pathB,
+  winner,
+  onWin,
+  playerA,
+  playerB,
+  onWinningPathFound,
+}) => {
   // --- Refs & State ---
   const containerRef = useRef(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -44,52 +52,38 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB, onWinningPa
     if (!pathA || !pathB || width === 0 || height === 0) return;
 
     const midY = height / 2;
+    const spacing = width / 2;
 
-    const getRandomOffset = () => {
-      const radiusX = width * 0.2;
-      const radiusY = height * 0.2;
-      const angle = Math.random() * 2 * Math.PI;
-      return { dx: Math.cos(angle) * radiusX, dy: Math.sin(angle) * radiusY };
-    };
-
-    const addNodes = (prev, path, isA) => {
-      const existing = new Set(prev.map((n) => n.id));
-      const spacing = width / 2 / (path.players.length + 1);
+    // Helper to add new nodes if they don't exist
+    const addMissingNodes = (existingNodes, path, isA) => {
+      const midX = width / 2;
+      const midY = height / 2;
+      const spacing = 100; // horizontal spacing between nodes
 
       const newNodes = path.players
-        .filter((p) => !existing.has(p))
+        .filter((p) => !existingNodes.some((n) => n.id === p))
         .map((p, i) => {
-          const connectedEdge = (path.edges || []).find(
-            (e) => e.to === p || e.from === p
-          );
-          const connectedId = connectedEdge
-            ? connectedEdge.from === p
-              ? connectedEdge.to
-              : connectedEdge.from
-            : null;
-          const connectedNode = prev.find((n) => n.id === connectedId);
-
-          if (connectedNode) {
-            const { dx, dy } = getRandomOffset();
-            return {
-              id: p,
-              x: clamp(connectedNode.x + dx, 0, width),
-              y: clamp(connectedNode.y + dy, 0, height),
-            };
-          }
-
-          return {
-            id: p,
-            x: isA ? spacing * (i + 1) : width - spacing * (i + 1),
-            y: isA ? midY - 50 : midY + 50,
-          };
+          const offset = (i + existingNodes.length) * spacing;
+          const x = isA ? midX - offset : midX + offset;
+          const y = isA ? midY - 50 : midY + 50;
+          return { id: p, x, y };
         });
 
-      return [...prev, ...newNodes];
+      return [...existingNodes, ...newNodes];
     };
+    // Load stored nodes or initialize empty
+    let storedNodesA = JSON.parse(localStorage.getItem("nodesA") || "[]");
+    let storedNodesB = JSON.parse(localStorage.getItem("nodesB") || "[]");
 
-    setNodesA((prev) => addNodes(prev, pathA, true));
-    setNodesB((prev) => addNodes(prev, pathB, false));
+    storedNodesA = addMissingNodes(storedNodesA, pathA, true);
+    storedNodesB = addMissingNodes(storedNodesB, pathB, false);
+
+    // Persist updated nodes
+    localStorage.setItem("nodesA", JSON.stringify(storedNodesA));
+    localStorage.setItem("nodesB", JSON.stringify(storedNodesB));
+
+    setNodesA(storedNodesA);
+    setNodesB(storedNodesB);
   }, [pathA, pathB, containerSize]);
 
   // --- Compute Winning Path ---
@@ -99,10 +93,9 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB, onWinningPa
     const allEdges = [...(pathA.edges || []), ...(pathB.edges || [])];
     const path = findWinningPath(playerA, playerB, allEdges);
     setWinningPath(path);
-        if (onWinningPathFound && path.length > 0) {
+    if (onWinningPathFound && path.length > 0) {
       onWinningPathFound(path);
     }
-
   }, [pathA, pathB, playerA, playerB]);
 
   const winningPathKeys = new Set(
@@ -154,8 +147,15 @@ const MultiGraph = ({ pathA, pathB, winner, onWin, playerA, playerB, onWinningPa
         n.id === dragging.id ? { ...n, x: clampedX, y: clampedY } : n
       );
 
-    if (dragging.source === "A") setNodesA((prev) => updateNodes(prev, "A"));
-    else setNodesB((prev) => updateNodes(prev, "B"));
+    if (dragging.source === "A") {
+      const updated = updateNodes(nodesA, "A");
+      setNodesA(updated);
+      localStorage.setItem("nodesA", JSON.stringify(updated)); // persist
+    } else {
+      const updated = updateNodes(nodesB, "B");
+      setNodesB(updated);
+      localStorage.setItem("nodesB", JSON.stringify(updated)); // persist
+    }
   };
 
   const handleMouseUp = () =>
