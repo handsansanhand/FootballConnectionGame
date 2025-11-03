@@ -15,6 +15,7 @@ function GuessPath() {
   const [guessedPlayer, setGuessedPlayer] = useState(null);
   const [isWinner, setIsWinner] = useState(false);
   const [winningPath, setWinningPath] = useState([]);
+  const [wrongGuessTrigger, setWrongGuessTrigger] = useState(0);
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
     return storedPath ? JSON.parse(storedPath) : null;
@@ -45,15 +46,13 @@ function GuessPath() {
   const handleGuess = async (path, guessedPlayer) => {
     if (!guessedPlayer) return;
 
-    console.log("Current path:", JSON.stringify(path, null, 2));
-    console.log("Guessing player:", guessedPlayer);
-
     const res = await makeGuess(path, guessedPlayer);
-    console.log("Response path:", JSON.stringify(res, null, 2));
 
-    // optionally update local state if backend returns updated data
     if (res.success) {
       setPath(res);
+    } else {
+      // Wrong guess → increment trigger
+      setWrongGuessTrigger((prev) => prev + 1);
     }
   };
 
@@ -193,6 +192,7 @@ function GuessPath() {
         hasRandomChoice={false}
         setPlayer={setGuessedPlayer}
         handleReset={() => setGuessedPlayer(null)}
+        wrongGuessTrigger={wrongGuessTrigger}
       />
       {/* Reset players button here */}
       <button
