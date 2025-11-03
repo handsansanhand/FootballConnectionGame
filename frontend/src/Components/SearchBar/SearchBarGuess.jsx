@@ -34,7 +34,6 @@ function SearchBarGuess({
       const timer = setTimeout(() => {
         setCorrectGuess(false); // remove green after 1s
       }, 1000);
-
       return () => clearTimeout(timer);
     }
   }, [correctGuessTrigger]);

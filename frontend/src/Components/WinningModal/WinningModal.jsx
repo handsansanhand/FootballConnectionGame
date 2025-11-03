@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { formatWinningPath } from "../Graph/graphUtils";
-function WinningModal({ show, onClose, onSubmit, winningPath }) {
+function WinningModal({
+  show,
+  onClose,
+  onSubmit,
+  winningPath,
+  playerA,
+  playerB,
+}) {
   const [finalScore, setFinalScore] = useState(0);
 
   useEffect(() => {
@@ -31,6 +38,9 @@ function WinningModal({ show, onClose, onSubmit, winningPath }) {
           {/* Body */}
           <form className="p-4 md:p-5 flex flex-col h-full">
             <div className="flex-1 flex flex-col items-center justify-center text-center space-y-2">
+              <div className="text-3xl font-bold">
+                {playerA} to {playerB}
+              </div>
               {winningPath && winningPath.length > 0 ? (
                 winningPath.map((edge, i) => (
                   <div key={i} className="flex flex-col">
@@ -44,7 +54,10 @@ function WinningModal({ show, onClose, onSubmit, winningPath }) {
                 ))
               ) : (
                 <p>No winning path found.</p>
-              )}
+              )} 
+            <div className="text-xl font-bold">
+              Path found in {finalScore} connections.
+            </div>
             </div>
 
             {/* Button at bottom right */}

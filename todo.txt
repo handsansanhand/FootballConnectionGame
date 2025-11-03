@@ -3,5 +3,7 @@ redecorate everything
     : error when guessing player
         : border of text goes red / shakes
         : resets
+    : on winning modal, option to view shortest path after winning
+    : display graphs should be resizeable for phones
     : group all nodes to connected teams (NOT SURE IF THIS WILL LOOK WORSE)
         : have teams be a node and players link to it
