@@ -11,10 +11,10 @@ import WinningModal from "../../Components/WinningModal/WinningModal";
 function GuessPath() {
   // initialize state from localStorage if available
   const [showModal, setShowModal] = useState(false);
-  const [ winningModal, setWinningModal ] = useState(false);
+  const [winningModal, setWinningModal] = useState(false);
   const [guessedPlayer, setGuessedPlayer] = useState(null);
-  const [ isWinner, setIsWinner ] = useState(false);
-  const [ winningPath, setWinningPath ] = useState([]);
+  const [isWinner, setIsWinner] = useState(false);
+  const [winningPath, setWinningPath] = useState([]);
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
     return storedPath ? JSON.parse(storedPath) : null;
@@ -87,12 +87,21 @@ function GuessPath() {
       );
     }
   }, [path]);
-
+  //DEBUG
   useEffect(() => {
-    if(isWinner) {
-        setWinningModal(true);
+    console.log("==== localStorage ====");
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const value = localStorage.getItem(key);
+      console.log(key, ":", value);
     }
-  }, [isWinner])
+    console.log("=====================");
+  }, []);
+  useEffect(() => {
+    if (isWinner) {
+      setWinningModal(true);
+    }
+  }, [isWinner]);
 
   const resetPlayers = () => {
     setIsWinner(false);
@@ -106,6 +115,8 @@ function GuessPath() {
     localStorage.removeItem("player1");
     localStorage.removeItem("player2");
     localStorage.removeItem("path");
+    localStorage.removeItem("nodesA");
+    localStorage.removeItem("nodesB");
   };
   const errorMessage =
     !player1 || !player2 ? "Please select both players." : null;
@@ -160,12 +171,11 @@ function GuessPath() {
         onClose={() => setShowModal(false)}
         onSubmit={handlePlayersSubmit}
       />
-      < WinningModal 
-      show={winningModal}
-      onClose={() => setWinningModal(false)}
-      winningPath = {winningPath}
+      <WinningModal
+        show={winningModal}
+        onClose={() => setWinningModal(false)}
+        winningPath={winningPath}
       />
-
 
       {/* Path segment here */}
       <MultiPathDisplay
