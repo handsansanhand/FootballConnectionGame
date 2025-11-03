@@ -1,13 +1,31 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer, getRandomPlayer } from "../../Scripts/players";
 
-function SearchBar({ onSubmit, onReset, hasRandomChoice }) {
+function SearchBar({ onSubmit, onReset, hasRandomChoice, wrongGuessTrigger }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [locked, setLocked] = useState(false);
   const debounceRef = useRef(null);
+  const [wrongGuess, setWrongGuess] = useState(false);
+  useEffect(() => {
+    if (wrongGuessTrigger) {
+      // first, trigger red flash
+      setWrongGuess(true);
 
+      // reset query & selectedPlayer immediately (optional)
+      setQuery("");
+      setSelectedPlayer(null);
+
+      // unlock after the red flash ends
+      const timer = setTimeout(() => {
+        setWrongGuess(false);
+        setLocked(false); // only unlock after red flash
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [wrongGuessTrigger]);
   useEffect(() => {
     if (query.trim().length < 2 || locked) {
       setResults([]);
@@ -79,24 +97,28 @@ function SearchBar({ onSubmit, onReset, hasRandomChoice }) {
           value={query}
           onChange={handleChange}
           disabled={locked}
-          className={`flex-1 p-4 text-md border-4 rounded-lg w-full ${
-            locked
-              ? "bg-gray-50 dark:bg-gray-700 border-green-500 text-white cursor-default focus:ring-green-500 focus:border-green-500"
-              : "bg-gray-50 dark:bg-gray-700 border-gray-300 text-white focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          }`}
+          className={`flex-1 p-4 text-md border-4 rounded-lg w-full
+  ${
+    wrongGuess
+      ? "border-red-500 animate-pulse"
+      : locked
+      ? "border-green-500"
+      : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+  }
+`}
           placeholder="Search for a player..."
         />
 
         <div className="flex gap-2 ml-2">
           {hasRandomChoice && (
-  <button
-    type="button"
-    onClick={handleRandom}
-    className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
-  >
-    Random
-  </button>
-)}
+            <button
+              type="button"
+              onClick={handleRandom}
+              className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+            >
+              Random
+            </button>
+          )}
 
           <button
             type="button"
