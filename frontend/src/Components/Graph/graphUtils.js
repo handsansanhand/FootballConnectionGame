@@ -74,7 +74,7 @@ export function formatWinningPath(winningPath) {
   for (let i = 1; i < winningPath.length; i++) {
     //are they reversed? i.e the previous to is also a to
     let inst = winningPath[i];
-    if(inst.to === to) {
+    if (inst.to === to) {
       console.log(`${to} is the wrong way around`);
       //swap them
       let tmp = inst.from;
@@ -83,5 +83,31 @@ export function formatWinningPath(winningPath) {
     }
     to = inst.to;
   }
-  console.log(`final json: `, JSON.stringify(winningPath, null, 2))
+  console.log(`final json: `, JSON.stringify(winningPath, null, 2));
 }
+
+// edges = path.edges (or pathA.edges / pathB.edges)
+export const findConnectedNode = (playerId, edges, existingNodes) => {
+  // find an edge where playerId is 'to' and 'from' exists in existing nodes
+  const edge = edges.find(
+    (e) => e.to === playerId && existingNodes.some((n) => n.id === e.from)
+  );
+  if (edge) {
+    return existingNodes.find((n) => n.id === edge.from);
+  }
+  return null;
+};
+
+export const placeNearNode = (node, containerWidth, containerHeight, minSpacing = 50, maxSpacing = 120) => {
+  const angle = Math.random() * 2 * Math.PI;
+  const radius = minSpacing + Math.random() * (maxSpacing - minSpacing);
+
+  let x = node.x + radius * Math.cos(angle);
+  let y = node.y + radius * Math.sin(angle);
+
+  // Clamp to container bounds
+  x = Math.min(Math.max(x, 0), containerWidth);
+  y = Math.min(Math.max(y, 0), containerHeight);
+
+  return { x, y };
+};
