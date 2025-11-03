@@ -1,3 +1,7 @@
 make winning modal fade in
 redecorate everything
-deal with entering two players who have played together
+    : error when guessing player
+        : border of text goes red / shakes
+        : resets
+    : group all nodes to connected teams (NOT SURE IF THIS WILL LOOK WORSE)
+        : have teams be a node and players link to it
