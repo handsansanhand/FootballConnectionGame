@@ -14,6 +14,7 @@ function GuessPath() {
   const [ winningModal, setWinningModal ] = useState(false);
   const [guessedPlayer, setGuessedPlayer] = useState(null);
   const [ isWinner, setIsWinner ] = useState(false);
+  const [ winningPath, setWinningPath ] = useState([]);
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
     return storedPath ? JSON.parse(storedPath) : null;
@@ -162,6 +163,7 @@ function GuessPath() {
       < WinningModal 
       show={winningModal}
       onClose={() => setWinningModal(false)}
+      winningPath = {winningPath}
       />
 
 
@@ -173,6 +175,7 @@ function GuessPath() {
         errorMessage={errorMessage}
         isMulti={true}
         onWin={(won) => setIsWinner(won)}
+        onWinningPathFound={(path) => setWinningPath(path)}
       />
       {/* Guess a player here*/}
       <PlayerInput

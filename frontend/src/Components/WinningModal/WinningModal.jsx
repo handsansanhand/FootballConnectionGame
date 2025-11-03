@@ -1,4 +1,15 @@
-function WinningModal({ show, onClose, onSubmit }) {
+import { useEffect, useState } from "react";
+import { formatWinningPath } from "../Graph/graphUtils";
+function WinningModal({ show, onClose, onSubmit, winningPath }) {
+  const [finalScore, setFinalScore] = useState(0);
+
+  useEffect(() => {
+    if (winningPath.length !== 0) {
+      setFinalScore(winningPath.length - 1);
+      console.log("Winning path:", JSON.stringify(winningPath, null, 2));
+      formatWinningPath(winningPath);
+    }
+  }, [winningPath]);
   return (
     <div
       id="enter-player-modal"
@@ -11,7 +22,7 @@ function WinningModal({ show, onClose, onSubmit }) {
       <div className="relative p-4 w-full max-w-4xl max-h-full">
         <div className="relative bg-white rounded-lg shadow-lg dark:bg-gray-700">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+          <div className="items-center p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200 text-center">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Path Found!
             </h3>
@@ -19,8 +30,25 @@ function WinningModal({ show, onClose, onSubmit }) {
 
           {/* Body */}
           <form className="p-4 md:p-5 flex flex-col h-full">
+            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-2">
+              {winningPath && winningPath.length > 0 ? (
+                winningPath.map((edge, i) => (
+                  <div key={i} className="flex flex-col">
+                    <span className="font-semibold">
+                      {edge.from} → {edge.to}
+                    </span>
+                    <span className="text-sm text-gray-600">
+                      Team: {edge.team} | Years: {edge.years}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p>No winning path found.</p>
+              )}
+            </div>
+
             {/* Button at bottom right */}
-            <div className="flex justify-end mt-auto">
+            <div className="flex justify-end mt-4">
               <button
                 type="button"
                 onClick={onClose}
