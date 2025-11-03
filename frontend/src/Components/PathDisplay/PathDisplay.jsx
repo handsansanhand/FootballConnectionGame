@@ -5,7 +5,7 @@ function PathDisplay( { path, errorMessage } ) {
 
   return (
     <>
-      <div className="relative mt-6 bg-gray-100 rounded border-4 border-red-500 min-h-[350px] md:min-h-[550px] w-full h-[550px] flex items-center justify-center text-center">
+      <div className="relative mt-6 bg-gray-100 rounded border-4 border-red-500 w-full min-h-[550px] h-[75vh] flex items-center justify-center text-center">
         {errorMessage ? (
           <p className="text-red-600 font-semibold">{errorMessage}</p>
         ) : path ? (
