@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatWinningPath } from "../Graph/graphUtils";
+import ViewShortestPathButton from "../Buttons/ViewShortestPathButton";
 function WinningModal({
   show,
   onClose,
@@ -11,12 +12,12 @@ function WinningModal({
   const [finalScore, setFinalScore] = useState(0);
 
   useEffect(() => {
-    console.log(`calling use effect in winning modal`)
+    console.log(`calling use effect in winning modal`);
     if (winningPath.length !== 0) {
       setFinalScore(winningPath.length - 1);
       formatWinningPath(winningPath);
     } else {
-      console.log(`the path is empty`)
+      console.log(`the path is empty`);
     }
   }, [winningPath]);
   return (
@@ -56,14 +57,19 @@ function WinningModal({
                 ))
               ) : (
                 <p>No winning path found.</p>
-              )} 
-            <div className="text-xl font-bold">
-              Path found in {finalScore} connections.
-            </div>
+              )}
+              <div className="text-xl font-bold">
+                Path found in {finalScore} connections.
+              </div>
             </div>
 
             {/* Button at bottom right */}
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-between mt-4">
+              <ViewShortestPathButton 
+                playerA={playerA}
+                playerB={playerB}
+                path={winningPath}
+              />
               <button
                 type="button"
                 onClick={onClose}

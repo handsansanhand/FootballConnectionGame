@@ -2,34 +2,55 @@ import { getShortestPath } from "../../Scripts/getShortestPath";
 import { useState, useEffect } from "react";
 import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import PathDisplay from "../../Components/PathDisplay/PathDisplay";
-import HomeButton from "../../Components/HomeButton/HomeButton";
+import HomeButton from "../../Components/Buttons/HomeButton";
+import { edgesToGraphFormat } from "../../Components/Graph/graphUtils";
+
 function ShortestPath() {
-  const [player1, setPlayer1] = useState(null);
-  const [player2, setPlayer2] = useState(null);
+  // read query parameters on mount
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialPlayer1 = searchParams.get("playerA");
+  const initialPlayer2 = searchParams.get("playerB");
+  const initialPathLength = searchParams.get("pathLength"); // optional
+
+  const [player1, setPlayer1] = useState(initialPlayer1 || null);
+  const [player2, setPlayer2] = useState(initialPlayer2 || null);
   const [path, setPath] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    if (player1 && player2) {
-      if (player1 === player2) {
-        setErrorMessage("It can't be the same player!");
-        setPath(null);
-        return;
-      }
-      const fetchPath = async () => {
-        try {
-          setErrorMessage("");
-          const result = await getShortestPath(player1, player2);
-          setPath(result);
-        } catch (error) {
-          console.error("Error fetching shortest path:", error);
-        }
-      };
-      fetchPath();
-    }
-  }, [player1, player2]);
+useEffect(() => {
+  if (player1 && player2) {
+    const fetchPath = async () => {
+      try {
+        setErrorMessage("");
 
-  // Handle resets from child components
+        // check if there's an existing path in sessionStorage
+        const stored = sessionStorage.getItem("existingPath");
+        if (stored) {
+          const existingEdges = JSON.parse(stored);
+          const formattedExistingPath = edgesToGraphFormat(existingEdges);
+          const formattedActualShortestPath = await getShortestPath(player1, player2);
+          if(formattedExistingPath.players.length === formattedActualShortestPath.players.length) {
+            //just use the existing one
+            setPath(formattedExistingPath);
+          } else {
+            setPath(formattedActualShortestPath);
+          }
+          return;
+        }
+
+        // otherwise fetch a new shortest path
+        const result = await getShortestPath(player1, player2);
+        const formatted = edgesToGraphFormat(result);
+        setPath(formatted);
+      } catch (error) {
+        console.error("Error fetching shortest path:", error);
+      }
+    };
+
+    fetchPath();
+  }
+}, [player1, player2]);
+
   const handleReset = (which) => {
     setPath(null);
     setErrorMessage("");
@@ -40,7 +61,7 @@ function ShortestPath() {
   return (
     <div className="p-2">
       <div className="absolute top-4 left-4">
-        < HomeButton />
+        <HomeButton />
       </div>
       <h1 className="text-2xl font-bold mb-6 text-center">Enter Players</h1>
 
@@ -61,6 +82,7 @@ function ShortestPath() {
           setPlayer={setPlayer1}
           handleReset={handleReset}
           hasRandomChoice={true}
+          initialValue={player1}
         />
         <PlayerInput
           label="Player 2"
@@ -68,6 +90,7 @@ function ShortestPath() {
           setPlayer={setPlayer2}
           handleReset={handleReset}
           hasRandomChoice={true}
+          initialValue={player2}
         />
       </div>
     </div>

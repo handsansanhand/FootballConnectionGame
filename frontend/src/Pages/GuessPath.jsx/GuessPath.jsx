@@ -1,6 +1,6 @@
 import EnterPlayerModal from "../../Components/EnterPlayerModal/EnterPlayerModal";
 import Graph from "../../Components/Graph/Graph";
-import HomeButton from "../../Components/HomeButton/HomeButton";
+import HomeButton from "../../Components/Buttons/HomeButton";
 import PathDisplay from "../../Components/PathDisplay/PathDisplay";
 import { useState, useEffect, use } from "react";
 import PlayerInput from "../../Components/PlayerInput/PlayerInput";

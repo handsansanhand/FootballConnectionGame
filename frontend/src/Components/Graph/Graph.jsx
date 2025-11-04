@@ -25,6 +25,7 @@ const Graph = ({ pathJson }) => {
 
   // Compute initial node positions
   useEffect(() => {
+    console.log(`graph json `, JSON.stringify(pathJson, null, 2))
     if (!pathJson?.players || containerWidth === 0 || containerHeight === 0)
       return;
 
