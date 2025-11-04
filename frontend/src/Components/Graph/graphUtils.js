@@ -34,7 +34,7 @@ export function simplifyPathJSON(path) {
 }
 
 export function findWinningPath(start, end, edges) {
-  console.log(`making winning path...`);
+ // console.log(`making winning path...`);
   // Build adjacency list
   const graph = {};
   for (const edge of edges) {
@@ -68,14 +68,14 @@ export function findWinningPath(start, end, edges) {
 //function which should format the winning path from playerA -> playerB
 //presume that playerA is always 'from' in the first entry of the JSON
 export function formatWinningPath(winningPath) {
-  console.log("win path in format:", JSON.stringify(winningPath, null, 2));
+ // console.log("win path in format:", JSON.stringify(winningPath, null, 2));
   let from = winningPath[0].from;
   let to = winningPath[0].to;
   for (let i = 1; i < winningPath.length; i++) {
     //are they reversed? i.e the previous to is also a to
     let inst = winningPath[i];
     if (inst.to === to) {
-      console.log(`${to} is the wrong way around`);
+   //   console.log(`${to} is the wrong way around`);
       //swap them
       let tmp = inst.from;
       inst.from = inst.to;
@@ -83,7 +83,7 @@ export function formatWinningPath(winningPath) {
     }
     to = inst.to;
   }
-  console.log(`final json: `, JSON.stringify(winningPath, null, 2));
+  //console.log(`final json: `, JSON.stringify(winningPath, null, 2));
 }
 
 // edges = path.edges (or pathA.edges / pathB.edges)
