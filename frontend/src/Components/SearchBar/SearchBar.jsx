@@ -1,20 +1,35 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer, getRandomPlayer } from "../../Scripts/players";
 
-function SearchBar({ onSubmit, onReset, hasRandomChoice, wrongGuessTrigger }) {
-  const [query, setQuery] = useState("");
+function SearchBar({
+  onSubmit,
+  onReset,
+  hasRandomChoice,
+  wrongGuessTrigger,
+  initialValue,
+}) {
+  const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState([]);
-  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [selectedPlayer, setSelectedPlayer] = useState(initialValue || null);
   const [locked, setLocked] = useState(false);
   const debounceRef = useRef(null);
   const [wrongGuess, setWrongGuess] = useState(false);
   useEffect(() => {
-  if (wrongGuessTrigger) {
-    setWrongGuess(true);
-    const timer = setTimeout(() => setWrongGuess(false), 1000);
-    return () => clearTimeout(timer);
-  }
-}, [wrongGuessTrigger]);
+    if (initialValue) {
+      console.log(`initial input is ${initialValue}`)
+      setQuery(initialValue);
+      setSelectedPlayer(initialValue);
+      setLocked(true);
+      onSubmit && onSubmit(initialValue); 
+    }
+  }, [initialValue]);
+  useEffect(() => {
+    if (wrongGuessTrigger) {
+      setWrongGuess(true);
+      const timer = setTimeout(() => setWrongGuess(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [wrongGuessTrigger]);
   useEffect(() => {
     if (query.trim().length < 2 || locked) {
       setResults([]);
@@ -96,14 +111,14 @@ function SearchBar({ onSubmit, onReset, hasRandomChoice, wrongGuessTrigger }) {
 
         <div className="flex gap-2 ml-2">
           {hasRandomChoice && (
-  <button
-    type="button"
-    onClick={handleRandom}
-    className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
-  >
-    Random
-  </button>
-)}
+            <button
+              type="button"
+              onClick={handleRandom}
+              className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+            >
+              Random
+            </button>
+          )}
 
           <button
             type="button"

@@ -111,3 +111,37 @@ export const placeNearNode = (node, containerWidth, containerHeight, minSpacing 
 
   return { x, y };
 };
+
+/**
+ * Converts an array of edges to the format Graph expects:
+ * {
+ *   players: [...],
+ *   teams: [...],
+ *   overlapping_years: [...]
+ * }
+ *
+ * Assumes edges are in order from playerA -> playerB.
+ */
+export function edgesToGraphFormat(edges) {
+  if (!edges || edges.length === 0) return { players: [], teams: [], overlapping_years: [] };
+
+  const players = [edges[0].from]; // start with first 'from'
+  const teams = [];
+  const overlapping_years = [];
+
+  edges.forEach((edge) => {
+    // ensure edge is in correct direction
+    if (players[players.length - 1] !== edge.from) {
+      // swap if needed
+      const tmp = edge.from;
+      edge.from = edge.to;
+      edge.to = tmp;
+    }
+
+    players.push(edge.to);
+    teams.push(edge.team || "");
+    overlapping_years.push(edge.years || "");
+  });
+
+  return { players, teams, overlapping_years };
+}

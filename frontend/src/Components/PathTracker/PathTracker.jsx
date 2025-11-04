@@ -24,7 +24,7 @@ function PathTracker({ winningPath, resetTrigger }) {
   }, [resetTrigger])
 
   return (
-    <div>
+    <div className="text-center text-xl">
       Best Path: {bestConnections === Infinity ? "N/A" : bestConnections}
     </div>
   );

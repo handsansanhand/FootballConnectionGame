@@ -10,6 +10,7 @@ function PlayerInput({
   wrongGuessTrigger,
   correctGuessTrigger,
   hasGuess, // new prop
+  initialValue
 }) {
   return (
     <div className="flex-1">
@@ -31,6 +32,7 @@ function PlayerInput({
             onReset={() => handleReset(playerKey)}
             hasRandomChoice={hasRandomChoice}
             wrongGuessTrigger={wrongGuessTrigger}
+            initialValue={initialValue}
           />
         )}
       </div>
