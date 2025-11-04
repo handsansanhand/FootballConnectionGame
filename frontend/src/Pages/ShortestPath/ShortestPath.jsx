@@ -17,39 +17,51 @@ function ShortestPath() {
   const [path, setPath] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-useEffect(() => {
-  if (player1 && player2) {
-    const fetchPath = async () => {
-      try {
-        setErrorMessage("");
+  useEffect(() => {
+    if (player1 && player2) {
+      const fetchPath = async () => {
+        try {
+          setErrorMessage("");
 
-        // check if there's an existing path in sessionStorage
-        const stored = sessionStorage.getItem("existingPath");
-        if (stored) {
-          const existingEdges = JSON.parse(stored);
-          const formattedExistingPath = edgesToGraphFormat(existingEdges);
-          const formattedActualShortestPath = await getShortestPath(player1, player2);
-          if(formattedExistingPath.players.length === formattedActualShortestPath.players.length) {
-            //just use the existing one
-            setPath(formattedExistingPath);
-          } else {
-            setPath(formattedActualShortestPath);
+          // Only use cached path if it matches the exact players
+          const stored = sessionStorage.getItem("existingPath");
+          let useStored = false;
+          if (stored) {
+            const existingEdges = JSON.parse(stored);
+            const formattedExistingPath = edgesToGraphFormat(existingEdges);
+            const formattedActualShortestPath = await getShortestPath(
+              player1,
+              player2
+            );
+
+            // Only use the cached path if it was for the same two players
+            if (
+              formattedExistingPath.player1 === player1 &&
+              formattedExistingPath.player2 === player2
+            ) {
+              setPath(formattedExistingPath);
+              useStored = true;
+            }
+
+            if (!useStored) {
+              setPath(formattedActualShortestPath);
+            }
+
+            return;
           }
-          return;
+
+          // otherwise fetch a new shortest path
+          const result = await getShortestPath(player1, player2);
+          const formatted = edgesToGraphFormat(result);
+          setPath(formatted);
+        } catch (error) {
+          console.error("Error fetching shortest path:", error);
         }
+      };
 
-        // otherwise fetch a new shortest path
-        const result = await getShortestPath(player1, player2);
-        const formatted = edgesToGraphFormat(result);
-        setPath(formatted);
-      } catch (error) {
-        console.error("Error fetching shortest path:", error);
-      }
-    };
-
-    fetchPath();
-  }
-}, [player1, player2]);
+      fetchPath();
+    }
+  }, [player1, player2]);
 
   const handleReset = (which) => {
     setPath(null);

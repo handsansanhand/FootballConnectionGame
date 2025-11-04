@@ -35,6 +35,7 @@ function PlayerInput({
             wrongGuessTrigger={wrongGuessTrigger}
             initialValue={initialValue}
             newGameTrigger={newGameTrigger}
+            onValidChange={(validPlayer) => setPlayer(validPlayer)}
           />
         )}
       </div>
