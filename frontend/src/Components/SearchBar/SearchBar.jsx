@@ -1,59 +1,56 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer, getRandomPlayer } from "../../Scripts/players";
 
-function SearchBar({
-  onSubmit,
-  onReset,
-  hasRandomChoice,
-  wrongGuessTrigger,
-  initialValue,
-}) {
+function SearchBar({ onSubmit, onReset, hasRandomChoice, initialValue }) {
   const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(initialValue || null);
   const [locked, setLocked] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // NEW
   const debounceRef = useRef(null);
-  const [wrongGuess, setWrongGuess] = useState(false);
+
   useEffect(() => {
     if (initialValue) {
-      console.log(`initial input is ${initialValue}`)
       setQuery(initialValue);
       setSelectedPlayer(initialValue);
       setLocked(true);
-      onSubmit && onSubmit(initialValue); 
+      setDropdownOpen(false); // hide dropdown initially
+      onSubmit && onSubmit(initialValue);
     }
   }, [initialValue]);
-  useEffect(() => {
-    if (wrongGuessTrigger) {
-      setWrongGuess(true);
-      const timer = setTimeout(() => setWrongGuess(false), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [wrongGuessTrigger]);
+
   useEffect(() => {
     if (query.trim().length < 2 || locked) {
       setResults([]);
+      setDropdownOpen(false); // hide dropdown if query too short or locked
       return;
     }
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(async () => {
       try {
         const playerList = await searchPlayer(query);
         setResults(playerList);
+        // Only open dropdown if no player is selected yet
+        setDropdownOpen(
+          !selectedPlayer && (playerList.length > 0 || query.trim().length >= 2)
+        );
       } catch (error) {
         console.error("Error searching player:", error);
       }
     }, 300);
 
     return () => clearTimeout(debounceRef.current);
-  }, [query, locked]);
+  }, [query, locked, selectedPlayer]);
 
   const handleSelectPlayer = (player) => {
     if (!locked) {
       setQuery(player);
       setSelectedPlayer(player);
       setResults([]);
+      setDropdownOpen(false); // CLOSE DROPDOWN on selection
+      onSubmit && onSubmit(player);
     }
   };
 
@@ -61,18 +58,21 @@ function SearchBar({
     if (!locked) {
       setQuery(e.target.value);
       setSelectedPlayer(null);
+      setDropdownOpen(true); // open dropdown when typing
     }
   };
 
   const handleButtonClick = () => {
     if (!locked && selectedPlayer) {
       setLocked(true);
+      setDropdownOpen(false); // hide dropdown on submit
       onSubmit && onSubmit(selectedPlayer);
     } else if (locked) {
       setLocked(false);
       setQuery("");
       setSelectedPlayer(null);
       setResults([]);
+      setDropdownOpen(false);
       onReset && onReset();
     }
   };
@@ -84,6 +84,8 @@ function SearchBar({
         setQuery(random.name);
         setSelectedPlayer(random.name);
         setLocked(true);
+        setResults([]);
+        setDropdownOpen(false); // hide dropdown for random
         onSubmit && onSubmit(random.name);
       }
     } catch (error) {
@@ -93,8 +95,6 @@ function SearchBar({
 
   return (
     <div className="w-full relative">
-      {" "}
-      {/* <-- full width of parent container */}
       <div className="relative flex items-center w-full">
         <input
           type="search"
@@ -136,26 +136,28 @@ function SearchBar({
           </button>
         </div>
       </div>
-      {/* Dropdown results */}
-      {!locked && results.length > 0 && (
+
+      {/* Dropdown container */}
+      {!locked && dropdownOpen && (
         <div className="absolute top-full left-0 w-full mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
-          {results.map((player, index) => (
-            <div
-              key={index}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition"
-              onClick={() => handleSelectPlayer(player)}
-            >
-              <p className="text-gray-900 dark:text-gray-100 font-medium">
-                {player}
-              </p>
-            </div>
-          ))}
+          {results.length > 0 ? (
+            results.map((player, index) => (
+              <div
+                key={index}
+                className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition"
+                onClick={() => handleSelectPlayer(player)}
+              >
+                <p className="text-gray-900 dark:text-gray-100 font-medium">
+                  {player}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500 text-center p-3">
+              No players found.
+            </p>
+          )}
         </div>
-      )}
-      {!locked && results.length === 0 && query.trim().length >= 2 && (
-        <p className="text-sm text-gray-500 mt-2 text-center">
-          No players found.
-        </p>
       )}
     </div>
   );

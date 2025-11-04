@@ -39,7 +39,7 @@ function EnterPlayerModal({ show, onClose, onSubmit }) {
             onSubmit={handleSubmit}
           >
             {/* Player inputs */}
-            <div className="grid gap-4 flex-1 mb-4">
+            <div className="grid gap-4 flex-1 mb-4 border">
               <PlayerInput
                 label="Player 1"
                 playerKey="player1"
