@@ -8,6 +8,7 @@ import { initializeGuessPath, makeGuess } from "../../Scripts/guessPlayer";
 import { simplifyPathJSON } from "../../Components/Graph/graphUtils";
 import MultiPathDisplay from "../../Components/PathDisplay/MultiPathDisplay";
 import WinningModal from "../../Components/WinningModal/WinningModal";
+import PathTracker from "../../Components/PathTracker/PathTracker";
 function GuessPath() {
   // initialize state from localStorage if available
   const [showModal, setShowModal] = useState(false);
@@ -17,7 +18,8 @@ function GuessPath() {
   const [winningPath, setWinningPath] = useState([]);
   const [wrongGuessTrigger, setWrongGuessTrigger] = useState(0);
   const [correctGuessTrigger, setCorrectGuessTrigger] = useState(0);
-  const [ resultMessage, setResultMessage ] = useState("");
+  const [resetCount, setResetCount] = useState(0);
+  const [resultMessage, setResultMessage] = useState("");
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
     return storedPath ? JSON.parse(storedPath) : null;
@@ -44,7 +46,7 @@ function GuessPath() {
     }
   }, [guessedPlayer]);
 
-    useEffect(() => {
+  useEffect(() => {
     setResultMessage(resultMessage);
   }, [resultMessage]);
   //a guess has been made
@@ -75,9 +77,9 @@ function GuessPath() {
 
     setShowModal(false); // hide modal after submission
     const path = await initializeGuessPath(p1, p2);
-    console.log("Initial path:", JSON.stringify(path, null, 2));
+   // console.log("Initial path:", JSON.stringify(path, null, 2));
     setPath(path);
-    console.log("Selected Players:", p1, p2);
+   // console.log("Selected Players:", p1, p2);
   };
 
   //a correct guess was made, update the graph and the connected graph
@@ -88,10 +90,7 @@ function GuessPath() {
       // Only simplify and update if the path exists
       const simplified = simplifyPathJSON(path); // returns { pathA: {...}, pathB: {...} }
       setConnectedGraph(simplified);
-      console.log(
-        "Updated simplified graphs:",
-        JSON.stringify(simplified, null, 2)
-      );
+  //console.log("Updated simplified graphs:", JSON.stringify(simplified, null, 2));
     }
   }, [path]);
   //DEBUG
@@ -105,10 +104,11 @@ function GuessPath() {
     console.log("=====================");
   }, []);
   useEffect(() => {
-    if (isWinner) {
+    if (isWinner && winningPath && winningPath.length > 0) {
       setWinningModal(true);
+      setIsWinner(false); // reset immediately so next win can trigger again
     }
-  }, [isWinner]);
+  }, [isWinner, winningPath]);
 
   const resetPlayers = () => {
     setIsWinner(false);
@@ -125,6 +125,7 @@ function GuessPath() {
     localStorage.removeItem("path");
     localStorage.removeItem("nodesA");
     localStorage.removeItem("nodesB");
+    setResetCount((prev) => prev + 1);
   };
   const errorMessage =
     !player1 || !player2 ? "Please select both players." : null;
@@ -181,7 +182,11 @@ function GuessPath() {
       />
       <WinningModal
         show={winningModal}
-        onClose={() => setWinningModal(false)}
+        onClose={() => {
+          setWinningModal(false);
+          setIsWinner(false); //reset flag so it can trigger again
+          setWinningPath([]);
+        }}
         winningPath={winningPath}
         playerA={player1}
         playerB={player2}
@@ -210,6 +215,8 @@ function GuessPath() {
         hasGuess={true}
         setResultMessage={setResultMessage}
       />
+      {/* Best path tracker */}
+      <PathTracker winningPath={winningPath} resetTrigger={resetCount} />
     </div>
   );
 }

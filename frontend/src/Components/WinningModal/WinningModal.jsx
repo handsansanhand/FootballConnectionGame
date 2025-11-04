@@ -11,10 +11,12 @@ function WinningModal({
   const [finalScore, setFinalScore] = useState(0);
 
   useEffect(() => {
+    console.log(`calling use effect in winning modal`)
     if (winningPath.length !== 0) {
       setFinalScore(winningPath.length - 1);
-      console.log("Winning path:", JSON.stringify(winningPath, null, 2));
       formatWinningPath(winningPath);
+    } else {
+      console.log(`the path is empty`)
     }
   }, [winningPath]);
   return (
