@@ -7,33 +7,36 @@ function SearchBar({
   hasRandomChoice,
   initialValue,
   newGameTrigger,
+  onValidChange
 }) {
   const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(initialValue || null);
-  const [locked, setLocked] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false); // NEW
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const debounceRef = useRef(null);
 
+  // Reset state on new game trigger
   useEffect(() => {
-    setLocked(false);
-    setSelectedPlayer(null);
     setQuery("");
+    setSelectedPlayer(null);
+    setDropdownOpen(false);
   }, [newGameTrigger]);
+
+  // Handle initial value from parent
   useEffect(() => {
     if (initialValue) {
       setQuery(initialValue);
       setSelectedPlayer(initialValue);
-      setLocked(true);
-      setDropdownOpen(false); // hide dropdown initially
+      setDropdownOpen(false);
       onSubmit && onSubmit(initialValue);
     }
   }, [initialValue]);
 
+  // Search whenever query changes
   useEffect(() => {
-    if (query.trim().length < 2 || locked) {
+    if (query.trim().length < 2) {
       setResults([]);
-      setDropdownOpen(false); // hide dropdown if query too short or locked
+      setDropdownOpen(false);
       return;
     }
 
@@ -43,49 +46,33 @@ function SearchBar({
       try {
         const playerList = await searchPlayer(query);
         setResults(playerList);
-        // Only open dropdown if no player is selected yet
-        setDropdownOpen(
-          !selectedPlayer && (playerList.length > 0 || query.trim().length >= 2)
-        );
+
+        // Only open dropdown if the current query is not a valid selected player
+        if (!selectedPlayer || selectedPlayer !== query) {
+          setDropdownOpen(playerList.length > 0);
+        } else {
+          setDropdownOpen(false);
+        }
       } catch (error) {
         console.error("Error searching player:", error);
       }
     }, 300);
 
     return () => clearTimeout(debounceRef.current);
-  }, [query, locked, selectedPlayer]);
+  }, [query, selectedPlayer]);
 
   const handleSelectPlayer = (player) => {
-    // Lock immediately when selecting from dropdown
     setQuery(player);
     setSelectedPlayer(player);
-    setLocked(true); // LOCK immediately
     setResults([]);
     setDropdownOpen(false);
     onSubmit && onSubmit(player);
   };
 
   const handleChange = (e) => {
-    if (!locked) {
-      setQuery(e.target.value);
-      setSelectedPlayer(null);
-      setDropdownOpen(true); // open dropdown when typing
-    }
-  };
-
-  const handleButtonClick = () => {
-    if (!locked && selectedPlayer) {
-      setLocked(true);
-      setDropdownOpen(false); // hide dropdown on submit
-      onSubmit && onSubmit(selectedPlayer);
-    } else if (locked) {
-      setLocked(false);
-      setQuery("");
-      setSelectedPlayer(null);
-      setResults([]);
-      setDropdownOpen(false);
-      onReset && onReset();
-    }
+    setQuery(e.target.value);
+    setSelectedPlayer(null); // clear selection until a valid player is chosen
+    setDropdownOpen(true);
   };
 
   const handleRandom = async () => {
@@ -94,7 +81,6 @@ function SearchBar({
       if (random.name) {
         setQuery(random.name);
         setSelectedPlayer(random.name);
-        setLocked(true); // LOCK immediately
         setResults([]);
         setDropdownOpen(false);
         onSubmit && onSubmit(random.name);
@@ -104,6 +90,11 @@ function SearchBar({
     }
   };
 
+  const isValid = selectedPlayer && selectedPlayer === query; // green only if selected player matches input
+  // Notify parent about validity whenever it changes
+  useEffect(() => {
+    if (onValidChange) onValidChange(isValid ? selectedPlayer : null);
+  }, [isValid, selectedPlayer, query]);
   return (
     <div className="w-full relative">
       <div className="relative flex items-center w-full">
@@ -111,11 +102,10 @@ function SearchBar({
           type="search"
           value={query}
           onChange={handleChange}
-          disabled={locked}
           className={`flex-1 p-4 text-md border-4 rounded-lg w-full ${
-            locked
-              ? "bg-gray-50 dark:bg-gray-700 border-green-500 text-white cursor-default focus:ring-green-500 focus:border-green-500"
-              : "bg-gray-50 dark:bg-gray-700 border-gray-300 text-white focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            isValid
+              ? "border-green-500 bg-green-50 dark:bg-gray-700 text-white"
+              : "border-gray-300 bg-gray-50 dark:bg-gray-700 text-white"
           }`}
           placeholder="Search for a player..."
         />
@@ -133,23 +123,21 @@ function SearchBar({
 
           <button
             type="button"
-            onClick={handleButtonClick}
-            className={`py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm ${
-              locked
-                ? "bg-red-600 hover:bg-red-700"
-                : selectedPlayer
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
-            disabled={!selectedPlayer && !locked}
+            onClick={() => {
+              setQuery("");
+              setSelectedPlayer(null);
+              setResults([]);
+              setDropdownOpen(false);
+              onReset && onReset();
+            }}
+            className="py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm bg-red-600 hover:bg-red-700"
           >
-            {locked ? "Reset" : "Enter"}
+            Reset
           </button>
         </div>
       </div>
 
-      {/* Dropdown container */}
-      {!locked && dropdownOpen && (
+      {dropdownOpen && (
         <div className="absolute top-full left-0 w-full mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
           {results.length > 0 ? (
             results.map((player, index) => (
