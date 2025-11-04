@@ -178,7 +178,9 @@ function GuessPath() {
       <EnterPlayerModal
         show={showModal}
         onClose={() => setShowModal(false)}
+        resetTrigger={resetCount}
         onSubmit={handlePlayersSubmit}
+        newGameTrigger={resetCount}
       />
       <WinningModal
         show={winningModal}

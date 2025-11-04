@@ -1,10 +1,14 @@
 import PlayerInput from "../PlayerInput/PlayerInput";
 import SearchBar from "../SearchBar/SearchBar";
-import { useState } from "react";
-function EnterPlayerModal({ show, onClose, onSubmit }) {
+import { useEffect, useState } from "react";
+function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
   const [player1, setPlayer1] = useState(null);
   const [player2, setPlayer2] = useState(null);
 
+  useEffect(() => {
+    setPlayer1(null)
+    setPlayer2(null)
+  }, [newGameTrigger])
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!player1 || !player2) return; // optional validation
@@ -46,6 +50,7 @@ function EnterPlayerModal({ show, onClose, onSubmit }) {
                 setPlayer={setPlayer1}
                 handleReset={handleReset}
                 hasRandomChoice={true}
+                newGameTrigger={newGameTrigger}
               />
               <PlayerInput
                 label="Player 2"
@@ -53,6 +58,7 @@ function EnterPlayerModal({ show, onClose, onSubmit }) {
                 setPlayer={setPlayer2}
                 handleReset={handleReset}
                 hasRandomChoice={true}
+                newGameTrigger={newGameTrigger}
               />
             </div>
 
@@ -60,7 +66,13 @@ function EnterPlayerModal({ show, onClose, onSubmit }) {
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                disabled={!player1 || !player2} // disable if either player is null
+                className={`text-white inline-flex items-center font-medium rounded-lg text-sm px-5 py-2.5 text-center focus:ring-4 focus:outline-none 
+    ${
+      !player1 || !player2
+        ? "bg-gray-400 cursor-not-allowed focus:ring-gray-300" // disabled styling
+        : "bg-blue-700 hover:bg-blue-800 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" // active styling
+    }`}
               >
                 Find Path
               </button>

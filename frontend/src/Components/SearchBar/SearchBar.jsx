@@ -1,7 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer, getRandomPlayer } from "../../Scripts/players";
 
-function SearchBar({ onSubmit, onReset, hasRandomChoice, initialValue }) {
+function SearchBar({
+  onSubmit,
+  onReset,
+  hasRandomChoice,
+  initialValue,
+  newGameTrigger,
+}) {
   const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(initialValue || null);
@@ -9,6 +15,11 @@ function SearchBar({ onSubmit, onReset, hasRandomChoice, initialValue }) {
   const [dropdownOpen, setDropdownOpen] = useState(false); // NEW
   const debounceRef = useRef(null);
 
+  useEffect(() => {
+    setLocked(false);
+    setSelectedPlayer(null);
+    setQuery("");
+  }, [newGameTrigger]);
   useEffect(() => {
     if (initialValue) {
       setQuery(initialValue);
@@ -45,13 +56,13 @@ function SearchBar({ onSubmit, onReset, hasRandomChoice, initialValue }) {
   }, [query, locked, selectedPlayer]);
 
   const handleSelectPlayer = (player) => {
-    if (!locked) {
-      setQuery(player);
-      setSelectedPlayer(player);
-      setResults([]);
-      setDropdownOpen(false); // CLOSE DROPDOWN on selection
-      onSubmit && onSubmit(player);
-    }
+    // Lock immediately when selecting from dropdown
+    setQuery(player);
+    setSelectedPlayer(player);
+    setLocked(true); // LOCK immediately
+    setResults([]);
+    setDropdownOpen(false);
+    onSubmit && onSubmit(player);
   };
 
   const handleChange = (e) => {
@@ -83,9 +94,9 @@ function SearchBar({ onSubmit, onReset, hasRandomChoice, initialValue }) {
       if (random.name) {
         setQuery(random.name);
         setSelectedPlayer(random.name);
-        setLocked(true);
+        setLocked(true); // LOCK immediately
         setResults([]);
-        setDropdownOpen(false); // hide dropdown for random
+        setDropdownOpen(false);
         onSubmit && onSubmit(random.name);
       }
     } catch (error) {

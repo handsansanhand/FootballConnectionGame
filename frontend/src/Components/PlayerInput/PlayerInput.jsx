@@ -10,7 +10,8 @@ function PlayerInput({
   wrongGuessTrigger,
   correctGuessTrigger,
   hasGuess, // new prop
-  initialValue
+  initialValue,
+  newGameTrigger
 }) {
   return (
     <div className="flex-1 border-2 border-red-500">
@@ -33,6 +34,7 @@ function PlayerInput({
             hasRandomChoice={hasRandomChoice}
             wrongGuessTrigger={wrongGuessTrigger}
             initialValue={initialValue}
+            newGameTrigger={newGameTrigger}
           />
         )}
       </div>
