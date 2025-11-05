@@ -192,7 +192,7 @@ function GuessPath() {
   });
 
   return (
-    <div className="p-3">
+    <div className="p-1">
       <div className="flex items-center justify-between w-full mx-auto">
         {/* Left: Home button */}
         <div>
@@ -238,6 +238,8 @@ function GuessPath() {
         resultMessage={resultMessage}
         onNewGameClick={resetPlayers}
         onResetPathsClick={resetPathsOnly}
+        winningPath={winningPath}
+        resetTrigger={resetCount} 
       />
       {/* Guess a player here*/}
       <PlayerInput
@@ -250,8 +252,6 @@ function GuessPath() {
         hasGuess={true}
         setResultMessage={setResultMessage}
       />
-      {/* Best path tracker */}
-      <PathTracker winningPath={winningPath} resetTrigger={resetCount} />
     </div>
   );
 }
