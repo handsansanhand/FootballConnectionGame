@@ -13,13 +13,30 @@ function SearchBarGuess({
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [wrongGuess, setWrongGuess] = useState(false);
   const [correctGuess, setCorrectGuess] = useState(false);
+  const [inputWidth, setInputWidth] = useState(0);
+  const inputRef = useRef(null);
+  const suppressSearchRef = useRef(false);
   const debounceRef = useRef(null);
+
+  // Measure input width
+  useEffect(() => {
+    if (inputRef.current) {
+      setInputWidth(inputRef.current.offsetWidth);
+    }
+    const handleResize = () => {
+      if (inputRef.current) {
+        setInputWidth(inputRef.current.offsetWidth);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Wrong guess effect
   useEffect(() => {
     if (wrongGuessTrigger) {
       setWrongGuess(true);
-      setQuery(""); // reset input
+      setQuery("");
       setSelectedPlayer(null);
       const timer = setTimeout(() => setWrongGuess(false), 1000);
       return () => clearTimeout(timer);
@@ -30,15 +47,11 @@ function SearchBarGuess({
   useEffect(() => {
     if (correctGuessTrigger) {
       setCorrectGuess(true);
-
-      const timer = setTimeout(() => {
-        setCorrectGuess(false); // remove green after 1s
-      }, 1000);
+      const timer = setTimeout(() => setCorrectGuess(false), 1000);
       return () => clearTimeout(timer);
     }
   }, [correctGuessTrigger]);
 
-  // Reset input after green flash
   useEffect(() => {
     if (!correctGuess) {
       setQuery("");
@@ -49,6 +62,11 @@ function SearchBarGuess({
 
   // Search debounce
   useEffect(() => {
+    if (suppressSearchRef.current) {
+      suppressSearchRef.current = false;
+      return;
+    }
+
     if (query.trim().length < 2) {
       setResults([]);
       return;
@@ -71,6 +89,7 @@ function SearchBarGuess({
     setQuery(player);
     setSelectedPlayer(player);
     setResults([]);
+    suppressSearchRef.current = true;
   };
 
   const handleChange = (e) => {
@@ -79,9 +98,7 @@ function SearchBarGuess({
   };
 
   const handleButtonClick = () => {
-    if (selectedPlayer) {
-      onSubmit && onSubmit(selectedPlayer);
-    }
+    if (selectedPlayer) onSubmit && onSubmit(selectedPlayer);
   };
 
   const handleRandom = async () => {
@@ -99,18 +116,19 @@ function SearchBarGuess({
 
   return (
     <div className="w-full relative">
-      <div className="relative flex items-center w-full">
+      <div className="flex items-center w-full">
         <input
+          ref={inputRef}
           type="search"
           value={query}
           onChange={handleChange}
-          className={`flex-1 p-4 text-md border-4 rounded-lg w-full
-    bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100
-    border-gray-300 focus:ring-blue-500 focus:border-blue-500
-    transition-colors duration-500
-    ${wrongGuess ? "border-red-500" : ""}
-    ${correctGuess ? "border-green-500" : ""}
-  `}
+          className={`flex-1 p-4 text-md border-4 rounded-lg
+            bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100
+            border-gray-300 focus:ring-blue-500 focus:border-blue-500
+            transition-colors duration-500
+            ${wrongGuess ? "border-red-500" : ""}
+            ${correctGuess ? "border-green-500" : ""}
+          `}
           placeholder="Search for a player ..."
         />
 
@@ -128,7 +146,7 @@ function SearchBarGuess({
           <button
             type="button"
             onClick={() => {
-              if (!selectedPlayer) return; // prevent submitting without a selection
+              if (!selectedPlayer) return;
               handleButtonClick();
             }}
             className={`py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm ${
@@ -144,7 +162,10 @@ function SearchBarGuess({
 
       {/* Dropdown results */}
       {results.length > 0 && (
-        <div className="absolute top-full left-0 w-full mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
+        <div
+          className="absolute top-full left-0 mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto"
+          style={{ width: inputWidth }} // Match input width
+        >
           {results.map((player, index) => (
             <div
               key={index}
@@ -159,7 +180,7 @@ function SearchBarGuess({
         </div>
       )}
 
-      {results.length === 0 && query.trim().length >= 2 && (
+      {results.length === 0 && query.trim().length >= 2 && !selectedPlayer && (
         <p className="text-sm text-gray-500 mt-2 text-center">
           No players found.
         </p>

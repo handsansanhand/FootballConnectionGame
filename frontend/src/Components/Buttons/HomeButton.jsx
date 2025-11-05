@@ -3,8 +3,7 @@ function HomeButton() {
     <>
       <button
         onClick={() => (window.location.href = "/")} // navigate home
-        className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
-      >
+        className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-4 border-black rounded-none focus:outline-none"   >
         Home
       </button>
     </>

@@ -6,7 +6,7 @@ import GuessPath from "./Pages/GuessPath.jsx/GuessPath";
 function App() {
   return (
     <Router basename="/">
-          <div className="main-content">
+          <div className="main-content min-h-screen " style={{ backgroundColor: "rgb(37, 165, 26)" }}>
             <Routes>
               <Route path="/" element={<Homepage />} />
               <Route path="/shortestPath" element={<ShortestPath />} />
