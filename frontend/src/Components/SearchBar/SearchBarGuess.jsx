@@ -163,7 +163,7 @@ function SearchBarGuess({
       {/* Dropdown results */}
       {results.length > 0 && (
         <div
-          className="absolute top-full left-0 mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto"
+          className="absolute bottom-full left-0 mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto"
           style={{ width: inputWidth }} // Match input width
         >
           {results.map((player, index) => (
@@ -180,11 +180,6 @@ function SearchBarGuess({
         </div>
       )}
 
-      {results.length === 0 && query.trim().length >= 2 && !selectedPlayer && (
-        <p className="text-sm text-gray-500 mt-2 text-center">
-          No players found.
-        </p>
-      )}
     </div>
   );
 }
