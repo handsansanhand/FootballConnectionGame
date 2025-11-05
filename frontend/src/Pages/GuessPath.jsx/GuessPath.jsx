@@ -78,9 +78,9 @@ function GuessPath() {
 
     setShowModal(false); // hide modal after submission
     const path = await initializeGuessPath(p1, p2);
-   // console.log("Initial path:", JSON.stringify(path, null, 2));
+    // console.log("Initial path:", JSON.stringify(path, null, 2));
     setPath(path);
-   // console.log("Selected Players:", p1, p2);
+    // console.log("Selected Players:", p1, p2);
   };
 
   //a correct guess was made, update the graph and the connected graph
@@ -91,7 +91,7 @@ function GuessPath() {
       // Only simplify and update if the path exists
       const simplified = simplifyPathJSON(path); // returns { pathA: {...}, pathB: {...} }
       setConnectedGraph(simplified);
-  //console.log("Updated simplified graphs:", JSON.stringify(simplified, null, 2));
+      //console.log("Updated simplified graphs:", JSON.stringify(simplified, null, 2));
     }
   }, [path]);
   //DEBUG
@@ -112,7 +112,7 @@ function GuessPath() {
   }, [isWinner, winningPath]);
 
   const resetPlayers = () => {
-    console.log(`new game`)
+    console.log(`new game`);
     setIsWinner(false);
     setPlayer1(null);
     setPlayer2(null);
@@ -129,6 +129,26 @@ function GuessPath() {
     localStorage.removeItem("nodesB");
     setResetCount((prev) => prev + 1);
     setShowModal(true);
+  };
+  const resetPathsOnly = async () => {
+    console.log("Resetting paths but keeping players...");
+
+    if (!player1 || !player2) return;
+
+    // Reinitialize path for the same players
+    const newPath = await initializeGuessPath(player1, player2);
+
+    setPath(newPath);
+    const simplified = simplifyPathJSON(newPath);
+    setConnectedGraph(simplified);
+
+    localStorage.setItem("path", JSON.stringify(newPath));
+    localStorage.removeItem("path");
+    localStorage.removeItem("nodesA");
+    localStorage.removeItem("nodesB");
+    setResultMessage("Paths have been reset!");
+    setWinningPath([]);
+    setIsWinner(false);
   };
   const errorMessage =
     !player1 || !player2 ? "Please select both players." : null;
@@ -172,13 +192,20 @@ function GuessPath() {
   });
 
   return (
-    <div className="p-2">
-      <div className="absolute top-4 left-4">
-        <HomeButton />
-      </div>
-      <h1 className="text-2xl font-bold text-center">Enter Players</h1>
-      <div className="absolute top-4 right-4">
-        <InfoButton />
+    <div className="p-3">
+      <div className="flex items-center justify-between w-full mx-auto">
+        {/* Left: Home button */}
+        <div>
+          <HomeButton />
+        </div>
+
+        {/* Center: Title */}
+        <h1 className="text-2xl font-bold text-center flex-1 m-0">Connect The Players</h1>
+
+        {/* Right: Info button */}
+        <div>
+          <InfoButton textChoice={0} />
+        </div>
       </div>
       <EnterPlayerModal
         show={showModal}
@@ -210,6 +237,7 @@ function GuessPath() {
         onWinningPathFound={(path) => setWinningPath(path)}
         resultMessage={resultMessage}
         onNewGameClick={resetPlayers}
+        onResetPathsClick={resetPathsOnly}
       />
       {/* Guess a player here*/}
       <PlayerInput

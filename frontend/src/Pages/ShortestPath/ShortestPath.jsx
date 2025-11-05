@@ -4,6 +4,7 @@ import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import PathDisplay from "../../Components/PathDisplay/PathDisplay";
 import HomeButton from "../../Components/Buttons/HomeButton";
 import { edgesToGraphFormat } from "../../Components/Graph/graphUtils";
+import InfoButton from "../../Components/Buttons/InfoButton";
 
 function ShortestPath() {
   // read query parameters on mount
@@ -52,7 +53,7 @@ function ShortestPath() {
 
           // otherwise fetch a new shortest path
           const result = await getShortestPath(player1, player2);
-          console.log("res: " , JSON.stringify(result, 2, null));
+          console.log("res: ", JSON.stringify(result, 2, null));
           setPath(result);
         } catch (error) {
           console.error("Error fetching shortest path:", error);
@@ -76,7 +77,9 @@ function ShortestPath() {
         <HomeButton />
       </div>
       <h1 className="text-2xl font-bold mb-6 text-center">Enter Players</h1>
-
+      <div className="absolute top-4 right-4">
+        <InfoButton textChoice={1} />
+      </div>
       {/* Path display */}
       <PathDisplay
         player1={player1}

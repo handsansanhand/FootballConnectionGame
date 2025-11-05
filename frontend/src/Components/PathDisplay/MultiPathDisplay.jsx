@@ -13,6 +13,7 @@ function MultiPathDisplay({
   onWinningPathFound,
   resultMessage,
   onNewGameClick,
+  onResetPathsClick
 }) {
   //console.log("Initial multi path:", JSON.stringify(path, null, 2));
   const [resultM, setResultM] = useState(``);
@@ -48,7 +49,13 @@ function MultiPathDisplay({
           >
             New Game
           </button>
-
+                    <button
+            type="button"
+            onClick={onResetPathsClick}
+            className="absolute bottom-1 right-1 bg-white dark:bg-gray-800 px-4 py-2 rounded shadow-md border border-gray-300 dark:border-gray-600 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+          >
+            Reset Paths
+          </button>
         {/* result message */}
         {resultM && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 px-4 py-2 rounded shadow-md border border-gray-300 dark:border-gray-600">
