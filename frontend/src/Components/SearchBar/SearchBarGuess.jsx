@@ -20,13 +20,9 @@ function SearchBarGuess({
 
   // Measure input width
   useEffect(() => {
-    if (inputRef.current) {
-      setInputWidth(inputRef.current.offsetWidth);
-    }
+    if (inputRef.current) setInputWidth(inputRef.current.offsetWidth);
     const handleResize = () => {
-      if (inputRef.current) {
-        setInputWidth(inputRef.current.offsetWidth);
-      }
+      if (inputRef.current) setInputWidth(inputRef.current.offsetWidth);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -66,7 +62,6 @@ function SearchBarGuess({
       suppressSearchRef.current = false;
       return;
     }
-
     if (query.trim().length < 2) {
       setResults([]);
       return;
@@ -122,13 +117,19 @@ function SearchBarGuess({
           type="search"
           value={query}
           onChange={handleChange}
-          className={`flex-1 p-4 text-md border-4 rounded-lg
-            bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100
-            border-gray-300 focus:ring-blue-500 focus:border-blue-500
-            transition-colors duration-500
-            ${wrongGuess ? "border-red-500" : ""}
-            ${correctGuess ? "border-green-500" : ""}
-          `}
+          className={`flex-1 p-4 text-md rounded-none
+  bg-white text-black
+  border-4
+  ${
+    wrongGuess
+      ? "border-red-500"
+      : correctGuess
+      ? "border-green-500"
+      : "border-black"
+  }
+  transition-colors duration-500
+  focus:outline-none focus:ring-0
+`}
           placeholder="Search for a player ..."
         />
 
@@ -163,23 +164,20 @@ function SearchBarGuess({
       {/* Dropdown results */}
       {results.length > 0 && (
         <div
-          className="absolute bottom-full left-0 mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto"
-          style={{ width: inputWidth }} // Match input width
+          className="absolute bottom-full left-0 mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto"
+          style={{ width: inputWidth }}
         >
           {results.map((player, index) => (
             <div
               key={index}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition"
+              className="p-3 hover:bg-green-700 hover:text-white cursor-pointer transition rounded-none"
               onClick={() => handleSelectPlayer(player)}
             >
-              <p className="text-gray-900 dark:text-gray-100 font-medium">
-                {player}
-              </p>
+              <p className="font-medium">{player}</p>
             </div>
           ))}
         </div>
       )}
-
     </div>
   );
 }

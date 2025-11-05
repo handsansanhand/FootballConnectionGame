@@ -7,7 +7,7 @@ function SearchBar({
   hasRandomChoice,
   initialValue,
   newGameTrigger,
-  onValidChange
+  onValidChange,
 }) {
   const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState([]);
@@ -97,68 +97,66 @@ function SearchBar({
   }, [isValid, selectedPlayer, query]);
   return (
     <div className="w-full flex items-center">
-  <div className="relative flex-1">
-    <input
-      type="search"
-      value={query}
-      onChange={handleChange}
-      className={`w-full p-4 text-md border-4 rounded-lg ${
-        isValid
-          ? "border-green-500 bg-green-50 dark:bg-gray-700 text-white"
-          : "border-gray-300 bg-gray-50 dark:bg-gray-700 text-white"
-      }`}
-      placeholder="Search for a player..."
-    />
+      <div className="relative flex-1">
+        <input
+          type="search"
+          value={query}
+          onChange={handleChange}
+          className={`w-full p-4 text-md border-4 rounded-none
+    ${isValid ? "border-green-500 bg-green-50" : "border-black bg-gray-50"}
+    focus:outline-none focus:ring-0
+  `}
+          placeholder="Search for a player..."
+        />
 
-    {dropdownOpen && (
-      <div className="absolute top-full left-0 w-full mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
-        {results.length > 0 ? (
-          results.map((player, index) => (
-            <div
-              key={index}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition"
-              onClick={() => handleSelectPlayer(player)}
-            >
-              <p className="text-gray-900 dark:text-gray-100 font-medium">
-                {player}
+        {dropdownOpen && (
+          <div className="text-black absolute bottom-full left-0 w-full mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
+            {" "}
+            {results.length > 0 ? (
+              results.map((player, index) => (
+                <div
+                  key={index}
+                  className="p-3 text-black hover:bg-green-700 hover:text-white cursor-pointer transition rounded-none"
+                  onClick={() => handleSelectPlayer(player)}
+                >
+                  <p className="font-medium">{player}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 text-center p-3">
+                No players found.
               </p>
-            </div>
-          ))
-        ) : (
-          <p className="text-sm text-gray-500 text-center p-3">
-            No players found.
-          </p>
+            )}
+          </div>
         )}
       </div>
-    )}
-  </div>
 
-  <div className="flex gap-2 ml-2">
-    {hasRandomChoice && (
-      <button
-        type="button"
-        onClick={handleRandom}
-        className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
-      >
-        Random
-      </button>
-    )}
+      <div className="flex gap-2 ml-2">
+        {hasRandomChoice && (
+          <button
+            type="button"
+            onClick={handleRandom}
+            className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+          >
+            Random
+          </button>
+        )}
 
-    <button
-      type="button"
-      onClick={() => {
-        setQuery("");
-        setSelectedPlayer(null);
-        setResults([]);
-        setDropdownOpen(false);
-        onReset && onReset();
-      }}
-      className="py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm bg-red-600 hover:bg-red-700"
-    >
-      Reset
-    </button>
-  </div>
-</div>
+        <button
+          type="button"
+          onClick={() => {
+            setQuery("");
+            setSelectedPlayer(null);
+            setResults([]);
+            setDropdownOpen(false);
+            onReset && onReset();
+          }}
+          className="py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm bg-red-600 hover:bg-red-700"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
   );
 }
 

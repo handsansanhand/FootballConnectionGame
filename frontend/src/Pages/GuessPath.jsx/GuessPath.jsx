@@ -151,7 +151,7 @@ function GuessPath() {
     setIsWinner(false);
   };
   const errorMessage =
-    !player1 || !player2 ? "Please select both players." : null;
+    !player1 || !player2 ? "Press new game to begin." : null;
   // connected graph will start with the two initial players
   const [connectedGraph, setConnectedGraph] = useState(() => {
     const storedPath = localStorage.getItem("path");

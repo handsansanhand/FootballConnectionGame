@@ -4,6 +4,7 @@ import Homepage from './Pages/Homepage/Homepage';
 import ShortestPath from "./Pages/ShortestPath/ShortestPath";
 import GuessPath from "./Pages/GuessPath.jsx/GuessPath"; 
 function App() {
+  //style={{ backgroundColor: "rgb(37, 165, 26)" }}
   return (
     <Router basename="/">
           <div className="main-content min-h-screen " style={{ backgroundColor: "rgb(37, 165, 26)" }}>
