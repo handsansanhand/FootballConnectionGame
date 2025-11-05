@@ -16,7 +16,7 @@ function MultiPathDisplay({
   onNewGameClick,
   onResetPathsClick,
   winningPath,
-  resetTrigger
+  resetTrigger,
 }) {
   const [resultM, setResultM] = useState(``);
 
@@ -56,16 +56,17 @@ function MultiPathDisplay({
         <button
           type="button"
           onClick={onNewGameClick}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium px-4 py-2"
+          className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-4 border-black rounded-none focus:outline-none"
         >
+          {" "}
           New Game
         </button>
-        </div>
-        <div className="absolute bottom-1 right-1 flex gap-2">
+      </div>
+      <div className="absolute bottom-1 right-1 flex gap-2">
         <button
           type="button"
           onClick={onResetPathsClick}
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium px-4 py-2"
+          className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-4 border-black rounded-none focus:outline-none"
         >
           Reset Paths
         </button>
