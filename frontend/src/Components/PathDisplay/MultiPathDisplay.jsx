@@ -25,7 +25,7 @@ function MultiPathDisplay({
   }, [resultMessage]);
 
   return (
-    <div className="relative bg-gray-100 rounded border-4 border-red-500 w-full min-h-[550px] h-[75vh] flex flex-col items-center justify-center text-center">
+    <div className="relative bg-gray-100 rounded border-4 w-full min-h-[550px] h-[75vh] flex flex-col items-center justify-center text-center">
       {/* Graph area */}
       {errorMessage ? (
         <p className="text-red-600 font-semibold">{errorMessage}</p>

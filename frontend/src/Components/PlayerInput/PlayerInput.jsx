@@ -14,7 +14,7 @@ function PlayerInput({
   newGameTrigger
 }) {
   return (
-    <div className="flex-1 border-2 border-red-500">
+    <div className="flex-1 border-2 border-red-500 mt-3">
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 rounded-none">
         <h2 className="text-xl font-bold mb-2 text-gray-700 dark:text-gray-200">
           {label}

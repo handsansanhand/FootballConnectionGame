@@ -188,8 +188,8 @@ const MultiGraph = ({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full bg-gray-100 rounded-lg shadow-inner"
-    >
+      className="w-full h-full bg-grey-100 rounded-lg shadow-inner"
+      >
       <svg
         width="100%"
         height="100%"

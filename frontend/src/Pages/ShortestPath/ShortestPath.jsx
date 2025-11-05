@@ -73,12 +73,21 @@ function ShortestPath() {
 
   return (
     <div className="p-2">
-      <div className="absolute top-4 left-4">
-        <HomeButton />
-      </div>
-      <h1 className="text-2xl font-bold mb-6 text-center">Enter Players</h1>
-      <div className="absolute top-4 right-4">
-        <InfoButton textChoice={1} />
+      <div className="flex items-center justify-between w-full mx-auto">
+        {/* Left: Home button */}
+        <div>
+          <HomeButton />
+        </div>
+
+        {/* Center: Title */}
+        <h1 className="text-2xl font-bold text-center flex-1 m-0">
+          Shortest Path
+        </h1>
+
+        {/* Right: Info button */}
+        <div>
+          <InfoButton textChoice={1} />
+        </div>
       </div>
       {/* Path display */}
       <PathDisplay
