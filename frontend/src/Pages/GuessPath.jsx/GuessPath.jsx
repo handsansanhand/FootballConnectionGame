@@ -1,4 +1,4 @@
-import EnterPlayerModal from "../../Components/EnterPlayerModal/EnterPlayerModal";
+import EnterPlayerModal from "../../Components/Modals/EnterPlayerModal";
 import Graph from "../../Components/Graph/Graph";
 import HomeButton from "../../Components/Buttons/HomeButton";
 import PathDisplay from "../../Components/PathDisplay/PathDisplay";
@@ -7,8 +7,9 @@ import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import { initializeGuessPath, makeGuess } from "../../Scripts/guessPlayer";
 import { simplifyPathJSON } from "../../Components/Graph/graphUtils";
 import MultiPathDisplay from "../../Components/PathDisplay/MultiPathDisplay";
-import WinningModal from "../../Components/WinningModal/WinningModal";
+import WinningModal from "../../Components/Modals/WinningModal";
 import PathTracker from "../../Components/PathTracker/PathTracker";
+import InfoButton from "../../Components/Buttons/InfoButton";
 function GuessPath() {
   // initialize state from localStorage if available
   const [showModal, setShowModal] = useState(false);
@@ -111,6 +112,7 @@ function GuessPath() {
   }, [isWinner, winningPath]);
 
   const resetPlayers = () => {
+    console.log(`new game`)
     setIsWinner(false);
     setPlayer1(null);
     setPlayer2(null);
@@ -126,6 +128,7 @@ function GuessPath() {
     localStorage.removeItem("nodesA");
     localStorage.removeItem("nodesB");
     setResetCount((prev) => prev + 1);
+    setShowModal(true);
   };
   const errorMessage =
     !player1 || !player2 ? "Please select both players." : null;
@@ -174,7 +177,9 @@ function GuessPath() {
         <HomeButton />
       </div>
       <h1 className="text-2xl font-bold text-center">Enter Players</h1>
-
+      <div className="absolute top-4 right-4">
+        <InfoButton />
+      </div>
       <EnterPlayerModal
         show={showModal}
         onClose={() => setShowModal(false)}

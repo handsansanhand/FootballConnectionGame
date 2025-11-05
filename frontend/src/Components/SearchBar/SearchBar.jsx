@@ -96,69 +96,69 @@ function SearchBar({
     if (onValidChange) onValidChange(isValid ? selectedPlayer : null);
   }, [isValid, selectedPlayer, query]);
   return (
-    <div className="w-full relative">
-      <div className="relative flex items-center w-full">
-        <input
-          type="search"
-          value={query}
-          onChange={handleChange}
-          className={`flex-1 p-4 text-md border-4 rounded-lg w-full ${
-            isValid
-              ? "border-green-500 bg-green-50 dark:bg-gray-700 text-white"
-              : "border-gray-300 bg-gray-50 dark:bg-gray-700 text-white"
-          }`}
-          placeholder="Search for a player..."
-        />
+    <div className="w-full flex items-center">
+  <div className="relative flex-1">
+    <input
+      type="search"
+      value={query}
+      onChange={handleChange}
+      className={`w-full p-4 text-md border-4 rounded-lg ${
+        isValid
+          ? "border-green-500 bg-green-50 dark:bg-gray-700 text-white"
+          : "border-gray-300 bg-gray-50 dark:bg-gray-700 text-white"
+      }`}
+      placeholder="Search for a player..."
+    />
 
-        <div className="flex gap-2 ml-2">
-          {hasRandomChoice && (
-            <button
-              type="button"
-              onClick={handleRandom}
-              className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+    {dropdownOpen && (
+      <div className="absolute top-full left-0 w-full mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
+        {results.length > 0 ? (
+          results.map((player, index) => (
+            <div
+              key={index}
+              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition"
+              onClick={() => handleSelectPlayer(player)}
             >
-              Random
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setSelectedPlayer(null);
-              setResults([]);
-              setDropdownOpen(false);
-              onReset && onReset();
-            }}
-            className="py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm bg-red-600 hover:bg-red-700"
-          >
-            Reset
-          </button>
-        </div>
+              <p className="text-gray-900 dark:text-gray-100 font-medium">
+                {player}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p className="text-sm text-gray-500 text-center p-3">
+            No players found.
+          </p>
+        )}
       </div>
+    )}
+  </div>
 
-      {dropdownOpen && (
-        <div className="absolute top-full left-0 w-full mt-1 z-10 bg-white dark:bg-gray-800 rounded-lg shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
-          {results.length > 0 ? (
-            results.map((player, index) => (
-              <div
-                key={index}
-                className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition"
-                onClick={() => handleSelectPlayer(player)}
-              >
-                <p className="text-gray-900 dark:text-gray-100 font-medium">
-                  {player}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500 text-center p-3">
-              No players found.
-            </p>
-          )}
-        </div>
-      )}
-    </div>
+  <div className="flex gap-2 ml-2">
+    {hasRandomChoice && (
+      <button
+        type="button"
+        onClick={handleRandom}
+        className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+      >
+        Random
+      </button>
+    )}
+
+    <button
+      type="button"
+      onClick={() => {
+        setQuery("");
+        setSelectedPlayer(null);
+        setResults([]);
+        setDropdownOpen(false);
+        onReset && onReset();
+      }}
+      className="py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm bg-red-600 hover:bg-red-700"
+    >
+      Reset
+    </button>
+  </div>
+</div>
   );
 }
 

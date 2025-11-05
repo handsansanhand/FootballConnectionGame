@@ -6,9 +6,9 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
   const [player2, setPlayer2] = useState(null);
 
   useEffect(() => {
-    setPlayer1(null)
-    setPlayer2(null)
-  }, [newGameTrigger])
+    setPlayer1(null);
+    setPlayer2(null);
+  }, [newGameTrigger]);
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!player1 || !player2) return; // optional validation
@@ -29,12 +29,19 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
       }`}
     >
       <div className="relative p-4 w-full max-w-4xl max-h-full">
-        <div className="relative bg-white rounded-lg shadow-lg dark:bg-gray-700">
+        <div className="relative bg-white rounded-lg shadow-lg dark:bg-gray-700 ">
           {/* Header */}
           <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Enter Two Players
             </h3>
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-white dark:bg-gray-800 px-4 py-2 rounded shadow-md border border-gray-300 dark:border-gray-600 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+            >
+              Close
+            </button>
           </div>
 
           {/* Body */}

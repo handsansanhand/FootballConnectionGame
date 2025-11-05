@@ -52,8 +52,8 @@ function ShortestPath() {
 
           // otherwise fetch a new shortest path
           const result = await getShortestPath(player1, player2);
-          const formatted = edgesToGraphFormat(result);
-          setPath(formatted);
+          console.log("res: " , JSON.stringify(result, 2, null));
+          setPath(result);
         } catch (error) {
           console.error("Error fetching shortest path:", error);
         }
