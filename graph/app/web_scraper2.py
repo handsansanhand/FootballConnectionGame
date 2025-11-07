@@ -13,8 +13,13 @@ headers = {
 
 start_season = 2025
 num_seasons_back = 36  # how many seasons to go back
+MAX_PAGES = 50
 
 leagues = [
+    ("la_liga", "ES1"),
+    ("la_liga_2", "ES2"),
+    ("liga_portugal", "PO1"),
+    ("ligue_1", "FR1"),
     ("ligue_2", "FR2"),
 ]
 
@@ -40,8 +45,11 @@ def save_csv(league_name, data):
     with open(output_file, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(data.values())
-    print(f"💾 Saved {len(data)} cumulative player-team records to {output_file}")
+        # Flatten the lists
+        for stint_list in data.values():
+            for stint in stint_list:
+                writer.writerow(stint)
+    print(f"💾 Saved player-team records to {output_file}")
 
 
 def scrape_league(league_name, league_code):
@@ -60,13 +68,14 @@ def scrape_league(league_name, league_code):
             f"saison_id/{season_year}/selectedOptionKey/{league_code}/land_id/0/altersklasse/alle/"
             f"yt0/Show/plus/1/galerie/0/sort/einsaetze.desc"
         )
+        print(base_url)
 
         page = 1
         stop_scraping = False
 
-        while not stop_scraping:
+        while not stop_scraping and page <= MAX_PAGES:
             url = f"{base_url}?ajax=yw1" if page == 1 else f"{base_url}/page/{page}?ajax=yw1"
-            print(f"Requesting {url}")
+            print(f"Requesting from page {page}")
 
             r = safe_get(url)
             if not r:
@@ -113,12 +122,30 @@ def scrape_league(league_name, league_code):
                     break
 
                 key = (player_name, team_name)
+
+                # If this player-team combo already exists, try to merge
                 if key in player_team_data:
-                    player_team_data[key]["appearances"] += appearances
-                    if season_year < player_team_data[key]["start_year"]:
-                        player_team_data[key]["start_year"] = season_year
+                    last_entry = player_team_data[key][-1]  # get last stint
+
+                    # If consecutive season, extend the stint
+                    if season_year == last_entry["start_year"] - 1:
+                        last_entry["start_year"] = season_year
+                        last_entry["appearances"] += appearances
+                    else:
+                        # Start a new stint
+                        player_team_data[key].append({
+                            "player_name": player_name,
+                            "age": age,
+                            "nationality": nationality,
+                            "team_name": team_name,
+                            "league_name": league_name_cell,
+                            "start_year": season_year,
+                            "end_year": season_year,
+                            "appearances": appearances
+                        })
                 else:
-                    player_team_data[key] = {
+                    # First record for this player-team
+                    player_team_data[key] = [{
                         "player_name": player_name,
                         "age": age,
                         "nationality": nationality,
@@ -127,8 +154,11 @@ def scrape_league(league_name, league_code):
                         "start_year": season_year,
                         "end_year": season_year,
                         "appearances": appearances
-                    }
-
+                    }]
+            if stop_scraping:
+                print("Finished scraping all players with appearences for this season.")
+                break
+            
             page += 1
             time.sleep(1.5)
 

@@ -9,8 +9,9 @@ import pandas as pd
 import glob
 import os
 
+
 # Adjust the path and pattern to match your CSV filenames
-data_path = os.path.join(os.getcwd(), "datasets")
+data_path = os.path.join(os.path.dirname(os.getcwd()), "datasets")
 csv_files = glob.glob(os.path.join(data_path, "*_cumulative.csv"))
 
 if not csv_files:
