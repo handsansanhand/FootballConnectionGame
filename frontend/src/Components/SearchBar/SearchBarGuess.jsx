@@ -17,7 +17,7 @@ function SearchBarGuess({
   const inputRef = useRef(null);
   const suppressSearchRef = useRef(false);
   const debounceRef = useRef(null);
-
+  const containerRef = useRef(null);
   // Measure input width
   useEffect(() => {
     if (inputRef.current) setInputWidth(inputRef.current.offsetWidth);
@@ -26,6 +26,22 @@ function SearchBarGuess({
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
+        setResults([]);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   // Wrong guess effect
@@ -110,74 +126,71 @@ function SearchBarGuess({
   };
 
   return (
-    <div className="w-full relative">
-      <div className="flex items-center w-full">
+    <div className="w-full flex items-center">
+      {/* Input + dropdown grouped together */}
+      <div ref={containerRef} className="relative flex-1">
         <input
           ref={inputRef}
           type="search"
           value={query}
           onChange={handleChange}
-          className={`flex-1 p-4 text-md rounded-none
-  bg-white text-black
-  border-4
-  ${
-    wrongGuess
-      ? "border-red-500"
-      : correctGuess
-      ? "border-green-500"
-      : "border-black"
-  }
-  transition-colors duration-500
-  focus:outline-none focus:ring-0
-`}
+          className={`w-full p-4 text-md bg-white text-black border-4 rounded-none
+        ${
+          wrongGuess
+            ? "border-red-500"
+            : correctGuess
+            ? "border-green-500"
+            : "border-black"
+        }
+        transition-colors duration-500
+        focus:outline-none focus:ring-0
+      `}
           placeholder="Search for a player ..."
         />
 
-        <div className="flex gap-2 ml-2">
-          {hasRandomChoice && (
-            <button
-              type="button"
-              onClick={handleRandom}
-              className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
-            >
-              Random
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => {
-              if (!selectedPlayer) return;
-              handleButtonClick();
-            }}
-            className={`py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm ${
-              selectedPlayer
-                ? "bg-green-600 hover:bg-green-700"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
+        {/* Dropdown results (now perfectly aligned under input) */}
+        {results.length > 0 && (
+          <div
+            className="absolute bottom-full left-0 mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto"
+            style={{ width: "100%" }}
           >
-            Enter
-          </button>
-        </div>
+            {results.map((player, index) => (
+              <div
+                key={index}
+                className="p-3 hover:bg-green-700 hover:text-white cursor-pointer transition"
+                onClick={() => handleSelectPlayer(player)}
+              >
+                <p className="font-medium">{player}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Dropdown results */}
-      {results.length > 0 && (
-        <div
-          className="absolute bottom-full left-0 mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto"
-          style={{ width: inputWidth }}
+      {/* Buttons */}
+      <div className="flex gap-2 ml-2">
+        {hasRandomChoice && (
+          <button
+            type="button"
+            onClick={handleRandom}
+            className="h-14 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+          >
+            Random
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={() => selectedPlayer && handleButtonClick()}
+          className={`h-14 px-8 rounded-lg text-white font-medium text-sm transition-colors ${
+            selectedPlayer
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
         >
-          {results.map((player, index) => (
-            <div
-              key={index}
-              className="p-3 hover:bg-green-700 hover:text-white cursor-pointer transition rounded-none"
-              onClick={() => handleSelectPlayer(player)}
-            >
-              <p className="font-medium">{player}</p>
-            </div>
-          ))}
-        </div>
-      )}
+          Enter
+        </button>
+      </div>
     </div>
   );
 }
