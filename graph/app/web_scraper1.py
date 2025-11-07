@@ -16,11 +16,11 @@ num_seasons_back = 36  # how many seasons to go back
 MAX_PAGES = 50
 
 leagues = [
-    ("la_liga", "ES1"),
-    ("la_liga_2", "ES2"),
-    ("liga_portugal", "PO1"),
-    ("ligue_1", "FR1"),
-    ("ligue_2", "FR2"),
+    ("bundesliga", "L1"),
+    ("bundesliga_2", "L2"),
+    ("championship", "GB2"),
+    ("eredivise", "NL1"),
+    ("jupiler_pro_league", "BE1"),
 ]
 
 def safe_get(url, retries=10, delay=5, timeout=10):

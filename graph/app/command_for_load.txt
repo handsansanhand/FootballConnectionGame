@@ -1,4 +1,6 @@
 CREATE INDEX player_name_index IF NOT EXISTS FOR (p:Player) ON (p.name);
+CREATE INDEX team_name_index IF NOT EXISTS FOR (t:Team) ON (t.name);
+
 
 :auto
 LOAD CSV WITH HEADERS FROM 'file:///teammates.csv' AS row
@@ -29,3 +31,23 @@ RETURN
   [n IN nodes(path) | n.name] AS players_in_path,
   [r IN relationships(path) | r.team] AS teams_in_path,
   [r IN relationships(path) | r.overlapping_years] AS overlapping_years_in_path;
+
+
+//LEAGUES
+leagues = [
+    ("premier_league", "GB1"),
+    ("bundesliga", "L1"),
+    ("bundesliga_2", "L2"),
+    ("championship", "GB2"),
+    ("eredivise", "NL1"),
+    ("jupiler_pro_league", "BE1"),
+    ("la_liga", "ES1"),
+    ("la_liga_2", "ES2"),
+    ("liga_portugal", "PO1"),
+    ("ligue_1", "FR1"),
+    ("ligue_2", "FR2"),
+    ("scottish_premiership", "SC1"),
+    ("serie_a", "IT1"),
+    ("serie_b", "IT2"),
+    ("super_lig", "TR1"),
+]
