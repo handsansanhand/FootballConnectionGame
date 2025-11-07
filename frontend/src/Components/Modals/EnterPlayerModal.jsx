@@ -29,19 +29,12 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
       }`}
     >
       <div className="relative p-4 w-full max-w-4xl max-h-full">
-        <div className="relative bg-white rounded-lg shadow-lg dark:bg-gray-700 ">
+        <div className="relative bg-white rounded-lg shadow-lg border-4 border-black ">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="w-full flex justify-center items-center text-center p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+            <h3 className="text-2xl font-semibold text-center">
               Enter Two Players
             </h3>
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-white dark:bg-gray-800 px-4 py-2 rounded shadow-md border border-gray-300 dark:border-gray-600 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
-            >
-              Close
-            </button>
           </div>
 
           {/* Body */}
@@ -50,7 +43,7 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
             onSubmit={handleSubmit}
           >
             {/* Player inputs */}
-            <div className="grid gap-4 flex-1 mb-4 border">
+            <div className="grid gap-4 flex-1 mb-4">
               <PlayerInput
                 label="Player 1"
                 playerKey="player1"
@@ -70,7 +63,14 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
             </div>
 
             {/* Button at bottom right */}
-            <div className="flex justify-end">
+            <div className="flex justify-between">
+              <button
+                type="button"
+                onClick={onClose}
+                className="inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-4 border-black rounded-none focus:outline-none"  >
+         
+                Close
+              </button>
               <button
                 type="submit"
                 disabled={!player1 || !player2} // disable if either player is null
