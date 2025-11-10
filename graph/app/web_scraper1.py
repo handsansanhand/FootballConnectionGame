@@ -61,7 +61,7 @@ def scrape_league(league_name, league_code):
     player_team_data = {}
 
     for season_year in range(start_season, start_season - num_seasons_back, -1):
-        print(f"\n🔹 Scraping season {season_year}")
+        print(f"\n🔹 Scraping {league_name}. Season {season_year}:")
         year_successful = True
 
         base_url = (
@@ -127,7 +127,11 @@ def scrape_league(league_name, league_code):
                 team_name, league_name_cell, team_logo_url = None, None, None
                 if team_td:
                     logo_img = team_td.find("img")
-                    
+                    links = team_td.find_all("a", title=True)
+                    if len(links) >= 2:
+                        team_name = links[1].text.strip()
+                    if len(links) >= 3:
+                        league_name_cell = links[2].text.strip()
                     if logo_img and logo_img.get("src"):
                             src = logo_img.get("src")
                             team_logo_url = src if src.startswith("http") else f"https:{src}"
@@ -135,14 +139,8 @@ def scrape_league(league_name, league_code):
                                 team_logo_url = team_logo_url.replace("wappen/tiny/", "wappen/small/")
                             if team_name and team_logo_url:
                                 team_logos[team_name] = team_logo_url
-                                print(f'storing {team_name}s logo as {team_logo_url}')
                             
-                    links = team_td.find_all("a", title=True)
-                    if len(links) >= 2:
-                        team_name = links[1].text.strip()
-                    if len(links) >= 3:
-                        league_name_cell = links[2].text.strip()
-                    print(f'logo for {team_name} is ${team_logo_url}')
+
 
                 appearances_text = tds[11].text.strip().replace("-", "0")
                 appearances = int(appearances_text) if appearances_text.isdigit() else 0
@@ -174,7 +172,7 @@ def scrape_league(league_name, league_code):
                             "start_year": season_year,
                             "end_year": season_year,
                             "appearances": appearances,
-                            "image_url": image_url
+                            "image_url": image_url if image_url else "null"
                         })
                 else:
                     # First record for this player-team
@@ -187,7 +185,7 @@ def scrape_league(league_name, league_code):
                         "start_year": season_year,
                         "end_year": season_year,
                         "appearances": appearances,
-                        "image_url": image_url
+                        "image_url": image_url if image_url else "null"
                     }]
             if stop_scraping:
                 print("Finished scraping all players with appearences for this season.")
