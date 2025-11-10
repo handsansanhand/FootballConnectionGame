@@ -27,7 +27,7 @@ df["age"] = df["age"].apply(lambda x: int(x) if pd.notna(x) else None)
 print("Creating Player and Team nodes with PLAYED_FOR relationships...")
 
 for _, row in df.iterrows():
-    player = Node("Player", name=row["player_name"], age=row["age"], nationality=row["nationality"])
+    player = Node("Player", name=row["player_name"], age=row["age"], nationality=row["nationality"], image_url=row.get("image_url"))
     team = Node("Team", name=row["team_name"])
     graph.merge(player, "Player", "name")
     graph.merge(team, "Team", "name")
