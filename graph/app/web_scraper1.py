@@ -22,6 +22,7 @@ leagues = [
     ("eredivise", "NL1"),
     ("jupiler_pro_league", "BE1"),
 ]
+team_logos = {}
 
 def safe_get(url, retries=10, delay=5, timeout=10):
     """Try GET request with retries and timeout handling."""
@@ -41,7 +42,7 @@ def safe_get(url, retries=10, delay=5, timeout=10):
 
 def save_csv(league_name, data):
     output_file = f"{league_name}_{start_season}_cumulative.csv"
-    fieldnames = ["player_name", "age", "nationality", "team_name", "start_year", "end_year", "appearances", "league_name"]
+    fieldnames = ["player_name", "age", "nationality", "team_name", "start_year", "end_year", "appearances", "league_name", "image_url"]
     with open(output_file, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -95,7 +96,26 @@ def scrape_league(league_name, league_code):
                     continue
 
                 name_cell = row.find("td", class_="hauptlink")
-                player_name = name_cell.a.text.strip() if name_cell and name_cell.a else None
+                player_name = None
+                image_url = None
+
+                if name_cell:
+                    a_tag = name_cell.find("a")
+                    if a_tag:
+                        player_name = a_tag.text.strip()
+
+                # The <img> tag is usually in a sibling <td> within the same row
+                    img_tag = row.select_one("td > table img")
+                    image_url = None
+                    if img_tag:
+                        src = (
+                        img_tag.get("data-src")
+                        or img_tag.get("data-lazy")
+                        or img_tag.get("data-srcset")
+                        or img_tag.get("src")
+                                )
+                        if src:
+                            image_url = src if src.startswith("http") else f"https:{src}"
 
                 age_td = tds[5] if len(tds) > 5 else None
                 age = int(age_td.text.strip()) if age_td and age_td.text.strip().isdigit() else None
@@ -104,13 +124,25 @@ def scrape_league(league_name, league_code):
                 nationality = flag_img["title"].strip() if flag_img and "title" in flag_img.attrs else None
 
                 team_td = tds[7] if len(tds) > 7 else None
-                team_name, league_name_cell = None, None
+                team_name, league_name_cell, team_logo_url = None, None, None
                 if team_td:
+                    logo_img = team_td.find("img")
+                    
+                    if logo_img and logo_img.get("src"):
+                            src = logo_img.get("src")
+                            team_logo_url = src if src.startswith("http") else f"https:{src}"
+                            if "wappen/tiny/" in team_logo_url:
+                                team_logo_url = team_logo_url.replace("wappen/tiny/", "wappen/small/")
+                            if team_name and team_logo_url:
+                                team_logos[team_name] = team_logo_url
+                                print(f'storing {team_name}s logo as {team_logo_url}')
+                            
                     links = team_td.find_all("a", title=True)
                     if len(links) >= 2:
                         team_name = links[1].text.strip()
                     if len(links) >= 3:
                         league_name_cell = links[2].text.strip()
+                    print(f'logo for {team_name} is ${team_logo_url}')
 
                 appearances_text = tds[11].text.strip().replace("-", "0")
                 appearances = int(appearances_text) if appearances_text.isdigit() else 0
@@ -141,7 +173,8 @@ def scrape_league(league_name, league_code):
                             "league_name": league_name_cell,
                             "start_year": season_year,
                             "end_year": season_year,
-                            "appearances": appearances
+                            "appearances": appearances,
+                            "image_url": image_url
                         })
                 else:
                     # First record for this player-team
@@ -153,7 +186,8 @@ def scrape_league(league_name, league_code):
                         "league_name": league_name_cell,
                         "start_year": season_year,
                         "end_year": season_year,
-                        "appearances": appearances
+                        "appearances": appearances,
+                        "image_url": image_url
                     }]
             if stop_scraping:
                 print("Finished scraping all players with appearences for this season.")
@@ -183,4 +217,12 @@ for name, code in leagues:
     print(f"⏸️ Cooling down before next league...\n")
     time.sleep(10)
 
-print("\n🌍 All leagues processed.")
+print("\nALL LEAGUES PROCESSED.")
+logos_path = "team_logos.csv"
+with open(logos_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["team_name", "logo_url"])
+    for team_name, logo_url in sorted(team_logos.items()):
+        writer.writerow([team_name, logo_url])
+
+print(f"Saved {len(team_logos)} unique team logos to {logos_path}")
