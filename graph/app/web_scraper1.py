@@ -216,7 +216,7 @@ for name, code in leagues:
     time.sleep(10)
 
 print("\nALL LEAGUES PROCESSED.")
-logos_path = "team_logos.csv"
+logos_path = "team_logos_1.csv"
 with open(logos_path, "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(["team_name", "logo_url"])

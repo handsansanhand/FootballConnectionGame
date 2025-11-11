@@ -10,8 +10,9 @@ import glob
 import os
 
 
-# Adjust the path and pattern to match your CSV filenames
+# Adjust the path and pattern to match CSV filenames
 data_path = os.path.join(os.path.dirname(os.getcwd()), "datasets")
+print(data_path)
 csv_files = glob.glob(os.path.join(data_path, "*_cumulative.csv"))
 
 if not csv_files:
