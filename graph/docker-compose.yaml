@@ -6,9 +6,10 @@ services:
     container_name: neo4j-footy
     environment:
       - NEO4J_AUTH=neo4j/password
-      - NEO4JLABS_PLUGINS=["apoc"]
-      - NEO4J_apoc_import_file_enabled=true
-      - NEO4J_dbms_security_allow__csv__import__from__file__urls=true
+      - NEO4J_dbms_memory_heap_initial__size=2G
+      - NEO4J_dbms_memory_heap_max__size=4G
+      - NEO4J_dbms_memory_pagecache_size=2G
+      - NEO4J_dbms_memory_transaction_total_max=6G
     ports:
       - "7474:7474"  # Web UI
       - "7687:7687"  # Bolt protocol

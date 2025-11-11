@@ -1,33 +1,18 @@
 import pandas as pd
 import os
 
-# Define leagues and filenames
-leagues = [
-    "premier_league", "bundesliga", "bundesliga_2", "championship", "eredivise",
-    "jupiler_pro_league", "la_liga", "la_liga_2", "liga_portugal", "ligue_1",
-    "ligue_2", "scottish_premiership", "serie_a", "serie_b", "super_lig"
-]
+# Load your main dataset
+data_path = os.path.join(os.path.dirname(os.getcwd()), "datasets")
+players_path = os.path.join(data_path, "all_leagues_combined.csv")
+logos_path = os.path.join(data_path, "team_logos_combined.csv")
 
-start_season = 2025  # match your scraper naming
+df = pd.read_csv(players_path)
+logos = pd.read_csv(logos_path)
 
-for league in leagues:
-    filename = f"{league}_{start_season}_cumulative.csv"
-    if not os.path.exists(filename):
-        print(f"⚠️ File not found: {filename}")
-        continue
+# Merge team logos into player dataset by team_name
+df = df.merge(logos, on="team_name", how="left")
 
-    print(f"🧹 Cleaning {filename}...")
-    df = pd.read_csv(filename)
-
-    # Drop exact duplicates
-    before = len(df)
-    df = df.drop_duplicates()
-    after = len(df)
-
-    # Optionally, also drop duplicates ignoring appearances (if you just want unique player-team-year)
-    # df = df.drop_duplicates(subset=["player_name", "team_name", "start_year", "end_year"])
-
-    df.to_csv(filename, index=False)
-    print(f"✅ Cleaned {filename}: removed {before - after} duplicates, kept {after}")
-
-print("✨ All CSVs cleaned successfully!")
+# Save updated dataset
+merged_path = os.path.join(data_path, "all_leagues_with_logos.csv")
+df.to_csv(merged_path, index=False)
+print(f"✅ Merged dataset with team logos saved to {merged_path}")
