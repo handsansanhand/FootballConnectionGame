@@ -54,10 +54,11 @@ const MultiGraph = ({
   useEffect(() => {
     const { width, height } = containerSize;
     if (!pathA || !pathB || width === 0 || height === 0) return;
-
+    console.log(`width is ${width}`);
+    console.log(`width is ${containerSize.width}`);
     const midY = height / 2;
     const spacing = width / 2;
-
+    console.log(`initial path is this: `, JSON.stringify(pathA, 2, null));
     // Helper to add new nodes if they don't exist
     const addMissingNodes = (existingNodes, path, edges, isA) => {
       const midX = containerSize.width / 2;
@@ -71,10 +72,18 @@ const MultiGraph = ({
       const allNodes = [...nodesA, ...nodesB, ...existingNodes];
 
       const newNodes = path.players
-        .filter((p) => !existingNodes.some((n) => n.id === p))
+        .filter((p) => !existingNodes.some((n) => n.id === p.id || n.id === p))
         .map((p, i) => {
-          const connectedNode = findConnectedNode(p, edges, existingNodes);
+          let playerObj =
+            typeof p === "object"
+              ? p
+              : { id: p, name: String(p), image_url: null };
           let x, y;
+          const connectedNode = findConnectedNode(
+            playerObj.id,
+            edges,
+            existingNodes
+          );
 
           if (connectedNode) {
             const horizontal = Math.random() > 0.3;
@@ -99,7 +108,7 @@ const MultiGraph = ({
             y = isA ? midY - 60 : midY + 60;
           }
 
-          // 🆕 --- Collision avoidance ---
+          // --- Collision avoidance ---
           const repel = (x, y) => {
             let safe = false;
             let tries = 0;
@@ -125,11 +134,17 @@ const MultiGraph = ({
           const adjusted = repel(x, y);
           x = adjusted.x;
           y = adjusted.y;
-
+          const normalizedNode = {
+            id: playerObj.id,
+            name: playerObj.name,
+            image_url: playerObj.image_url,
+            x,
+            y,
+          };
           // Add this new node to allNodes so future nodes avoid it
-          allNodes.push({ id: p, x, y });
+          allNodes.push({normalizedNode});
 
-          return { id: p, x, y };
+          return normalizedNode;
         });
 
       return [...existingNodes, ...newNodes];

@@ -97,7 +97,7 @@ function SearchBarGuess({
   }, [query]);
 
   const handleSelectPlayer = (player) => {
-    setQuery(player);
+    setQuery(player.name);
     setSelectedPlayer(player);
     setResults([]);
     suppressSearchRef.current = true;
@@ -109,7 +109,7 @@ function SearchBarGuess({
   };
 
   const handleButtonClick = () => {
-    if (selectedPlayer) onSubmit && onSubmit(selectedPlayer);
+    if (selectedPlayer) onSubmit && onSubmit(selectedPlayer.name);
   };
 
   const handleRandom = async () => {
@@ -160,7 +160,7 @@ function SearchBarGuess({
                 className="p-3 hover:bg-green-700 hover:text-white cursor-pointer transition"
                 onClick={() => handleSelectPlayer(player)}
               >
-                <p className="font-medium">{player}</p>
+                <p className="font-medium">{player.name}</p>
               </div>
             ))}
           </div>

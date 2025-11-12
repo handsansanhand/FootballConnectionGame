@@ -19,65 +19,38 @@ async function initializePath(req, res) {
   }
 
   const session = driver.session();
-
   try {
-    // --- 1️⃣ Check for direct connection between playerA and playerB ---
-    const result = await session.run(
+    // --- Fetch full player info ---
+    const playersResult = await session.run(
       `
-      MATCH (a:Player {name: $playerA})-[r:PLAYED_WITH]-(b:Player {name: $playerB})
-      RETURN r.team AS team, r.overlapping_years AS years
+      MATCH (p:Player)
+      WHERE p.player_id IN [$playerA, $playerB]
+      RETURN p.player_id AS id, p.name AS name, p.image_url AS image_url
       `,
-      { playerA, playerB }
+      { playerA: Number(playerA), playerB: Number(playerB) }
     );
 
-    if (result.records.length > 0) {
-      // --- 2️⃣ They are directly connected → return immediate win ---
-      const record = result.records[0];
-      const team = record.get("team");
-      const years = record.get("years");
-
-      const edge = {
-        from: playerA,
-        to: playerB,
-        team,
-        years,
+    const players = {};
+    playersResult.records.forEach((r) => {
+      const id = r.get("id").low ?? r.get("id"); // handle Neo4j integers
+      players[id] = {
+        id,
+        name: r.get("name"),
+        image_url: r.get("image_url"),
       };
+    });
 
-      return res.json({
-        success: true,
-        playerA,
-        playerB,
-        pathA: {
-          players: [playerA, playerB],
-          edges: [edge],
-          teams: [team],
-          overlapping_years: [years],
-        },
-        pathB: { players: [], edges: [], teams: [], overlapping_years: [] },
-        winner: true,
-        winningEdges: [edge],
-      });
-    }
+    const playerAObj = players[playerA];
+    const playerBObj = players[playerB];
 
-    // --- 3️⃣ Otherwise → initialize empty paths ---
-    const pathA = {
-      players: [playerA],
-      edges: [],
-      teams: [],
-      overlapping_years: [],
-    };
-
-    const pathB = {
-      players: [playerB],
-      edges: [],
-      teams: [],
-      overlapping_years: [],
-    };
+    // --- Initialize empty paths ---
+    const pathA = { players: [playerAObj], edges: [], teams: [], overlapping_years: [] };
+    const pathB = { players: [playerBObj], edges: [], teams: [], overlapping_years: [] };
 
     return res.json({
       success: true,
-      playerA,
-      playerB,
+      playerA: playerAObj,
+      playerB: playerBObj,
       pathA,
       pathB,
       winner: false,

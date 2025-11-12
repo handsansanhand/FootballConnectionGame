@@ -1,12 +1,16 @@
 // src/Components/Graph/GraphNode.jsx
-import React from "react";
+import React, { useEffect } from "react";
 
 const GraphNode = ({ node, onMouseDown }) => {
   const paddingX = 12;
   const paddingY = 8;
-  const width = Math.max(100, node.id.length * 8);
+  const width = Math.max(100, String(node.id).length * 8);
+  const label = node.name || String(node.id);
   const height = 40;
-
+  useEffect(() => {
+    console.log(`w: ${width}`)
+    console.log(`node being recieved: `, JSON.stringify(node, 2, null))
+  }, [])
   return (
     <g onMouseDown={(e) => onMouseDown(e, node)} cursor="grab">
       <rect
@@ -40,7 +44,7 @@ const GraphNode = ({ node, onMouseDown }) => {
             height: "100%",
           }}
         >
-          {node.id}
+          {label}
         </div>
       </foreignObject>
     </g>
