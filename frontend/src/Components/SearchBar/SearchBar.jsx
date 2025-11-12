@@ -11,30 +11,32 @@ function SearchBar({
 }) {
   const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState([]);
-  const [selectedPlayer, setSelectedPlayer] = useState(initialValue || null);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const debounceRef = useRef(null);
 
-  // Reset state on new game trigger
+  // Reset on new game
   useEffect(() => {
     setQuery("");
     setSelectedPlayer(null);
     setDropdownOpen(false);
   }, [newGameTrigger]);
 
-  // Handle initial value from parent
+  // Handle initial value (string)
   useEffect(() => {
     if (initialValue) {
-      setQuery(initialValue);
+      // if initialValue is an object, use its name
+      const name =
+        typeof initialValue === "string" ? initialValue : initialValue.name;
+      setQuery(name);
       setSelectedPlayer(initialValue);
-      setDropdownOpen(false);
-      onSubmit && onSubmit(initialValue);
     }
   }, [initialValue]);
 
-  // Search whenever query changes
+  // --- SEARCH FUNCTIONALITY ---
   useEffect(() => {
-    if (query.trim().length < 2) {
+    const searchText = typeof query === "string" ? query.trim() : "";
+    if (searchText.length < 2) {
       setResults([]);
       setDropdownOpen(false);
       return;
@@ -44,57 +46,62 @@ function SearchBar({
 
     debounceRef.current = setTimeout(async () => {
       try {
-        const playerList = await searchPlayer(query);
+        const playerList = await searchPlayer(searchText);
         setResults(playerList);
-
-        // Only open dropdown if the current query is not a valid selected player
-        if (!selectedPlayer || selectedPlayer !== query) {
-          setDropdownOpen(playerList.length > 0);
-        } else {
-          setDropdownOpen(false);
-        }
+        setDropdownOpen(playerList.length > 0);
       } catch (error) {
         console.error("Error searching player:", error);
       }
     }, 300);
 
     return () => clearTimeout(debounceRef.current);
-  }, [query, selectedPlayer]);
+  }, [query]);
 
+  // --- SELECTION HANDLERS ---
   const handleSelectPlayer = (player) => {
-    setQuery(player);
-    setSelectedPlayer(player);
+    setQuery(player.name); // display name
+    setSelectedPlayer(player); // store full player object
     setResults([]);
     setDropdownOpen(false);
-    onSubmit && onSubmit(player);
+
+    // Pass player ID to parent
+    if (onSubmit) onSubmit(player.id);
+    if (onValidChange) onValidChange(player.id);
   };
 
   const handleChange = (e) => {
     setQuery(e.target.value);
-    setSelectedPlayer(null); // clear selection until a valid player is chosen
+    setSelectedPlayer(null);
     setDropdownOpen(true);
   };
 
   const handleRandom = async () => {
     try {
       const random = await getRandomPlayer();
-      if (random.name) {
+      if (random?.name) {
         setQuery(random.name);
-        setSelectedPlayer(random.name);
+        setSelectedPlayer(random);
         setResults([]);
         setDropdownOpen(false);
-        onSubmit && onSubmit(random.name);
+        onSubmit && onSubmit(random.id);
+        onValidChange && onValidChange(random.id);
       }
     } catch (error) {
       console.error("Failed to fetch random player:", error);
     }
   };
 
-  const isValid = selectedPlayer && selectedPlayer === query; // green only if selected player matches input
-  // Notify parent about validity whenever it changes
-  useEffect(() => {
-    if (onValidChange) onValidChange(isValid ? selectedPlayer : null);
-  }, [isValid, selectedPlayer, query]);
+  const handleReset = () => {
+    setQuery("");
+    setSelectedPlayer(null);
+    setResults([]);
+    setDropdownOpen(false);
+    onReset && onReset();
+  };
+
+  const isValid = !!selectedPlayer;
+
+  // --- RENDER ---
   return (
     <div className="w-full flex items-center">
       <div className="relative flex-1">
@@ -103,23 +110,35 @@ function SearchBar({
           value={query}
           onChange={handleChange}
           className={`w-full p-4 text-md border-4 rounded-none
-    ${isValid ? "border-green-500 bg-green-50" : "border-black bg-gray-50"}
-    focus:outline-none focus:ring-0
-  `}
+            ${
+              isValid
+                ? "border-green-500 bg-green-50"
+                : "border-black bg-gray-50"
+            }
+            focus:outline-none focus:ring-0
+          `}
           placeholder="Search for a player..."
         />
 
         {dropdownOpen && (
-          <div className="text-black absolute bottom-full left-0 w-full mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto">
-            {" "}
+          <div className="absolute bottom-full left-0 w-full mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow max-h-60 overflow-auto">
             {results.length > 0 ? (
-              results.map((player, index) => (
+              results.map((player) => (
                 <div
-                  key={index}
-                  className="p-3 text-black hover:bg-green-700 hover:text-white cursor-pointer transition rounded-none"
+                  key={player.id}
+                  className="p-3 hover:bg-green-700 hover:text-white cursor-pointer transition"
                   onClick={() => handleSelectPlayer(player)}
                 >
-                  <p className="font-medium">{player}</p>
+                  <div className="flex items-center gap-3">
+                    {player.image_url && (
+                      <img
+                        src={player.image_url}
+                        alt={player.name}
+                        className="w-8 h-8 rounded-full object-cover border"
+                      />
+                    )}
+                    <p className="font-medium">{player.name}</p>
+                  </div>
                 </div>
               ))
             ) : (
@@ -144,14 +163,8 @@ function SearchBar({
 
         <button
           type="button"
-          onClick={() => {
-            setQuery("");
-            setSelectedPlayer(null);
-            setResults([]);
-            setDropdownOpen(false);
-            onReset && onReset();
-          }}
-          className="py-2 px-4 rounded-lg text-white font-medium transition-colors text-sm bg-red-600 hover:bg-red-700"
+          onClick={handleReset}
+          className="py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-sm"
         >
           Reset
         </button>
