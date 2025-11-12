@@ -9,14 +9,25 @@ async function searchPlayers(req, res) {
   const session = driver.session();
   try {
     const cypher = `
-     MATCH (p:Player)
-     WHERE toLower(p.name) CONTAINS toLower($query)
-     RETURN p.name AS name
-     LIMIT 20
+MATCH (p:Player)
+WHERE toLower(p.name) CONTAINS toLower($query)
+WITH p,
+  CASE
+    WHEN toLower(p.name) = toLower($query) THEN 0          // exact match
+    WHEN toLower(p.name) STARTS WITH toLower($query) THEN 1 // prefix match
+    ELSE 2                                                 // substring match
+  END AS priority
+RETURN p.player_id AS id, p.name AS name, p.image_url AS image_url
+ORDER BY priority, p.name
+LIMIT 20
     `;
     const result = await session.run(cypher, { query });
-    const names = result.records.map((record) => record.get("name"));
-    res.json(names);
+    const players = result.records.map((record) => ({
+      id: record.get("id").low ?? record.get("id"), // extract .low if integer
+      name: record.get("name"),
+      image_url: record.get("image_url"),
+    }));
+    res.json(players);
   } catch (error) {
     console.error("Neo4j player search error:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -31,7 +42,7 @@ async function getRandomPlayer(req, res) {
     const cypher = `
       MATCH (p:Player)
       WITH p, rand() AS r
-      RETURN p.name AS name
+      RETURN p.player_id AS id, p.name AS name, p.image_url as image_url
       ORDER BY r
       LIMIT 1
     `;
@@ -40,8 +51,12 @@ async function getRandomPlayer(req, res) {
       return res.status(404).json({ error: "No players found" });
     }
 
-    const name = result.records[0].get("name");
-    res.json({ name });
+    const record = result.records[0];
+    res.json({
+      id: record.get("id").low ?? record.get("id"),
+      name: record.get("name"),
+      image_url: record.get("image_url"),
+    });
   } catch (error) {
     console.error("Neo4j random player error:", error);
     res.status(500).json({ error: "Internal Server Error" });
