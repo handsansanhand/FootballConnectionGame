@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import GraphNode from "./GraphNode";
-import { buildConnections, formatYear } from "./graphUtils";
+import { formatYear } from "./graphUtils";
 
 const Graph = ({ pathJson }) => {
   const containerRef = useRef(null);
@@ -9,6 +9,7 @@ const Graph = ({ pathJson }) => {
   const [nodes, setNodes] = useState([]);
   const [draggingNode, setDraggingNode] = useState(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+
   // Handle container resize
   useEffect(() => {
     if (!containerRef.current) return;
@@ -25,30 +26,36 @@ const Graph = ({ pathJson }) => {
 
   // Compute initial node positions
   useEffect(() => {
-    console.log(`graph json `, JSON.stringify(pathJson, null, 2))
-    if (!pathJson?.players || containerWidth === 0 || containerHeight === 0)
+    if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
       return;
 
-    const numNodes = pathJson.players.length;
+    const numNodes = pathJson.nodes.length;
     const spacing = containerWidth / (numNodes + 1);
-    const svgMidY = containerHeight / 2; // dynamic vertical center
+    const svgMidY = containerHeight / 2;
 
     setNodes(
-      pathJson.players.map((player, index) => ({
-        id: player,
+      pathJson.nodes.map((player, index) => ({
+        id: player.name,
+        name: player.name,
+        image_url: player.image_url,
         x: spacing * (index + 1),
         y: svgMidY,
       }))
     );
   }, [pathJson, containerWidth, containerHeight]);
 
-  // Return early if not ready
-  if (!pathJson?.players || containerWidth === 0 || containerHeight === 0)
+  if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
     return <div ref={containerRef} className="w-full h-full" />;
 
   // Build connections
-  const connections = buildConnections(nodes, pathJson);
-  const pathPlayers = pathJson.players || [];
+  const relationships = pathJson.relationships || [];
+  const connections = nodes.slice(0, -1).map((fromNode, i) => ({
+    from: fromNode,
+    to: nodes[i + 1],
+    team: relationships[i]?.team || "",
+    team_logo: relationships[i]?.team_logo || "",
+    year: relationships[i]?.overlapping_years || "",
+  }));
 
   // Drag handlers
   const handleMouseDown = (e, node) => {
@@ -96,13 +103,8 @@ const Graph = ({ pathJson }) => {
           const dx = c.to.x - c.from.x;
           const dy = c.to.y - c.from.y;
           const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-          // flip text if edge goes left
           const flip = dx < 0;
           const textRotation = flip ? angle + 180 : angle;
-
-          const isActive =
-            pathPlayers.includes(c.from.id) && pathPlayers.includes(c.to.id);
 
           return (
             <g key={i}>
@@ -111,10 +113,21 @@ const Graph = ({ pathJson }) => {
                 y1={c.from.y}
                 x2={c.to.x}
                 y2={c.to.y}
-                stroke={isActive ? "red" : "gray"}
-                strokeWidth={isActive ? 4 : 2}
+                stroke="red"
+                strokeWidth={4}
               />
               <g transform={`rotate(${textRotation}, ${midX}, ${midY})`}>
+                {/* Team logo */}
+                {c.team_logo && (
+                  <image
+                    href={c.team_logo}
+                    x={midX - 12}
+                    y={midY - 40}
+                    width="24"
+                    height="24"
+                    clipPath="circle(50%)"
+                  />
+                )}
                 <text
                   x={midX}
                   y={midY - 10}
@@ -138,10 +151,86 @@ const Graph = ({ pathJson }) => {
           );
         })}
 
-        {/* Nodes */}
+        {/* Player nodes (with photo + name) */}
         {nodes.map((n) => (
-          <GraphNode key={n.id} node={n} onMouseDown={handleMouseDown} />
-        ))}
+  <g
+    key={n.id}
+    onMouseDown={(e) => handleMouseDown(e, n)}
+    style={{ cursor: "grab" }}
+  >
+    {/* Node background box */}
+    <rect
+      x={n.x - 45}
+      y={n.y - 75}
+      width="90"
+      height="115"
+      rx="12"
+      ry="12"
+      fill="black"
+      stroke="white"
+      strokeWidth="2"
+      opacity="0.95"
+      filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.5))"
+    />
+
+    {/* Top-rounded image */}
+    {n.image_url && (
+      <>
+        <clipPath id={`clip-${n.id}`}>
+          <path
+            d={`
+              M${n.x - 45},${n.y - 75 + 12}               /* move to bottom-left of top corner */
+              a12,12 0 0 1 12,-12                          /* top-left corner */
+              h66                                           /* top edge */
+              a12,12 0 0 1 12,12                            /* top-right corner */
+              v50                                           /* down to leave space for text */
+              h-90                                          /* left to starting x */
+              z
+            `}
+          />
+        </clipPath>
+        <image
+          href={n.image_url}
+          x={n.x - 45}
+          y={n.y - 75}
+          width="90"
+          height="75"
+          preserveAspectRatio="xMidYMid slice"
+          clipPath={`url(#clip-${n.id})`}
+        />
+      </>
+    )}
+
+    {/* Player name (wraps at bottom) */}
+    <foreignObject
+      x={n.x - 42}
+      y={n.y - 5}
+      width="84"
+      height="45"
+      style={{ overflow: "hidden" }}
+    >
+      <div
+        xmlns="http://www.w3.org/1999/xhtml"
+        style={{
+          color: "white",
+          fontSize: "12px",
+          fontWeight: "bold",
+          textAlign: "center",
+          wordWrap: "break-word",
+          overflow: "hidden",
+          lineHeight: "1.1em",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+          padding: "0 4px",
+        }}
+      >
+        {n.name}
+      </div>
+    </foreignObject>
+  </g>
+))}
       </svg>
     </div>
   );

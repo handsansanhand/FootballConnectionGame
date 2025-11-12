@@ -42,7 +42,7 @@ def safe_get(url, retries=10, delay=5, timeout=10):
 
 def save_csv(league_name, data):
     output_file = f"{league_name}_{start_season}_cumulative.csv"
-    fieldnames = ["player_name", "age", "nationality", "team_name", "start_year", "end_year", "appearances", "league_name", "image_url"]
+    fieldnames = ["player_id","player_name", "age", "nationality", "team_name", "start_year", "end_year", "appearances", "league_name", "image_url"]
     with open(output_file, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -98,11 +98,18 @@ def scrape_league(league_name, league_code):
                 name_cell = row.find("td", class_="hauptlink")
                 player_name = None
                 image_url = None
-
+                player_id = None
                 if name_cell:
                     a_tag = name_cell.find("a")
                     if a_tag:
                         player_name = a_tag.text.strip()
+                        href = a_tag.get("href", "")
+                        if "/spieler/" in href:
+                            try:
+                                # href looks like "/chris-richards/profil/spieler/578539"
+                                player_id = href.split("/spieler/")[-1].split("/")[0]
+                            except IndexError:
+                                player_id = None
 
                 # The <img> tag is usually in a sibling <td> within the same row
                     img_tag = row.select_one("td > table img")
@@ -138,7 +145,8 @@ def scrape_league(league_name, league_code):
                             if "wappen/tiny/" in team_logo_url:
                                 team_logo_url = team_logo_url.replace("wappen/tiny/", "wappen/small/")
                             if team_name and team_logo_url:
-                                team_logos[team_name] = team_logo_url
+                                if team_name not in team_logos: #ONLY ADD THE MOST RECENT ONE
+                                    team_logos[team_name] = team_logo_url
                             
 
 
@@ -164,6 +172,7 @@ def scrape_league(league_name, league_code):
                     else:
                         # Start a new stint
                         player_team_data[key].append({
+                            "player_id": player_id,
                             "player_name": player_name,
                             "age": age,
                             "nationality": nationality,
@@ -177,6 +186,7 @@ def scrape_league(league_name, league_code):
                 else:
                     # First record for this player-team
                     player_team_data[key] = [{
+                        "player_id": player_id,
                         "player_name": player_name,
                         "age": age,
                         "nationality": nationality,

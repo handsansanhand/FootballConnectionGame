@@ -2,7 +2,8 @@ import pandas as pd
 import os
 
 # Load your main dataset
-data_path = os.path.join(os.path.dirname(os.getcwd()), "datasets")
+data_path = os.path.join(os.path.dirname(__file__), "..", "datasets")
+data_path = os.path.abspath(data_path)
 players_path = os.path.join(data_path, "all_leagues_combined.csv")
 logos_path = os.path.join(data_path, "team_logos_combined.csv")
 

@@ -16,7 +16,7 @@ async function getShortestPath(req, res) {
 
   try {
     const query = `
-      MATCH (p1:Player {name: 'Xabi Alonso'}), (p2:Player {name: 'Roy Keane'})
+      MATCH (p1:Player {name: $player1}), (p2:Player {name: $player2})
 MATCH path = shortestPath((p1)-[:PLAYED_WITH*]-(p2))
 UNWIND relationships(path) AS r
 OPTIONAL MATCH (t:Team {name: r.team})
