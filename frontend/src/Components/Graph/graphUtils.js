@@ -34,24 +34,36 @@ export function simplifyPathJSON(path) {
 }
 
 export function findWinningPath(start, end, edges) {
- // console.log(`making winning path...`);
+  console.log(`making winning path...`);
+  start = typeof start === "object" ? start.id : start;
+  end = typeof end === "object" ? end.id : end;
+
+  console.log(`starting from : ${start}`);
+  console.log(`ending at : ${end}`);
+  console.log(`edges are :`, edges);
+
   // Build adjacency list
   const graph = {};
   for (const edge of edges) {
-    const { from, to } = edge;
-    if (!graph[from]) graph[from] = [];
-    if (!graph[to]) graph[to] = [];
-    graph[from].push({ node: to, edge });
-    graph[to].push({ node: from, edge }); // Undirected
+    const fromId = typeof edge.from === "object" ? edge.from.id : edge.from;
+    const toId = typeof edge.to === "object" ? edge.to.id : edge.to;
+
+    if (!graph[fromId]) graph[fromId] = [];
+    if (!graph[toId]) graph[toId] = [];
+
+    graph[fromId].push({ node: toId, edge });
+    graph[toId].push({ node: fromId, edge }); // Undirected
   }
 
-  // BFS queue
+  console.log("Graph built:", graph);
+
+  // BFS
   const queue = [[start, []]];
   const visited = new Set([start]);
 
   while (queue.length > 0) {
     const [current, path] = queue.shift();
-    if (current === end) return path; // found path!
+    if (current === end) return path;
 
     for (const neighbor of graph[current] || []) {
       if (!visited.has(neighbor.node)) {
@@ -61,29 +73,31 @@ export function findWinningPath(start, end, edges) {
     }
   }
 
-  // No path found
   return [];
 }
-
 //function which should format the winning path from playerA -> playerB
 //presume that playerA is always 'from' in the first entry of the JSON
 export function formatWinningPath(winningPath) {
- // console.log("win path in format:", JSON.stringify(winningPath, null, 2));
-  let from = winningPath[0].from;
-  let to = winningPath[0].to;
+  console.log("win path in format:", JSON.stringify(winningPath, null, 2));
+
+  if (!winningPath || winningPath.length === 0) return winningPath;
+
   for (let i = 1; i < winningPath.length; i++) {
-    //are they reversed? i.e the previous to is also a to
-    let inst = winningPath[i];
-    if (inst.to === to) {
-   //   console.log(`${to} is the wrong way around`);
-      //swap them
-      let tmp = inst.from;
-      inst.from = inst.to;
-      inst.to = tmp;
+    const prev = winningPath[i - 1];
+    const curr = winningPath[i];
+
+    // If the previous "to" player doesn't match this "from" player
+    // → it means this edge is reversed
+    if (curr.to.id === prev.to.id || curr.to.name === prev.to.name) {
+      // swap the direction
+      const tmp = curr.from;
+      curr.from = curr.to;
+      curr.to = tmp;
     }
-    to = inst.to;
   }
-  //console.log(`final json: `, JSON.stringify(winningPath, null, 2));
+
+  console.log("final WINNING PATH:", JSON.stringify(winningPath, null, 2));
+  return winningPath;
 }
 
 // edges = path.edges (or pathA.edges / pathB.edges)
@@ -98,7 +112,13 @@ export const findConnectedNode = (playerId, edges, existingNodes) => {
   return null;
 };
 
-export const placeNearNode = (node, containerWidth, containerHeight, minSpacing = 50, maxSpacing = 120) => {
+export const placeNearNode = (
+  node,
+  containerWidth,
+  containerHeight,
+  minSpacing = 50,
+  maxSpacing = 120
+) => {
   const angle = Math.random() * 2 * Math.PI;
   const radius = minSpacing + Math.random() * (maxSpacing - minSpacing);
 
@@ -123,7 +143,8 @@ export const placeNearNode = (node, containerWidth, containerHeight, minSpacing 
  * Assumes edges are in order from playerA -> playerB.
  */
 export function edgesToGraphFormat(edges) {
-  if (!edges || edges.length === 0) return { players: [], teams: [], overlapping_years: [] };
+  if (!edges || edges.length === 0)
+    return { players: [], teams: [], overlapping_years: [] };
 
   const players = [edges[0].from]; // start with first 'from'
   const teams = [];

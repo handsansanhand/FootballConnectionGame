@@ -109,7 +109,7 @@ function SearchBarGuess({
   };
 
   const handleButtonClick = () => {
-    if (selectedPlayer) onSubmit && onSubmit(selectedPlayer.name);
+    if (selectedPlayer) onSubmit && onSubmit(selectedPlayer);
   };
 
   const handleRandom = async () => {
