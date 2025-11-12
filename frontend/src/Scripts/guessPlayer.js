@@ -11,6 +11,7 @@ export async function initializeGuessPath(playerA, playerB) {
     });
     if (!response.ok) throw new Error("Failed to initialize path");
     const result = await response.json();
+    console.log(`initial setup: `, JSON.stringify(result,2,null))
     return result;
   } catch (err) {
     console.error("Initialization failed:", err);
