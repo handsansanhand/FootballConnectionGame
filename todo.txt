@@ -1,11 +1,10 @@
 make winning modal fade in
 redecorate everything
-    : error when guessing player
-        : border of text goes red / shakes
-        : resets
-    : on winning modal, option to view shortest path after winning
+    : clicking show winning/best path puts the player id in the input
+    : winning modal is ok for phones ?
+    : fix the gold winning path display
     : display graphs should be resizeable for phones
     : add an example for the info buttons ?
-    : add a reset button which gets rid of the path but keeps the players
+    : result messages fade in + out after a delay
     : group all nodes to connected teams (NOT SURE IF THIS WILL LOOK WORSE)
         : have teams be a node and players link to it

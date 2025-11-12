@@ -27,7 +27,7 @@ const MultiGraph = ({
   });
   const [winnerAlerted, setWinnerAlerted] = useState(false);
   const [winningPath, setWinningPath] = useState([]);
-
+  const [layoutReady, setLayoutReady] = useState(false);
   // --- Helpers ---
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -49,21 +49,19 @@ const MultiGraph = ({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
+  
   // --- Compute Initial Node Positions ---
   useEffect(() => {
     const { width, height } = containerSize;
     if (!pathA || !pathB || width === 0 || height === 0) return;
-    console.log(`width is ${width}`);
-    console.log(`width is ${containerSize.width}`);
     const midY = height / 2;
     const spacing = width / 2;
-    console.log(`initial path is this: `, JSON.stringify(pathA, 2, null));
+    console.log(`path is this: `, JSON.stringify(pathA, null, 2));
     // Helper to add new nodes if they don't exist
     const addMissingNodes = (existingNodes, path, edges, isA) => {
       const midX = containerSize.width / 2;
       const midY = containerSize.height / 2;
-
+      
       const baseSpacing = 160;
       const shiftAmount = 60;
       const minDistance = 120; // 🆕 how far apart nodes must be
@@ -142,7 +140,7 @@ const MultiGraph = ({
             y,
           };
           // Add this new node to allNodes so future nodes avoid it
-          allNodes.push({normalizedNode});
+          allNodes.push(normalizedNode);
 
           return normalizedNode;
         });
@@ -157,12 +155,14 @@ const MultiGraph = ({
     storedNodesA = addMissingNodes(storedNodesA, pathA, pathA.edges, true);
     storedNodesB = addMissingNodes(storedNodesB, pathB, pathB.edges, false);
 
+    setNodesA(storedNodesA);
+    setNodesB(storedNodesB);
+
+    setLayoutReady(true);
+
     // Persist updated nodes
     localStorage.setItem("nodesA", JSON.stringify(storedNodesA));
     localStorage.setItem("nodesB", JSON.stringify(storedNodesB));
-
-    setNodesA(storedNodesA);
-    setNodesB(storedNodesB);
   }, [pathA, pathB, containerSize]);
 
   // --- Compute Winning Path ---
@@ -242,12 +242,33 @@ const MultiGraph = ({
 
   // --- Render ---
   const allNodesExist =
-    pathA.players.every((p) => nodesA.some((n) => n.id === p)) &&
-    pathB.players.every((p) => nodesB.some((n) => n.id === p));
+    pathA.players.every((p) => nodesA.some((n) => n.id === p.id)) &&
+    pathB.players.every((p) => nodesB.some((n) => n.id === p.id));
 
-  if (containerSize.width === 0 || containerSize.height === 0)
+  if (
+    containerSize.width === 0 ||
+    containerSize.height === 0 ||
+    !layoutReady ||
+    nodesA.length === 0 ||
+    nodesB.length === 0
+  )
     return <div ref={containerRef} className="w-full h-full" />;
+  // Combine and deduplicate edges
+  const combinedEdges = [...pathA.edges, ...pathB.edges];
 
+  // Create a unique set based on from/to ids (direction-agnostic)
+  const uniqueEdges = combinedEdges.filter((edge, index, self) => {
+    const key1 = `${edge.from.id}-${edge.to.id}`;
+    const key2 = `${edge.to.id}-${edge.from.id}`;
+    return (
+      index ===
+      self.findIndex(
+        (e) =>
+          (e.from.id === edge.from.id && e.to.id === edge.to.id) ||
+          (e.from.id === edge.to.id && e.to.id === edge.from.id)
+      )
+    );
+  });
   return (
     <div
       ref={containerRef}
@@ -260,10 +281,10 @@ const MultiGraph = ({
         onMouseUp={handleMouseUp}
       >
         {/* --- Render Edges --- */}
-        {allNodesExist &&
-          [...pathA.edges, ...pathB.edges].map((edge, i) => {
-            const from = getNodePosition(edge.from);
-            const to = getNodePosition(edge.to);
+        {layoutReady &&
+          uniqueEdges.map((edge, i) => {
+            const from = getNodePosition(edge.from.id);
+            const to = getNodePosition(edge.to.id);
             const midX = (from.x + to.x) / 2;
             const midY = (from.y + to.y) / 2;
             const angle =
@@ -271,10 +292,13 @@ const MultiGraph = ({
             const flip = to.x - from.x < 0;
             const textRotation = flip ? angle + 180 : angle;
 
-            const edgeKey = `${edge.from}-${edge.to}-${edge.team}-${edge.years}`;
+            const edgeKey = `${edge.from.id}-${edge.to.id}-${edge.team}-${edge.years}`;
+            const isAEdge = pathA.edges.some(
+              (e) => e.from.id === edge.from.id && e.to.id === edge.to.id
+            );
             const color = winningPathKeys.has(edgeKey)
               ? "gold"
-              : pathA.edges.includes(edge)
+              : isAEdge
               ? "red"
               : "blue";
 
@@ -313,26 +337,27 @@ const MultiGraph = ({
           })}
 
         {/* --- Render Nodes --- */}
-        {(() => {
-          const seen = new Set();
-          const mergedNodes = [...nodesA, ...nodesB].filter((n) => {
-            if (seen.has(n.id)) return false;
-            seen.add(n.id);
-            return true;
-          });
+        {layoutReady &&
+          (() => {
+            const seen = new Set();
+            const mergedNodes = [...nodesA, ...nodesB].filter((n) => {
+              if (seen.has(n.id)) return false;
+              seen.add(n.id);
+              return true;
+            });
 
-          return mergedNodes.map((n) => {
-            const color = nodesA.some((a) => a.id === n.id) ? "red" : "blue";
-            return (
-              <GraphNode
-                key={n.id}
-                node={n}
-                color={color}
-                onMouseDown={handleMouseDown}
-              />
-            );
-          });
-        })()}
+            return mergedNodes.map((n) => {
+              const color = nodesA.some((a) => a.id === n.id) ? "red" : "blue";
+              return (
+                <GraphNode
+                  key={n.id}
+                  node={n}
+                  color={color}
+                  onMouseDown={handleMouseDown}
+                />
+              );
+            });
+          })()}
       </svg>
     </div>
   );

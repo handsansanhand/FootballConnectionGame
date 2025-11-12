@@ -7,10 +7,7 @@ const GraphNode = ({ node, onMouseDown }) => {
   const width = Math.max(100, String(node.id).length * 8);
   const label = node.name || String(node.id);
   const height = 40;
-  useEffect(() => {
-    console.log(`w: ${width}`)
-    console.log(`node being recieved: `, JSON.stringify(node, 2, null))
-  }, [])
+
   return (
     <g onMouseDown={(e) => onMouseDown(e, node)} cursor="grab">
       <rect

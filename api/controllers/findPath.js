@@ -43,9 +43,67 @@ async function initializePath(req, res) {
     const playerAObj = players[playerA];
     const playerBObj = players[playerB];
 
-    // --- Initialize empty paths ---
-    const pathA = { players: [playerAObj], edges: [], teams: [], overlapping_years: [] };
-    const pathB = { players: [playerBObj], edges: [], teams: [], overlapping_years: [] };
+    // --- Check if they are directly connected ---
+    const connectionResult = await session.run(
+      `
+      MATCH (a:Player {player_id: $playerA})-[r:PLAYED_WITH]-(b:Player {player_id: $playerB})
+      RETURN r.team AS team, r.overlapping_years AS years
+      `,
+      { playerA: Number(playerA), playerB: Number(playerB) }
+    );
+
+    // Initialize paths
+    const pathA = {
+      players: [playerAObj],
+      edges: [],
+      teams: [],
+      overlapping_years: [],
+    };
+    const pathB = {
+      players: [playerBObj],
+      edges: [],
+      teams: [],
+      overlapping_years: [],
+    };
+
+    let winner = false;
+    let winningEdges = [];
+
+    if (connectionResult.records.length > 0) {
+      // --- Immediate win ---
+      winner = true;
+
+      connectionResult.records.forEach((r) => {
+        const team = r.get("team");
+        const years = r.get("years");
+
+        // Add the other player only if not already in the path
+        if (!pathA.players.some((p) => p.id === playerBObj.id))
+          pathA.players.push(playerBObj);
+        if (!pathB.players.some((p) => p.id === playerAObj.id))
+          pathB.players.push(playerAObj);
+
+        // Add team / years info
+        pathA.teams.push(team);
+        pathB.teams.push(team);
+        pathA.overlapping_years.push(years);
+        pathB.overlapping_years.push(years);
+
+        const edge = {
+          from: playerAObj,
+          to: playerBObj,
+          team,
+          years,
+        };
+
+        // **Add edges to path arrays so MultiGraph can render them**
+        pathA.edges.push(edge);
+        pathB.edges.push(edge);
+
+        // Keep winningEdges for frontend logic
+        winningEdges.push(edge);
+      });
+    }
 
     return res.json({
       success: true,
@@ -53,8 +111,8 @@ async function initializePath(req, res) {
       playerB: playerBObj,
       pathA,
       pathB,
-      winner: false,
-      winningEdges: [],
+      winner,
+      winningEdges,
     });
   } catch (err) {
     console.error("Error initializing path:", err);
@@ -64,21 +122,20 @@ async function initializePath(req, res) {
   }
 }
 async function guess(req, res) {
-  const { playerA, playerB, guessedPlayer, pathA, pathB } = req.body;
+  const { guessedPlayer, pathA, pathB } = req.body;
 
   if (!guessedPlayer || (!pathA && !pathB)) {
     return res.status(400).json({ message: "Missing guessed player or paths" });
   }
 
   const session = driver.session();
-
   try {
-    const allPathPlayers = [
-      ...(pathA?.players || []),
-      ...(pathB?.players || []),
+    const allPathPlayerIDs = [
+      ...(pathA?.players || []).map((p) => p.id),
+      ...(pathB?.players || []).map((p) => p.id),
     ];
 
-    if (allPathPlayers.length === 0) {
+    if (allPathPlayerIDs.length === 0) {
       return res
         .status(400)
         .json({ message: "No players in paths to check overlap" });
@@ -88,14 +145,17 @@ async function guess(req, res) {
     pathA.edges = pathA.edges || [];
     pathB.edges = pathB.edges || [];
 
-    // Query Neo4j for overlaps
+    // --- Query Neo4j by IDs instead of names ---
     const result = await session.run(
       `
-MATCH (g:Player {name: $guessedPlayer})-[r:PLAYED_WITH]-(p:Player)
-WHERE p.name IN $pathPlayers
-RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overlappingYears
+      MATCH (g:Player {player_id: $guessedPlayerId})-[r:PLAYED_WITH]-(p:Player)
+      WHERE p.player_id IN $pathPlayerIDs
+      RETURN p.player_id AS overlappingPlayerId, r.team AS team, r.overlapping_years AS overlappingYears
       `,
-      { guessedPlayer, pathPlayers: allPathPlayers }
+      {
+        guessedPlayerId: Number(guessedPlayer.id),
+        pathPlayerIDs: allPathPlayerIDs.map(Number),
+      }
     );
 
     if (result.records.length === 0) {
@@ -109,46 +169,53 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
     const overlapsWithA = new Set();
     const overlapsWithB = new Set();
 
-    // Prepare sets to avoid duplicates in teams/years
     const addedTeamsA = new Set(pathA.teams);
     const addedYearsA = new Set(pathA.overlapping_years);
-    const addedTeamsB = new Set(pathB.teams);
-    const addedYearsB = new Set(pathB.overlapping_years);
-    // Process each overlap record
     const addedEdgesA = new Set(
       pathA.edges.map((e) => `${e.from}-${e.to}-${e.team}-${e.years}`)
     );
+
+    const addedTeamsB = new Set(pathB.teams);
+    const addedYearsB = new Set(pathB.overlapping_years);
     const addedEdgesB = new Set(
       pathB.edges.map((e) => `${e.from}-${e.to}-${e.team}-${e.years}`)
     );
 
+    // Process each overlap
     result.records.forEach((r) => {
-      const overlappingPlayer = r.get("overlappingPlayer");
+      const overlappingId =
+        r.get("overlappingPlayerId").low ?? r.get("overlappingPlayerId"); // handle Neo4j int
       const team = r.get("team");
       const overlappingYears = r.get("overlappingYears");
 
+      // Find the full player object in pathA or pathB
+      const overlappingPlayerA = pathA.players.find(
+        (p) => p.id === overlappingId
+      );
+      const overlappingPlayerB = pathB.players.find(
+        (p) => p.id === overlappingId
+      );
+
       // --- Path A ---
-      if (pathA.players.includes(overlappingPlayer)) {
-        overlapsWithA.add(overlappingPlayer);
-        if (!pathA.players.includes(guessedPlayer))
+      if (overlappingPlayerA) {
+        overlapsWithA.add(overlappingId);
+        if (!pathA.players.some((p) => p.id === guessedPlayer.id))
           pathA.players.push(guessedPlayer);
 
-        // Add team if not already present
         if (team && !addedTeamsA.has(team)) {
           pathA.teams.push(team);
           addedTeamsA.add(team);
         }
 
-        // Add overlappingYears if not already present
         if (overlappingYears && !addedYearsA.has(overlappingYears)) {
           pathA.overlapping_years.push(overlappingYears);
           addedYearsA.add(overlappingYears);
         }
 
-        const edgeKey = `${overlappingPlayer}-${guessedPlayer}-${team}-${overlappingYears}`;
+        const edgeKey = `${overlappingId}-${guessedPlayer.id}-${team}-${overlappingYears}`;
         if (!addedEdgesA.has(edgeKey)) {
           pathA.edges.push({
-            from: overlappingPlayer,
+            from: overlappingPlayerA,
             to: guessedPlayer,
             team,
             years: overlappingYears,
@@ -158,9 +225,9 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
       }
 
       // --- Path B ---
-      if (pathB.players.includes(overlappingPlayer)) {
-        overlapsWithB.add(overlappingPlayer);
-        if (!pathB.players.includes(guessedPlayer))
+      if (overlappingPlayerB) {
+        overlapsWithB.add(overlappingId);
+        if (!pathB.players.some((p) => p.id === guessedPlayer.id))
           pathB.players.push(guessedPlayer);
 
         if (team && !addedTeamsB.has(team)) {
@@ -173,10 +240,10 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
           addedYearsB.add(overlappingYears);
         }
 
-        const edgeKey = `${overlappingPlayer}-${guessedPlayer}-${team}-${overlappingYears}`;
+        const edgeKey = `${overlappingId}-${guessedPlayer.id}-${team}-${overlappingYears}`;
         if (!addedEdgesB.has(edgeKey)) {
           pathB.edges.push({
-            from: overlappingPlayer,
+            from: overlappingPlayerB,
             to: guessedPlayer,
             team,
             years: overlappingYears,
@@ -185,43 +252,28 @@ RETURN p.name AS overlappingPlayer, r.team AS team, r.overlapping_years AS overl
         }
       }
     });
-    console.log(overlapsWithA);
-    console.log(overlapsWithB);
+
     // Determine if guessed player connects both paths
-    // --- Now determine winner and winningEdges ---
     let winner = null;
     const winningEdgesSet = new Set();
     const winningEdges = [];
-    function addEdgeUnique(e) {
-      const key = `${e.from}-${e.to}-${e.team}-${e.years}`;
+    const addEdgeUnique = (e) => {
+      const key = `${e.from.id}-${e.to.id}-${e.team}-${e.years}`;
       if (!winningEdgesSet.has(key)) {
         winningEdgesSet.add(key);
         winningEdges.push(e);
       }
-    }
+    };
+
     if (overlapsWithA.size > 0 && overlapsWithB.size > 0) {
       winner = true;
-
-      // find edges connecting guessedPlayer to overlaps in both paths
       pathA.edges.forEach((e) => {
-        if (
-          e.to === guessedPlayer ||
-          e.from === guessedPlayer ||
-          overlapsWithA.has(e.from) ||
-          overlapsWithA.has(e.to)
-        ) {
+        if (e.from.id === guessedPlayer.id || e.to.id === guessedPlayer.id)
           addEdgeUnique(e);
-        }
       });
       pathB.edges.forEach((e) => {
-        if (
-          e.to === guessedPlayer ||
-          e.from === guessedPlayer ||
-          overlapsWithB.has(e.from) ||
-          overlapsWithB.has(e.to)
-        ) {
+        if (e.from.id === guessedPlayer.id || e.to.id === guessedPlayer.id)
           addEdgeUnique(e);
-        }
       });
     }
 

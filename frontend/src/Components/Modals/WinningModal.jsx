@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatWinningPath } from "../Graph/graphUtils";
 import ViewShortestPathButton from "../Buttons/ViewShortestPathButton";
+
 function WinningModal({
   show,
   onClose,
@@ -10,15 +11,23 @@ function WinningModal({
   playerB,
 }) {
   const [finalScore, setFinalScore] = useState(0);
-
+  const [playerAName, setPlayerAName] = useState(``);
+  const [playerBName, setPlayerBName] = useState(``);
   useEffect(() => {
     if (winningPath.length !== 0) {
       setFinalScore(winningPath.length - 1);
       formatWinningPath(winningPath);
+
+      const from = winningPath[0]?.from?.name;
+      const to = winningPath[winningPath.length - 1]?.to?.name;
+      setPlayerAName(from);
+      setPlayerBName(to);
+
     } else {
       console.log(`the path is empty`);
     }
   }, [winningPath]);
+
   return (
     <div
       id="enter-player-modal"
@@ -39,32 +48,64 @@ function WinningModal({
 
           {/* Body */}
           <form className="p-4 md:p-5 flex flex-col h-full">
-            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-2">
+            <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
               <div className="text-3xl font-bold">
-                {playerA} to {playerB}
+                {playerAName || "?"} to {playerBName || "?"}
               </div>
+
               {winningPath && winningPath.length > 0 ? (
                 winningPath.map((edge, i) => (
-                  <div key={i} className="flex flex-col">
-                    <span className="font-semibold">
-                      {edge.from} → {edge.to}
-                    </span>
-                    <span className="text-sm text-gray-600">
-                      Team: {edge.team} | Years: {edge.years}
+                  <div
+                    key={i}
+                    className="flex flex-col items-center bg-gray-50 rounded-xl shadow-sm p-3 w-full md:w-3/4"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      {/* From player */}
+                      <div className="flex flex-col items-center">
+                        <img
+                          src={edge.from.image_url}
+                          alt={edge.from.name}
+                          className="w-12 h-12 rounded-full border"
+                        />
+                        <span className="text-sm font-semibold mt-1 text-gray-800 dark:text-gray-100">
+                          {edge.from.name}
+                        </span>
+                      </div>
+
+                      <span className="text-xl font-bold text-gray-600">→</span>
+
+                      {/* To player */}
+                      <div className="flex flex-col items-center">
+                        <img
+                          src={edge.to.image_url}
+                          alt={edge.to.name}
+                          className="w-12 h-12 rounded-full border"
+                        />
+                        <span className="text-sm font-semibold mt-1 text-gray-800 dark:text-gray-100">
+                          {edge.to.name}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="text-sm text-gray-600 mt-2">
+                      Team: <span className="font-medium">{edge.team}</span> |
+                      Years: <span className="font-medium">{edge.years}</span>
                     </span>
                   </div>
                 ))
               ) : (
                 <p>No winning path found.</p>
               )}
-              <div className="text-xl font-bold">
-                Path found in {finalScore} connections.
+
+              <div className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                Path found in {finalScore} connection
+                {finalScore !== 1 ? "s" : ""}.
               </div>
             </div>
 
-            {/* Button at bottom right */}
+            {/* Button row */}
             <div className="flex justify-between mt-4">
-              <ViewShortestPathButton 
+              <ViewShortestPathButton
                 playerA={playerA}
                 playerB={playerB}
                 path={winningPath}

@@ -11,7 +11,7 @@ export async function initializeGuessPath(playerA, playerB) {
     });
     if (!response.ok) throw new Error("Failed to initialize path");
     const result = await response.json();
-    console.log(`initial setup: `, JSON.stringify(result,2,null))
+    console.log(`INITIALIZATION FROM API: `, JSON.stringify(result,null,2))
     return result;
   } catch (err) {
     console.error("Initialization failed:", err);
@@ -42,6 +42,7 @@ export async function makeGuess(currentJSON, guessedPlayer) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     const result = await response.json();
+    console.log(`GUESS RESULT FROM API: `, JSON.stringify(result,2,null))
     return result;
   } catch (error) {
     console.error("Error making guess:", error);

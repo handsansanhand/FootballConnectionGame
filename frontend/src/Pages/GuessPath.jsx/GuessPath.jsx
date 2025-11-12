@@ -57,12 +57,12 @@ function GuessPath() {
     const res = await makeGuess(path, guessedPlayer);
 
     if (res.success) {
-      setResultMessage(`Found a connection for ${guessedPlayer}`);
+      setResultMessage(`Found a connection for ${guessedPlayer.name}`);
       setCorrectGuessTrigger((prev) => prev + 1);
       setPath(res);
     } else {
       // Wrong guess → increment trigger
-      setResultMessage(`Could not find a connection for ${guessedPlayer}`);
+      setResultMessage(`Could not find a connection for ${guessedPlayer.name}`);
       setWrongGuessTrigger((prev) => prev + 1);
     }
   };
@@ -105,6 +105,9 @@ function GuessPath() {
     console.log("=====================");
   }, []);
   useEffect(() => {
+    console.log(`uwon!`)
+    console.log(`is winner : ${isWinner}`)
+     console.log(`winning path : ${winningPath}`)
     if (isWinner && winningPath && winningPath.length > 0) {
       setWinningModal(true);
       setIsWinner(false); // reset immediately so next win can trigger again
