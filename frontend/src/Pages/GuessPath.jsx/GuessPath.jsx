@@ -244,13 +244,13 @@ function GuessPath() {
         isMulti={true}
         onWin={(won) => setIsWinner(won)}
         onWinningPathFound={(newPath) => {
-          // Read the previous best from localStorage (or use Infinity)
-          const storedBest = localStorage.getItem("winningPath");
-          const prevLength = storedBest
-            ? JSON.parse(storedBest).length
-            : Infinity;
+          if (!newPath || newPath.length === 0) return;
 
-          // If new path is shorter, update the winning path and trigger modal
+          // Always get the currently stored best in state
+          const prevBest =
+            winningPath && winningPath.length > 0 ? winningPath : [];
+          const prevLength = prevBest.length > 0 ? prevBest.length : Infinity;
+
           if (newPath.length < prevLength) {
             localStorage.setItem("winningPath", JSON.stringify(newPath));
             setWinningPath(newPath);

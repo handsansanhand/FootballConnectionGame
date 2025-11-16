@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-const GraphNode = ({ node, onMouseDown, color = "black" }) => {
+const GraphNode = ({ node, onMouseDown, color }) => {
   const width = 90;
   const height = 115;
   const rectRadius = 12;
@@ -17,8 +17,9 @@ const GraphNode = ({ node, onMouseDown, color = "black" }) => {
         height={height}
         rx={rectRadius}
         ry={rectRadius}
-        fill={color}
-        stroke="white"
+        fill="white"
+        stroke={color}
+        
         strokeWidth={2}
         opacity={0.95}
         filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.5))"
@@ -48,6 +49,7 @@ const GraphNode = ({ node, onMouseDown, color = "black" }) => {
             height={imageHeight}
             preserveAspectRatio="xMidYMid slice"
             clipPath={`url(#clip-${node.id})`}
+            
           />
         </>
       )}
@@ -59,11 +61,12 @@ const GraphNode = ({ node, onMouseDown, color = "black" }) => {
         width={width - 6}
         height={nameHeight}
         style={{ overflow: "hidden" }}
+        
       >
         <div
           xmlns="http://www.w3.org/1999/xhtml"
           style={{
-            color: "white",
+            color: "black",
             fontSize: "12px",
             fontWeight: "bold",
             textAlign: "center",

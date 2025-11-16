@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { formatYear } from "./graphUtils";
 
-const GraphEdge = ({ from, to, team, years, teamLogo, color = "red", strokeWidth = 4 }) => {
+const GraphEdge = ({ from, to, team, years, teamLogo, color = "black", strokeWidth = 4 }) => {
   // Midpoint for label/logo
   const midX = (from.x + to.x) / 2;
   const midY = (from.y + to.y) / 2;

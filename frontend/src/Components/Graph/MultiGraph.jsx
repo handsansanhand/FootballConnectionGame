@@ -284,7 +284,6 @@ const MultiGraph = ({
         {/* --- Render Edges --- */}
         {layoutReady &&
           uniqueEdges.map((edge, i) => {
-            
             const from = getNodePosition(edge.from.id);
             const to = getNodePosition(edge.to.id);
             const edgeKey = `${edge.from.id}-${edge.to.id}-${edge.team}-${edge.years}`;
@@ -320,12 +319,16 @@ const MultiGraph = ({
             });
 
             return mergedNodes.map((n) => {
-              const color = nodesA.some((a) => a.id === n.id) ? "red" : "blue";
+    
+              const isPlayerA = n.id === playerA;
+              const isPlayerB = n.id === playerB;
+
+              const color = isPlayerA || isPlayerB ? "gold" : "black";
               return (
                 <GraphNode
                   key={n.id}
                   node={n}
-                  color={nodesA.some((a) => a.id === n.id) ? "red" : "blue"}
+                  color={color}
                   onMouseDown={handleMouseDown}
                 />
               );
