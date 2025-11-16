@@ -138,24 +138,24 @@ function GuessPath() {
     setShowModal(true);
   };
   const resetPathsOnly = async () => {
-    console.log("Resetting paths but keeping players...");
-
     if (!player1 || !player2) return;
+
+    console.log("Resetting paths but keeping players...");
 
     // Reinitialize path for the same players
     const newPath = await initializeGuessPath(player1, player2);
-
     setPath(newPath);
     const simplified = simplifyPathJSON(newPath);
     setConnectedGraph(simplified);
 
     localStorage.setItem("path", JSON.stringify(newPath));
-    localStorage.removeItem("path");
     localStorage.removeItem("nodesA");
     localStorage.removeItem("nodesB");
-    localStorage.removeItem("winningPath");
+
     setResultMessage("Paths have been reset!");
-    setWinningPath([]);
+
+    // Do NOT clear winningPath from localStorage; we want to remember old best
+    setWinningPath((prev) => prev); // keep state, if needed
     setIsWinner(false);
   };
   const errorMessage = !player1 || !player2 ? "Press new game to begin." : null;
@@ -244,16 +244,19 @@ function GuessPath() {
         isMulti={true}
         onWin={(won) => setIsWinner(won)}
         onWinningPathFound={(newPath) => {
-  setWinningPath((prevWinningPath) => {
-    const prevLength = prevWinningPath.length > 0 ? prevWinningPath.length : Infinity;
-    if (newPath.length < prevLength) {
-      localStorage.setItem("winningPath", JSON.stringify(newPath));
-      setIsWinner(true); 
-      return newPath; // update state
-    }
-    return prevWinningPath; // keep old state
-  });
-}}
+          // Read the previous best from localStorage (or use Infinity)
+          const storedBest = localStorage.getItem("winningPath");
+          const prevLength = storedBest
+            ? JSON.parse(storedBest).length
+            : Infinity;
+
+          // If new path is shorter, update the winning path and trigger modal
+          if (newPath.length < prevLength) {
+            localStorage.setItem("winningPath", JSON.stringify(newPath));
+            setWinningPath(newPath);
+            setIsWinner(true);
+          }
+        }}
         resultMessage={resultMessage}
         onNewGameClick={resetPlayers}
         onResetPathsClick={resetPathsOnly}
