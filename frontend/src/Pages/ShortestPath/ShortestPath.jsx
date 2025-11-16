@@ -49,8 +49,7 @@ function ShortestPath() {
               player2: storedP2,
             } = JSON.parse(stored);
             const formattedExistingPath = edgesToGraphFormat(edges);
-            setPlayer1(storedP1);
-            setPlayer2(storedP2);
+
             const formattedActualShortestPath = await getShortestPath(id1, id2);
             
             const actualPlayerA = formattedActualShortestPath.playerA;
