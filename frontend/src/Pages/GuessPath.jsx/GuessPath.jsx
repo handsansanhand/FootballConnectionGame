@@ -105,9 +105,9 @@ function GuessPath() {
     console.log("=====================");
   }, []);
   useEffect(() => {
-    console.log(`uwon!`)
-    console.log(`is winner : ${isWinner}`)
-     console.log(`winning path : ${winningPath}`)
+  //  console.log(`uwon!`)
+   // console.log(`is winner : ${isWinner}`)
+    // console.log(`winning path : ${winningPath}`)
     if (isWinner && winningPath && winningPath.length > 0) {
       setWinningModal(true);
       setIsWinner(false); // reset immediately so next win can trigger again
@@ -115,7 +115,6 @@ function GuessPath() {
   }, [isWinner, winningPath]);
 
   const resetPlayers = () => {
-    console.log(`new game`);
     setIsWinner(false);
     setPlayer1(null);
     setPlayer2(null);
