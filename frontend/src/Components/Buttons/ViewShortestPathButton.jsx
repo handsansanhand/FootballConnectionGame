@@ -1,9 +1,15 @@
 function ViewShortestPathButton({ playerA, playerB, path }) {
   const handleClick = () => {
+
+    console.log(`PLAYER A IS ` , JSON.stringify(playerA, null, 2))
     // store the current path in sessionStorage
     sessionStorage.setItem(
       "existingPath",
-      JSON.stringify(path)
+      JSON.stringify({
+        edges: path, // only the edges array
+        playerA,
+        playerB,
+      })
     );
 
     const url = `/shortestPath?playerA=${encodeURIComponent(

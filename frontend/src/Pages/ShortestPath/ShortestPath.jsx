@@ -20,7 +20,7 @@ function ShortestPath() {
 
   useEffect(() => {
     if (player1 && player2) {
-      console.log(JSON.stringify(player1, 2, null))
+      console.log(JSON.stringify(player1, 2, null));
       const id1 =
         typeof player1 === "object" && player1 !== null ? player1.id : player1;
       const id2 =
@@ -34,12 +34,15 @@ function ShortestPath() {
           const stored = sessionStorage.getItem("existingPath");
           let useStored = false;
           if (stored) {
-            const existingEdges = JSON.parse(stored);
-            const formattedExistingPath = edgesToGraphFormat(existingEdges);
-            const formattedActualShortestPath = await getShortestPath(
-              player1,
-              player2
-            );
+            const {
+              edges,
+              player1: storedP1,
+              player2: storedP2,
+            } = JSON.parse(stored);
+            const formattedExistingPath = edgesToGraphFormat(edges);
+            setPlayer1(storedP1);
+            setPlayer2(storedP2);
+            const formattedActualShortestPath = await getShortestPath(id1, id2);
 
             // Only use the cached path if it was for the same two players
             if (
@@ -112,7 +115,7 @@ function ShortestPath() {
           setPlayer={setPlayer1}
           handleReset={handleReset}
           hasRandomChoice={true}
-          initialValue={player1}
+          value={player1?.name || ""}
         />
         <PlayerInput
           label="Player 2"

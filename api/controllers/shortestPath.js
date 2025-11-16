@@ -58,11 +58,14 @@ async function getShortestPath(req, res) {
       ...n,
       id: normalizeId(n.id),
     }));
-        res.json({
+    const playerA = normalizedNodes[0];
+    const playerB = normalizedNodes[normalizedNodes.length - 1];
+    res.json({
       nodes: normalizedNodes,
       relationships,
+      playerA,
+      playerB
     });
-  
   } catch (error) {
     console.error("Neo4j query error:", error);
     res.status(500).json({ error: "Internal Server Error" });

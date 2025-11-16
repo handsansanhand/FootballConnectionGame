@@ -244,17 +244,16 @@ function GuessPath() {
         isMulti={true}
         onWin={(won) => setIsWinner(won)}
         onWinningPathFound={(newPath) => {
-          setWinningPath((prevWinningPath) => {
-            const prevLength =
-              prevWinningPath.length > 0 ? prevWinningPath.length : Infinity;
-            if (newPath.length < prevLength) {
-              localStorage.setItem("winningPath", JSON.stringify(newPath));
-              setIsWinner(true);
-              return newPath; // update state
-            }
-            return prevWinningPath; // keep old state
-          });
-        }}
+  setWinningPath((prevWinningPath) => {
+    const prevLength = prevWinningPath.length > 0 ? prevWinningPath.length : Infinity;
+    if (newPath.length < prevLength) {
+      localStorage.setItem("winningPath", JSON.stringify(newPath));
+      setIsWinner(true); 
+      return newPath; // update state
+    }
+    return prevWinningPath; // keep old state
+  });
+}}
         resultMessage={resultMessage}
         onNewGameClick={resetPlayers}
         onResetPathsClick={resetPathsOnly}
