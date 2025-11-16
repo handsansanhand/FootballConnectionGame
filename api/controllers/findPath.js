@@ -54,13 +54,13 @@ async function initializePath(req, res) {
 
     // Initialize paths
     const pathA = {
-      players: [playerAObj],
+      players: playerAObj ? [playerAObj] : [],
       edges: [],
       teams: [],
       overlapping_years: [],
     };
     const pathB = {
-      players: [playerBObj],
+      players: playerBObj ? [playerBObj] : [],
       edges: [],
       teams: [],
       overlapping_years: [],
@@ -148,9 +148,14 @@ async function guess(req, res) {
     // --- Query Neo4j by IDs instead of names ---
     const result = await session.run(
       `
-      MATCH (g:Player {player_id: $guessedPlayerId})-[r:PLAYED_WITH]-(p:Player)
-      WHERE p.player_id IN $pathPlayerIDs
-      RETURN p.player_id AS overlappingPlayerId, r.team AS team, r.overlapping_years AS overlappingYears
+MATCH (g:Player {player_id: $guessedPlayerId})-[r:PLAYED_WITH]-(p:Player)
+WHERE p.player_id IN $pathPlayerIDs
+OPTIONAL MATCH (t:Team {name: r.team})
+RETURN 
+    p.player_id AS overlappingPlayerId, 
+    r.team AS team, 
+    r.overlapping_years AS overlappingYears,
+    t.logo_url AS logoUrl
       `,
       {
         guessedPlayerId: Number(guessedPlayer.id),
@@ -187,6 +192,7 @@ async function guess(req, res) {
         r.get("overlappingPlayerId").low ?? r.get("overlappingPlayerId"); // handle Neo4j int
       const team = r.get("team");
       const overlappingYears = r.get("overlappingYears");
+      const logoUrl = r.get("logoUrl");
 
       // Find the full player object in pathA or pathB
       const overlappingPlayerA = pathA.players.find(
@@ -218,6 +224,7 @@ async function guess(req, res) {
             from: overlappingPlayerA,
             to: guessedPlayer,
             team,
+            logoUrl,
             years: overlappingYears,
           });
           addedEdgesA.add(edgeKey);
@@ -246,6 +253,7 @@ async function guess(req, res) {
             from: overlappingPlayerB,
             to: guessedPlayer,
             team,
+            logoUrl,
             years: overlappingYears,
           });
           addedEdgesB.add(edgeKey);

@@ -5,6 +5,7 @@ import {
   findConnectedNode,
   placeNearNode,
 } from "./graphUtils";
+import GraphEdge from "./GraphEdge";
 
 const MultiGraph = ({
   pathA,
@@ -49,7 +50,7 @@ const MultiGraph = ({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
+
   // --- Compute Initial Node Positions ---
   useEffect(() => {
     const { width, height } = containerSize;
@@ -61,7 +62,7 @@ const MultiGraph = ({
     const addMissingNodes = (existingNodes, path, edges, isA) => {
       const midX = containerSize.width / 2;
       const midY = containerSize.height / 2;
-      
+
       const baseSpacing = 160;
       const shiftAmount = 60;
       const minDistance = 120; // 🆕 how far apart nodes must be
@@ -283,15 +284,9 @@ const MultiGraph = ({
         {/* --- Render Edges --- */}
         {layoutReady &&
           uniqueEdges.map((edge, i) => {
+            
             const from = getNodePosition(edge.from.id);
             const to = getNodePosition(edge.to.id);
-            const midX = (from.x + to.x) / 2;
-            const midY = (from.y + to.y) / 2;
-            const angle =
-              Math.atan2(to.y - from.y, to.x - from.x) * (180 / Math.PI);
-            const flip = to.x - from.x < 0;
-            const textRotation = flip ? angle + 180 : angle;
-
             const edgeKey = `${edge.from.id}-${edge.to.id}-${edge.team}-${edge.years}`;
             const isAEdge = pathA.edges.some(
               (e) => e.from.id === edge.from.id && e.to.id === edge.to.id
@@ -301,41 +296,19 @@ const MultiGraph = ({
               : isAEdge
               ? "red"
               : "blue";
-
+            console.log(`EDGE BEING PASSED IS `, JSON.stringify(edge, null, 2))
             return (
-              <g key={`edge-${i}`}>
-                <line
-                  x1={from.x}
-                  y1={from.y}
-                  x2={to.x}
-                  y2={to.y}
-                  stroke={color}
-                  strokeWidth={3}
-                />
-                <g transform={`rotate(${textRotation}, ${midX}, ${midY})`}>
-                  <text
-                    x={midX}
-                    y={midY - 10}
-                    textAnchor="middle"
-                    fontSize="12"
-                    fill="black"
-                  >
-                    {edge.team}
-                  </text>
-                  <text
-                    x={midX}
-                    y={midY + 15}
-                    textAnchor="middle"
-                    fontSize="12"
-                    fill="black"
-                  >
-                    {edge.years}
-                  </text>
-                </g>
-              </g>
+              <GraphEdge
+                key={i}
+                from={from}
+                to={to}
+                team={edge.team}
+                teamLogo={edge.logoUrl}
+                years={edge.years}
+                color={color}
+              />
             );
           })}
-
         {/* --- Render Nodes --- */}
         {layoutReady &&
           (() => {
@@ -352,7 +325,7 @@ const MultiGraph = ({
                 <GraphNode
                   key={n.id}
                   node={n}
-                  color={color}
+                  color={nodesA.some((a) => a.id === n.id) ? "red" : "blue"}
                   onMouseDown={handleMouseDown}
                 />
               );
