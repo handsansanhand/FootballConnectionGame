@@ -57,7 +57,7 @@ const MultiGraph = ({
     if (!pathA || !pathB || width === 0 || height === 0) return;
     const midY = height / 2;
     const spacing = width / 2;
-    console.log(`path is this: `, JSON.stringify(pathA, null, 2));
+    //console.log(`path is this: `, JSON.stringify(pathA, null, 2));
     // Helper to add new nodes if they don't exist
     const addMissingNodes = (existingNodes, path, edges, isA) => {
       const midX = containerSize.width / 2;
@@ -296,7 +296,7 @@ const MultiGraph = ({
               : isAEdge
               ? "red"
               : "blue";
-            console.log(`EDGE BEING PASSED IS `, JSON.stringify(edge, null, 2))
+            //console.log(`EDGE BEING PASSED IS `, JSON.stringify(edge, null, 2))
             return (
               <GraphEdge
                 key={i}
