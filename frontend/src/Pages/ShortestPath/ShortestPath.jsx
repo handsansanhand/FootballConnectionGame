@@ -11,10 +11,18 @@ function ShortestPath() {
   const searchParams = new URLSearchParams(window.location.search);
   const initialPlayer1 = searchParams.get("playerA");
   const initialPlayer2 = searchParams.get("playerB");
+
+  const [existingPlayerAName, setExistingPlayerAName] = useState("");
+  const [existingPlayerBName, setExistingPlayerBName] = useState("");
+
   const initialPathLength = searchParams.get("pathLength"); // optional
 
-  const [player1, setPlayer1] = useState(initialPlayer1 || null);
-  const [player2, setPlayer2] = useState(initialPlayer2 || null);
+  const [player1, setPlayer1] = useState(
+    initialPlayer1 ? JSON.parse(initialPlayer1) : null
+  );
+  const [player2, setPlayer2] = useState(
+    initialPlayer2 ? JSON.parse(initialPlayer2) : null
+  );
   const [path, setPath] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -33,6 +41,7 @@ function ShortestPath() {
           // Only use cached path if it matches the exact players
           const stored = sessionStorage.getItem("existingPath");
           let useStored = false;
+
           if (stored) {
             const {
               edges,
@@ -44,6 +53,14 @@ function ShortestPath() {
             setPlayer2(storedP2);
             const formattedActualShortestPath = await getShortestPath(id1, id2);
 
+            console.log(`FORMATTED ACTUAL `, JSON.stringify(formattedActualShortestPath, null ,2))
+            const actualPlayerA = formattedActualShortestPath.playerA;
+            const actualPlayerB = formattedActualShortestPath.playerB;
+            const actualPlayerAName = actualPlayerA.name;
+            const actualPlayerBName = actualPlayerB.name;
+
+            setExistingPlayerAName(actualPlayerAName)
+            setExistingPlayerBName(actualPlayerBName)
             // Only use the cached path if it was for the same two players
             if (
               formattedExistingPath.player1 === player1 &&
@@ -115,7 +132,7 @@ function ShortestPath() {
           setPlayer={setPlayer1}
           handleReset={handleReset}
           hasRandomChoice={true}
-          value={player1?.name || ""}
+          initialValue={existingPlayerAName ? existingPlayerAName : ""}
         />
         <PlayerInput
           label="Player 2"
@@ -123,7 +140,7 @@ function ShortestPath() {
           setPlayer={setPlayer2}
           handleReset={handleReset}
           hasRandomChoice={true}
-          initialValue={player2}
+          initialValue={existingPlayerBName ? existingPlayerBName : ""}
         />
       </div>
     </div>
