@@ -24,6 +24,19 @@ CALL {
     ON CREATE SET r2.overlapping_years = row.overlapping_years
 } IN TRANSACTIONS OF 10000 ROWS;
 
+:auto
+LOAD CSV WITH HEADERS FROM 'file:///teammates.csv' AS row
+CALL {
+    WITH row
+    MATCH (a:Player {player_id: row.player1})
+    MATCH (b:Player {player_id: row.player2})
+    MERGE (a)-[r:PLAYED_WITH {team: row.team}]->(b)
+    ON CREATE SET r.overlapping_years = row.overlapping_years
+    MERGE (b)-[r2:PLAYED_WITH {team: row.team}]->(a)
+    ON CREATE SET r2.overlapping_years = row.overlapping_years
+} IN TRANSACTIONS OF 10000 ROWS;
+
+
 
 MATCH (p1:Player {name: "Xabi Alonso"}), (p2:Player {name: "Roy Keane"})
 MATCH path = shortestPath((p1)-[:PLAYED_WITH*]-(p2))

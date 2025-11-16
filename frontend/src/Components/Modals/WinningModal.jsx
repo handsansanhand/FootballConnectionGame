@@ -15,10 +15,11 @@ function WinningModal({
   const [playerBName, setPlayerBName] = useState(``);
 
   useEffect(() => {
-    console.log(`IN WIN MODAL PLAYER A IS ` , JSON.stringify(playerA, null,2))
+    console.log(`IN WIN MODAL WINNING PATH IS ` , winningPath)
   }, []);
 
   useEffect(() => {
+     console.log(`IN WIN MODAL WINNING PATH IS ` , winningPath)
     if (winningPath.length !== 0) {
       setFinalScore(winningPath.length - 1);
       formatWinningPath(winningPath);

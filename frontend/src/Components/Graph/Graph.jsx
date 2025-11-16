@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import GraphNode from "./GraphNode";
 import GraphEdge from "./GraphEdge";
 
-const Graph = ({ pathJson }) => {
+const Graph = ({ pathJson, playerA, playerB }) => {
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
@@ -35,7 +35,7 @@ const Graph = ({ pathJson }) => {
 
     setNodes(
       pathJson.nodes.map((player, index) => ({
-        id: player.name,
+        id: player.id,
         name: player.name,
         image_url: player.image_url,
         x: spacing * (index + 1),
@@ -106,20 +106,27 @@ const Graph = ({ pathJson }) => {
             team={c.team}
             teamLogo={c.team_logo}
             years={c.year}
-            color="red"
             strokeWidth={4}
           />
         ))}
 
         {/* Player nodes (with photo + name) */}
-        {nodes.map((n) => (
-          <GraphNode
-            key={n.id}
-            node={n}
-            color="black" // or any dynamic color you want
-            onMouseDown={handleMouseDown}
-          />
-        ))}
+        {nodes.map((n) => {
+      
+          const isPlayerA = n.id === playerA;
+          const isPlayerB = n.id === playerB;
+
+          const color = isPlayerA || isPlayerB ? "gold" : "black";
+
+          return (
+            <GraphNode
+              key={n.id}
+              node={n}
+              color={color}
+              onMouseDown={handleMouseDown}
+            />
+          );
+        })}
       </svg>
     </div>
   );

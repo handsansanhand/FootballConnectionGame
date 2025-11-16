@@ -23,7 +23,7 @@ function PathTracker({ winningPath, resetTrigger }) {
     ) {
       return;
     }
-
+    
     const newScore = winningPath.length - 1;
     setBestConnections((prev) => {
       const best = Math.min(prev, newScore);
