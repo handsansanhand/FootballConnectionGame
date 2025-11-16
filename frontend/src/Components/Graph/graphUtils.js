@@ -34,13 +34,13 @@ export function simplifyPathJSON(path) {
 }
 
 export function findWinningPath(start, end, edges) {
-  console.log(`making winning path...`);
+  // console.log(`making winning path...`);
   start = typeof start === "object" ? start.id : start;
   end = typeof end === "object" ? end.id : end;
 
-  console.log(`starting from : ${start}`);
-  console.log(`ending at : ${end}`);
-  console.log(`edges are :`, edges);
+  //  console.log(`starting from : ${start}`);
+  //  console.log(`ending at : ${end}`);
+  // console.log(`edges are :`, edges);
 
   // Build adjacency list
   const graph = {};
@@ -55,7 +55,7 @@ export function findWinningPath(start, end, edges) {
     graph[toId].push({ node: fromId, edge }); // Undirected
   }
 
-  console.log("Graph built:", graph);
+  // console.log("Graph built:", graph);
 
   // BFS
   const queue = [[start, []]];
@@ -78,7 +78,7 @@ export function findWinningPath(start, end, edges) {
 //function which should format the winning path from playerA -> playerB
 //presume that playerA is always 'from' in the first entry of the JSON
 export function formatWinningPath(winningPath) {
-  console.log("win path in format:", JSON.stringify(winningPath, null, 2));
+  // console.log("win path in format:", JSON.stringify(winningPath, null, 2));
 
   if (!winningPath || winningPath.length === 0) return winningPath;
 
@@ -96,18 +96,23 @@ export function formatWinningPath(winningPath) {
     }
   }
 
-  console.log("final WINNING PATH:", JSON.stringify(winningPath, null, 2));
+  // console.log("final WINNING PATH:", JSON.stringify(winningPath, null, 2));
   return winningPath;
 }
 
 // edges = path.edges (or pathA.edges / pathB.edges)
 export const findConnectedNode = (playerId, edges, existingNodes) => {
   // find an edge where playerId is 'to' and 'from' exists in existing nodes
+  console.log(`EDGES:`, JSON.stringify(edges, null, 2));
+  console.log(`EXISTING NODES:`, JSON.stringify(existingNodes, null, 2));
   const edge = edges.find(
-    (e) => e.to === playerId && existingNodes.some((n) => n.id === e.from)
+    (e) => e.to.id === playerId && existingNodes.some((n) => n.id === e.from.id)
   );
+
+  console.log(`edge is : ${edge}`);
   if (edge) {
-    return existingNodes.find((n) => n.id === edge.from);
+    // return the 'from' node from existingNodes
+    return existingNodes.find((n) => n.id === edge.from.id);
   }
   return null;
 };

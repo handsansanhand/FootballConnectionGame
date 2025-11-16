@@ -154,13 +154,22 @@ function SearchBarGuess({
             className="absolute bottom-full left-0 mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow divide-y divide-gray-200 dark:divide-gray-700 max-h-60 overflow-auto"
             style={{ width: "100%" }}
           >
-            {results.map((player, index) => (
+            {results.map((player) => (
               <div
-                key={index}
+                key={player.id}
                 className="p-3 hover:bg-green-700 hover:text-white cursor-pointer transition"
                 onClick={() => handleSelectPlayer(player)}
               >
-                <p className="font-medium">{player.name}</p>
+                <div className="flex items-center gap-3">
+                  {player.image_url && (
+                    <img
+                      src={player.image_url}
+                      alt={player.name}
+                      className="w-8 h-8 rounded-full object-cover border"
+                    />
+                  )}
+                  <p className="font-medium">{player.name}</p>
+                </div>
               </div>
             ))}
           </div>
