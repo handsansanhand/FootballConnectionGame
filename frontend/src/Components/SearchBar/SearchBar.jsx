@@ -14,6 +14,7 @@ function SearchBar({
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const debounceRef = useRef(null);
+  const suppressSearchRef = useRef(false);
 
   // Reset on new game
   useEffect(() => {
@@ -35,6 +36,11 @@ function SearchBar({
 
   // --- SEARCH FUNCTIONALITY ---
   useEffect(() => {
+    if (suppressSearchRef.current) {
+      suppressSearchRef.current = false;
+      return;
+    }
+
     const searchText = typeof query === "string" ? query.trim() : "";
     if (searchText.length < 2) {
       setResults([]);
@@ -58,16 +64,16 @@ function SearchBar({
   }, [query]);
 
   // --- SELECTION HANDLERS ---
-  const handleSelectPlayer = (player) => {
-    setQuery(player.name); // display name
-    setSelectedPlayer(player); // store full player object
-    setResults([]);
-    setDropdownOpen(false);
+const handleSelectPlayer = (player) => {
+  suppressSearchRef.current = true;   // prevents dropdown reopening
+  setQuery(player.name);
+  setSelectedPlayer(player);
+  setResults([]);
+  setDropdownOpen(false);
 
-    // Pass player ID to parent
-    if (onSubmit) onSubmit(player.id);
-    if (onValidChange) onValidChange(player.id);
-  };
+  onSubmit && onSubmit(player.id);
+  onValidChange && onValidChange(player.id);
+};
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -83,6 +89,7 @@ function SearchBar({
         setSelectedPlayer(random);
         setResults([]);
         setDropdownOpen(false);
+         suppressSearchRef.current = true; 
         onSubmit && onSubmit(random.id);
         onValidChange && onValidChange(random.id);
       }
