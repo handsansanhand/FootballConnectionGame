@@ -52,8 +52,7 @@ function ShortestPath() {
             setPlayer1(storedP1);
             setPlayer2(storedP2);
             const formattedActualShortestPath = await getShortestPath(id1, id2);
-
-            console.log(`FORMATTED ACTUAL `, JSON.stringify(formattedActualShortestPath, null ,2))
+            
             const actualPlayerA = formattedActualShortestPath.playerA;
             const actualPlayerB = formattedActualShortestPath.playerB;
             const actualPlayerAName = actualPlayerA.name;

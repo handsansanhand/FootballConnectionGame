@@ -103,13 +103,13 @@ export function formatWinningPath(winningPath) {
 // edges = path.edges (or pathA.edges / pathB.edges)
 export const findConnectedNode = (playerId, edges, existingNodes) => {
   // find an edge where playerId is 'to' and 'from' exists in existing nodes
-  console.log(`EDGES:`, JSON.stringify(edges, null, 2));
-  console.log(`EXISTING NODES:`, JSON.stringify(existingNodes, null, 2));
+ // console.log(`EDGES:`, JSON.stringify(edges, null, 2));
+ // console.log(`EXISTING NODES:`, JSON.stringify(existingNodes, null, 2));
   const edge = edges.find(
     (e) => e.to.id === playerId && existingNodes.some((n) => n.id === e.from.id)
   );
 
-  console.log(`edge is : ${edge}`);
+ // console.log(`edge is : ${edge}`);
   if (edge) {
     // return the 'from' node from existingNodes
     return existingNodes.find((n) => n.id === edge.from.id);

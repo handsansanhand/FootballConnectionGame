@@ -4,9 +4,6 @@ import Graph from "../Graph/Graph";
 import { useEffect } from "react";
 function PathDisplay( { path, errorMessage } ) {
 
-  useEffect(() => {
-    console.log(`the path that path display has got is `, JSON.stringify(path, null,2))
-  },[path])
   return (
     <>
       <div className="relative bg-gray-100 rounded border-4 border-red-500 w-full min-h-[550px] h-[75vh] flex items-center justify-center text-center">
