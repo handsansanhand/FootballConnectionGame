@@ -16,7 +16,10 @@ function GuessPath() {
   const [winningModal, setWinningModal] = useState(false);
   const [guessedPlayer, setGuessedPlayer] = useState(null);
   const [isWinner, setIsWinner] = useState(false);
-  const [winningPath, setWinningPath] = useState([]);
+  const [winningPath, setWinningPath] = useState(() => {
+    const stored = localStorage.getItem("winningPath");
+    return stored ? JSON.parse(stored) : [];
+  });
   const [wrongGuessTrigger, setWrongGuessTrigger] = useState(0);
   const [correctGuessTrigger, setCorrectGuessTrigger] = useState(0);
   const [resetCount, setResetCount] = useState(0);
@@ -105,10 +108,11 @@ function GuessPath() {
     console.log("=====================");
   }, []);
   useEffect(() => {
-  //  console.log(`uwon!`)
-   // console.log(`is winner : ${isWinner}`)
+    //  console.log(`uwon!`)
+    // console.log(`is winner : ${isWinner}`)
     // console.log(`winning path : ${winningPath}`)
     if (isWinner && winningPath && winningPath.length > 0) {
+      localStorage.setItem("winningPath", JSON.stringify(winningPath));
       setWinningModal(true);
       setIsWinner(false); // reset immediately so next win can trigger again
     }
@@ -129,6 +133,7 @@ function GuessPath() {
     localStorage.removeItem("path");
     localStorage.removeItem("nodesA");
     localStorage.removeItem("nodesB");
+    localStorage.removeItem("winningPath");
     setResetCount((prev) => prev + 1);
     setShowModal(true);
   };
@@ -148,12 +153,12 @@ function GuessPath() {
     localStorage.removeItem("path");
     localStorage.removeItem("nodesA");
     localStorage.removeItem("nodesB");
+    localStorage.removeItem("winningPath");
     setResultMessage("Paths have been reset!");
     setWinningPath([]);
     setIsWinner(false);
   };
-  const errorMessage =
-    !player1 || !player2 ? "Press new game to begin." : null;
+  const errorMessage = !player1 || !player2 ? "Press new game to begin." : null;
   // connected graph will start with the two initial players
   const [connectedGraph, setConnectedGraph] = useState(() => {
     const storedPath = localStorage.getItem("path");
@@ -202,7 +207,9 @@ function GuessPath() {
         </div>
 
         {/* Center: Title */}
-        <h1 className="text-2xl font-bold text-center flex-1 m-0">Connect The Players</h1>
+        <h1 className="text-2xl font-bold text-center flex-1 m-0">
+          Connect The Players
+        </h1>
 
         {/* Right: Info button */}
         <div>
@@ -236,12 +243,23 @@ function GuessPath() {
         errorMessage={errorMessage}
         isMulti={true}
         onWin={(won) => setIsWinner(won)}
-        onWinningPathFound={(path) => setWinningPath(path)}
+        onWinningPathFound={(newPath) => {
+          setWinningPath((prevWinningPath) => {
+            const prevLength =
+              prevWinningPath.length > 0 ? prevWinningPath.length : Infinity;
+            if (newPath.length < prevLength) {
+              localStorage.setItem("winningPath", JSON.stringify(newPath));
+              setIsWinner(true);
+              return newPath; // update state
+            }
+            return prevWinningPath; // keep old state
+          });
+        }}
         resultMessage={resultMessage}
         onNewGameClick={resetPlayers}
         onResetPathsClick={resetPathsOnly}
         winningPath={winningPath}
-        resetTrigger={resetCount} 
+        resetTrigger={resetCount}
       />
       {/* Guess a player here*/}
       <PlayerInput
