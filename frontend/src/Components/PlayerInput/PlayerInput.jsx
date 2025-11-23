@@ -12,7 +12,8 @@ function PlayerInput({
   correctGuessTrigger,
   hasGuess, // new prop
   initialValue,
-  newGameTrigger
+  newGameTrigger,
+  stacked=false
 })
 
 
@@ -44,6 +45,7 @@ function PlayerInput({
             initialValue={initialValue}
             newGameTrigger={newGameTrigger}
             onValidChange={(validPlayer) => setPlayer(validPlayer)}
+            stacked={stacked}
           />
         )}
       </div>

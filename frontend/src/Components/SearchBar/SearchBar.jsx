@@ -8,6 +8,7 @@ function SearchBar({
   initialValue,
   newGameTrigger,
   onValidChange,
+  stacked = false, // <-- new prop
 }) {
   const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState([]);
@@ -16,17 +17,14 @@ function SearchBar({
   const debounceRef = useRef(null);
   const suppressSearchRef = useRef(false);
 
-  // Reset on new game
   useEffect(() => {
     setQuery("");
     setSelectedPlayer(null);
     setDropdownOpen(false);
   }, [newGameTrigger]);
 
-  // Handle initial value (string)
   useEffect(() => {
     if (initialValue) {
-      // if initialValue is an object, use its name
       const name =
         typeof initialValue === "string" ? initialValue : initialValue.name;
       setQuery(name);
@@ -34,7 +32,6 @@ function SearchBar({
     }
   }, [initialValue]);
 
-  // --- SEARCH FUNCTIONALITY ---
   useEffect(() => {
     if (suppressSearchRef.current) {
       suppressSearchRef.current = false;
@@ -63,17 +60,16 @@ function SearchBar({
     return () => clearTimeout(debounceRef.current);
   }, [query]);
 
-  // --- SELECTION HANDLERS ---
-const handleSelectPlayer = (player) => {
-  suppressSearchRef.current = true;   // prevents dropdown reopening
-  setQuery(player.name);
-  setSelectedPlayer(player);
-  setResults([]);
-  setDropdownOpen(false);
+  const handleSelectPlayer = (player) => {
+    suppressSearchRef.current = true;
+    setQuery(player.name);
+    setSelectedPlayer(player);
+    setResults([]);
+    setDropdownOpen(false);
 
-  onSubmit && onSubmit(player.id);
-  onValidChange && onValidChange(player.id);
-};
+    onSubmit && onSubmit(player.id);
+    onValidChange && onValidChange(player.id);
+  };
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -89,7 +85,7 @@ const handleSelectPlayer = (player) => {
         setSelectedPlayer(random);
         setResults([]);
         setDropdownOpen(false);
-         suppressSearchRef.current = true; 
+        suppressSearchRef.current = true;
         onSubmit && onSubmit(random.id);
         onValidChange && onValidChange(random.id);
       }
@@ -108,10 +104,9 @@ const handleSelectPlayer = (player) => {
 
   const isValid = !!selectedPlayer;
 
-  // --- RENDER ---
   return (
-    <div className="w-full flex items-center">
-      <div className="relative flex-1">
+    <div className={`w-full flex ${stacked ? "flex-col gap-2" : "items-center"}`}>
+      <div className={`relative flex-1 ${stacked ? "w-full" : ""}`}>
         <input
           type="search"
           value={query}
@@ -157,7 +152,12 @@ const handleSelectPlayer = (player) => {
         )}
       </div>
 
-      <div className="flex gap-2 ml-2">
+      {/* Buttons */}
+      <div
+        className={`flex gap-2 ${
+          stacked ? "flex-row mt-2 justify-center gap-x-4" : "ml-2"
+        }`}
+      >
         {hasRandomChoice && (
           <button
             type="button"
