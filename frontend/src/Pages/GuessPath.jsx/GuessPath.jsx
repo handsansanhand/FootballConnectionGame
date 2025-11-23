@@ -199,7 +199,7 @@ function GuessPath() {
   });
 
   return (
-    <div className="p-2">
+    <div className="h-screen flex flex-col overflow-hidden p-2">
       <div className="flex items-center justify-between w-full mx-auto">
         {/* Left: Home button */}
         <div>
