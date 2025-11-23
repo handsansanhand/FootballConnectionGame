@@ -25,7 +25,17 @@ function MultiPathDisplay({
   }, [resultMessage]);
 
   return (
-    <div className="relative bg-gray-100 rounded border-4 w-full min-h-[550px] h-[75vh] flex flex-col items-center justify-center text-center">
+    <div className="  relative 
+  bg-gray-100 
+  rounded 
+  border-4 
+  w-full 
+  h-full 
+  max-h-full 
+  flex flex-col 
+  items-center 
+  justify-center 
+  text-center">
       {/* Graph area */}
       {errorMessage ? (
         <p className="text-red-600 font-semibold">{errorMessage}</p>
@@ -56,7 +66,17 @@ function MultiPathDisplay({
         <button
           type="button"
           onClick={onNewGameClick}
-          className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-4 border-black rounded-none focus:outline-none"
+          className="    w-full
+    inline-block 
+    bg-white text-black 
+    hover:bg-black hover:text-white hover:border-white 
+    font-medium 
+    text-xs px-2 py-1.5   /* mobile size */
+    md:text-sm md:px-5 md:py-2.5 /* desktop/tablet size */
+    transition-colors duration-300 
+    border-4 border-black 
+    rounded-none 
+    focus:outline-none"
         >
           {" "}
           New Game
@@ -66,7 +86,17 @@ function MultiPathDisplay({
         <button
           type="button"
           onClick={onResetPathsClick}
-          className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-4 border-black rounded-none focus:outline-none"
+          className="    w-full
+    inline-block 
+    bg-white text-black 
+    hover:bg-black hover:text-white hover:border-white 
+    font-medium 
+    text-xs px-2 py-1.5   /* mobile size */
+    md:text-sm md:px-5 md:py-2.5 /* desktop/tablet size */
+    transition-colors duration-300 
+    border-4 border-black 
+    rounded-none 
+    focus:outline-none"
         >
           Reset Paths
         </button>

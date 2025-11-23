@@ -6,16 +6,15 @@ services:
     container_name: neo4j-footy
     environment:
       - NEO4J_AUTH=neo4j/password
-      - NEO4J_dbms_memory_heap_initial__size=2G
-      - NEO4J_dbms_memory_heap_max__size=4G
-      - NEO4J_dbms_memory_pagecache_size=2G
-      - NEO4J_dbms_memory_transaction_total_max=6G
+      - NEO4J_server_memory_heap_initial__size=256m
+      - NEO4J_server_memory_heap_max__size=512m
+      - NEO4J_server_memory_pagecache_size=512m
     ports:
       - "7474:7474"  # Web UI
       - "7687:7687"  # Bolt protocol
     volumes:
       - neo4j_data:/data
-      - ./datasets:/var/lib/neo4j/import  # 👈 This makes datasets visible to Neo4j
+      - ./datasets:/var/lib/neo4j/import  # This makes datasets visible to Neo4j
     restart: unless-stopped
 
   app:

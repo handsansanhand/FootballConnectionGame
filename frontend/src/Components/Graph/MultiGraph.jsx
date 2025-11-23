@@ -256,7 +256,7 @@ const MultiGraph = ({
     return <div ref={containerRef} className="w-full h-full" />;
   // Combine and deduplicate edges
   const combinedEdges = [...pathA.edges, ...pathB.edges];
-
+  const isMobile = window.innerWidth < 768;
   // Create a unique set based on from/to ids (direction-agnostic)
   const uniqueEdges = combinedEdges.filter((edge, index, self) => {
     const key1 = `${edge.from.id}-${edge.to.id}`;
@@ -273,10 +273,12 @@ const MultiGraph = ({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full bg-grey-100 rounded-lg shadow-inner"
+      className="  w-full h-full bg-grey-100 rounded-lg shadow-inner
+  overflow-x-auto overflow-y-hidden   // default (mobile)
+  md:overflow-x-hidden                // disable scrolling on medium+ screens"
     >
       <svg
-        width="100%"
+        width={isMobile ? "1200" : "100%"}
         height="100%"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

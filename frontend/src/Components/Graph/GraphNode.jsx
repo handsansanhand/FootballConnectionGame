@@ -1,15 +1,30 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 const GraphNode = ({ node, onMouseDown, color }) => {
-  const width = 90;
-  const height = 115;
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Determine size dynamically
+  const isMobile = screenWidth < 640;
+  const isTablet = screenWidth < 1024;
+
+  const width = isMobile ? 55 : isTablet ? 75 : 100;
+  const height = isMobile ? 80 : isTablet ? 105 : 135;
+  const imageHeight = isMobile ? 50 : isTablet ? 70 : 90;
+  const fontSize = isMobile ? "8px" : isTablet ? "10px" : "12px";
+
   const rectRadius = 12;
-  const imageHeight = 75;
-  const nameHeight = 40; // bottom area for name
+
+  // Dynamically calculate the space below the image
+  const bottomSpaceHeight = height - imageHeight;
 
   return (
     <g onMouseDown={(e) => onMouseDown(e, node)} style={{ cursor: "grab" }}>
-      {/* Node background */}
       <rect
         x={node.x - width / 2}
         y={node.y - height / 2}
@@ -19,13 +34,10 @@ const GraphNode = ({ node, onMouseDown, color }) => {
         ry={rectRadius}
         fill="white"
         stroke={color}
-        
         strokeWidth={2}
         opacity={0.95}
-        filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.5))"
       />
 
-      {/* Player image */}
       {node.image_url && (
         <>
           <clipPath id={`clip-${node.id}`}>
@@ -49,25 +61,22 @@ const GraphNode = ({ node, onMouseDown, color }) => {
             height={imageHeight}
             preserveAspectRatio="xMidYMid slice"
             clipPath={`url(#clip-${node.id})`}
-            
           />
         </>
       )}
 
-      {/* Player name */}
       <foreignObject
         x={node.x - width / 2 + 3}
-        y={node.y - height / 2 + imageHeight} // below image
+        y={node.y - height / 2 + imageHeight}
         width={width - 6}
-        height={nameHeight}
+        height={bottomSpaceHeight}
         style={{ overflow: "hidden" }}
-        
       >
         <div
           xmlns="http://www.w3.org/1999/xhtml"
           style={{
             color: "black",
-            fontSize: "12px",
+            fontSize,
             fontWeight: "bold",
             textAlign: "center",
             wordWrap: "break-word",
