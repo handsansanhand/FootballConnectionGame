@@ -34,16 +34,16 @@ export function simplifyPathJSON(path) {
 }
 
 export function findWinningPath(start, end, edges) {
-  console.log(`IN GRAPH UTILS . FIND WINNING PATH . ATTEMPTING TO ...`);
+ // console.log(`IN GRAPH UTILS . FIND WINNING PATH . ATTEMPTING TO ...`);
   start = typeof start === "object" ? start.id : start;
   end = typeof end === "object" ? end.id : end;
 
   start = Number(start); // <-- FIX: Force to Number
   end = Number(end); // <-- FIX: Force to Number
 
-  console.log(`starting from : ${start} and it is a ${typeof start}`);
-  console.log(`ending at : ${end} and it is a ${typeof end}`);
-  console.log(`edges are :`, JSON.stringify(edges, null, 2));
+ // console.log(`starting from : ${start} and it is a ${typeof start}`);
+ // console.log(`ending at : ${end} and it is a ${typeof end}`);
+ // console.log(`edges are :`, JSON.stringify(edges, null, 2));
 
   // Build adjacency list
   const graph = {};
