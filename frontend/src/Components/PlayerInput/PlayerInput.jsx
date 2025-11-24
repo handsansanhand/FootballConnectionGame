@@ -20,7 +20,7 @@ function PlayerInput({
 {
   
   useEffect(() => {
-  console.log(`INITIAL VAL = `, initialValue)
+  //console.log(`INITIAL VAL = `, initialValue)
 },[])
   return (
     <div className="flex-1 border-4 border-black mt-3">

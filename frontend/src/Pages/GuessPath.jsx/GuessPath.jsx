@@ -105,7 +105,6 @@ function GuessPath() {
       // Only simplify and update if the path exists
       const simplified = simplifyPathJSON(path); // returns { pathA: {...}, pathB: {...} }
       setConnectedGraph(simplified);
-      //console.log("Updated simplified graphs:", JSON.stringify(simplified, null, 2));
     }
   }, [path]);
   //DEBUG
@@ -114,22 +113,21 @@ function GuessPath() {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       const value = localStorage.getItem(key);
-   //   console.log(key, ":", value);
+      //   console.log(key, ":", value);
     }
-  //  console.log("=====================");
+    //  console.log("=====================");
   }, []);
   useEffect(() => {
-    // Check if we won AND if the path is available (which it should be if we won)
-    if (isWinner && winningPath && winningPath.length > 0) {
+    // 💡 FIX: Only set the modal to true if a win is asserted AND the modal isn't already visible.
+    // This prevents the constant loop when setIsWinner(true) is repeatedly called from the graph logic.
+    if (isWinner && winningPath && winningPath.length > 0 && !winningModal) {
       console.log(
         `uwon! Winning path found with length: ${winningPath.length}`
       );
-      // Only set localStorage if it's the shortest path, which is handled in onWinningPathFound
       setWinningModal(true);
-      // We don't want to reset isWinner here, let the modal's onClose handle it.
     }
-    // Change dependency to watch both isWinner and winningPath
-  }, [isWinner, winningPath]);
+    // Note: We still watch isWinner and winningPath so the effect runs when needed.
+  }, [isWinner, winningPath, winningModal]);
 
   const resetPlayers = () => {
     setIsWinner(false);
@@ -241,7 +239,7 @@ function GuessPath() {
         onClose={() => {
           setWinningModal(false);
           setIsWinner(false); //reset flag so it can trigger again
-          setWinningPath([]);
+          //setWinningPath([]);
         }}
         winningPath={winningPath}
         playerA={player1}
@@ -257,25 +255,37 @@ function GuessPath() {
         isMulti={true}
         onWin={(won) => setIsWinner(won)}
         onWinningPathFound={(newPath) => {
+          console.log(
+            `THERE HAS BEEN A WINNING PATH FOUND, NEW PATH: `,
+            JSON.stringify(newPath, null, 2)
+          );
           if (!newPath || newPath.length === 0) return;
 
-          // A winning path of some length was just calculated.
-          // Compare it to the current best path length stored in state.
-          const prevLength =
-            winningPath.length > 0 ? winningPath.length : Infinity;
+          // 🛑 CRITICAL FIX: If a path has already been established AND the
+          // win state is currently active, we assume this is a re-render
+          // loop trying to re-assert the win, so we stop.
+          // When the user closes the modal, setIsWinner(false) runs, allowing
+          // the logic below to run again on the next *valid* guess.
+          if (isWinner && winningPath.length > 0) {
+            console.log(
+              "Win already asserted and path established. Skipping re-trigger."
+            );
+            return;
+          } // Compare it to the current best path length stored in state.
 
-          // Only update if it's shorter, OR if the current state is empty (prevLength === Infinity)
-          // The crucial change: If a path is found, we should flag the win.
+          const prevLength =
+            winningPath.length > 0 ? winningPath.length : Infinity; // If the newly found path is shorter (or is the first path found)...
 
           if (newPath.length < prevLength || prevLength === Infinity) {
             localStorage.setItem("winningPath", JSON.stringify(newPath));
             setWinningPath(newPath);
-            setIsWinner(true); // <--- Add this back to force the modal flow
-          } else if (newPath.length === prevLength) {
-            // If we find an equal-length path, we still need to pop the modal up for the user
-            // if the path was just discovered (i.e., not just loaded on refresh).
-            // The calculation runs every time, so simply setting the win flag is enough.
             setIsWinner(true);
+          } else if (newPath.length === prevLength) {
+            // ...or if it's an equal-length path that was just discovered.
+            // NOTE: We only need to set isWinner here if it is currently FALSE.
+            if (!isWinner) {
+              setIsWinner(true);
+            }
           }
         }}
         resultMessage={resultMessage}

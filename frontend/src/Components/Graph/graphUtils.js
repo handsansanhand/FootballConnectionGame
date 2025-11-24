@@ -34,13 +34,16 @@ export function simplifyPathJSON(path) {
 }
 
 export function findWinningPath(start, end, edges) {
-  // console.log(`making winning path...`);
+  console.log(`IN GRAPH UTILS . FIND WINNING PATH . ATTEMPTING TO ...`);
   start = typeof start === "object" ? start.id : start;
   end = typeof end === "object" ? end.id : end;
 
-  //  console.log(`starting from : ${start}`);
-  //  console.log(`ending at : ${end}`);
-  // console.log(`edges are :`, edges);
+  start = Number(start); // <-- FIX: Force to Number
+  end = Number(end); // <-- FIX: Force to Number
+
+  console.log(`starting from : ${start} and it is a ${typeof start}`);
+  console.log(`ending at : ${end} and it is a ${typeof end}`);
+  console.log(`edges are :`, JSON.stringify(edges, null, 2));
 
   // Build adjacency list
   const graph = {};
@@ -103,13 +106,13 @@ export function formatWinningPath(winningPath) {
 // edges = path.edges (or pathA.edges / pathB.edges)
 export const findConnectedNode = (playerId, edges, existingNodes) => {
   // find an edge where playerId is 'to' and 'from' exists in existing nodes
- // console.log(`EDGES:`, JSON.stringify(edges, null, 2));
- // console.log(`EXISTING NODES:`, JSON.stringify(existingNodes, null, 2));
+  // console.log(`EDGES:`, JSON.stringify(edges, null, 2));
+  // console.log(`EXISTING NODES:`, JSON.stringify(existingNodes, null, 2));
   const edge = edges.find(
     (e) => e.to.id === playerId && existingNodes.some((n) => n.id === e.from.id)
   );
 
- // console.log(`edge is : ${edge}`);
+  // console.log(`edge is : ${edge}`);
   if (edge) {
     // return the 'from' node from existingNodes
     return existingNodes.find((n) => n.id === edge.from.id);
