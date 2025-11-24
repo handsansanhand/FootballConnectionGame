@@ -119,20 +119,17 @@ function GuessPath() {
     //  console.log("=====================");
   }, []);
   useEffect(() => {
-    // 💡 FIX: Only set the modal to true if a win is asserted AND the modal isn't already visible.
-    // This prevents the constant loop when setIsWinner(true) is repeatedly called from the graph logic.
-    if (isWinner && winningPath && winningPath.length > 0 && !winningModal) {
-      console.log(
-        `uwon! Winning path found with length: ${winningPath.length}`
-      );
-     
-      if(!stopLoadingWinningModal) { setWinningModal(true);
-        setStopLoadingWinningModal(true);
-      }
-      
-    }
-    // Note: We still watch isWinner and winningPath so the effect runs when needed.
-  }, [isWinner, winningPath, winningModal]);
+    // Must have a valid win and path
+    if (!isWinner || !winningPath || winningPath.length === 0) return;
+
+    // If we've already shown a modal for THIS path, don’t do it again.
+    if (stopLoadingWinningModal) return;
+
+    console.log(`Opening WIN modal for a path of length ${winningPath.length}`);
+
+    setWinningModal(true);
+    setStopLoadingWinningModal(true);
+  }, [isWinner, winningPath]);
 
   const resetPlayers = () => {
     setIsWinner(false);
@@ -283,9 +280,11 @@ function GuessPath() {
             winningPath.length > 0 ? winningPath.length : Infinity; // If the newly found path is shorter (or is the first path found)...
 
           if (newPath.length < prevLength || prevLength === Infinity) {
+            console.log(`a better path was found`);
             localStorage.setItem("winningPath", JSON.stringify(newPath));
             setWinningPath(newPath);
             setIsWinner(true);
+            setStopLoadingWinningModal(false);
           } else if (newPath.length === prevLength) {
             // ...or if it's an equal-length path that was just discovered.
             // NOTE: We only need to set isWinner here if it is currently FALSE.
