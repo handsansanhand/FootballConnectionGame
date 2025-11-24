@@ -49,6 +49,7 @@ function MultiPathDisplay({
           playerA={player1}
           playerB={player2}
           onWinningPathFound={onWinningPathFound}
+          winningPath={winningPath}
         />
       ) : (
         <p className="text-gray-500">

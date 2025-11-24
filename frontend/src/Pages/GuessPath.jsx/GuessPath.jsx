@@ -17,8 +17,19 @@ function GuessPath() {
   const [guessedPlayer, setGuessedPlayer] = useState(null);
   const [isWinner, setIsWinner] = useState(false);
   const [winningPath, setWinningPath] = useState(() => {
+    // 1. Check for stored winningPath first (the shortest path ever found)
     const stored = localStorage.getItem("winningPath");
-    return stored ? JSON.parse(stored) : [];
+    if (stored) return JSON.parse(stored);
+
+    // 2. Fallback: Check if the *current* path is a winner and use its edges
+    const storedPath = localStorage.getItem("path");
+    if (storedPath) {
+      const parsedPath = JSON.parse(storedPath);
+      if (parsedPath.winner && parsedPath.winningEdges) {
+        return parsedPath.winningEdges;
+      }
+    }
+    return [];
   });
   const [wrongGuessTrigger, setWrongGuessTrigger] = useState(0);
   const [correctGuessTrigger, setCorrectGuessTrigger] = useState(0);
@@ -99,23 +110,25 @@ function GuessPath() {
   }, [path]);
   //DEBUG
   useEffect(() => {
-    console.log("==== localStorage ====");
+    //console.log("==== localStorage ====");
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       const value = localStorage.getItem(key);
-      console.log(key, ":", value);
+   //   console.log(key, ":", value);
     }
-    console.log("=====================");
+  //  console.log("=====================");
   }, []);
   useEffect(() => {
-    //  console.log(`uwon!`)
-    // console.log(`is winner : ${isWinner}`)
-    // console.log(`winning path : ${winningPath}`)
+    // Check if we won AND if the path is available (which it should be if we won)
     if (isWinner && winningPath && winningPath.length > 0) {
-      localStorage.setItem("winningPath", JSON.stringify(winningPath));
+      console.log(
+        `uwon! Winning path found with length: ${winningPath.length}`
+      );
+      // Only set localStorage if it's the shortest path, which is handled in onWinningPathFound
       setWinningModal(true);
-      setIsWinner(false); // reset immediately so next win can trigger again
+      // We don't want to reset isWinner here, let the modal's onClose handle it.
     }
+    // Change dependency to watch both isWinner and winningPath
   }, [isWinner, winningPath]);
 
   const resetPlayers = () => {
@@ -246,14 +259,22 @@ function GuessPath() {
         onWinningPathFound={(newPath) => {
           if (!newPath || newPath.length === 0) return;
 
-          // Always get the currently stored best in state
-          const prevBest =
-            winningPath && winningPath.length > 0 ? winningPath : [];
-          const prevLength = prevBest.length > 0 ? prevBest.length : Infinity;
+          // A winning path of some length was just calculated.
+          // Compare it to the current best path length stored in state.
+          const prevLength =
+            winningPath.length > 0 ? winningPath.length : Infinity;
 
-          if (newPath.length < prevLength) {
+          // Only update if it's shorter, OR if the current state is empty (prevLength === Infinity)
+          // The crucial change: If a path is found, we should flag the win.
+
+          if (newPath.length < prevLength || prevLength === Infinity) {
             localStorage.setItem("winningPath", JSON.stringify(newPath));
             setWinningPath(newPath);
+            setIsWinner(true); // <--- Add this back to force the modal flow
+          } else if (newPath.length === prevLength) {
+            // If we find an equal-length path, we still need to pop the modal up for the user
+            // if the path was just discovered (i.e., not just loaded on refresh).
+            // The calculation runs every time, so simply setting the win flag is enough.
             setIsWinner(true);
           }
         }}

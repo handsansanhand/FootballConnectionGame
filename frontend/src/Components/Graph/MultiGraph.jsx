@@ -15,6 +15,7 @@ const MultiGraph = ({
   playerA,
   playerB,
   onWinningPathFound,
+  winningPath,
 }) => {
   // --- Refs & State ---
   const containerRef = useRef(null);
@@ -27,7 +28,6 @@ const MultiGraph = ({
     offset: { x: 0, y: 0 },
   });
   const [winnerAlerted, setWinnerAlerted] = useState(false);
-  const [winningPath, setWinningPath] = useState([]);
   const [layoutReady, setLayoutReady] = useState(false);
   // --- Helpers ---
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
@@ -164,24 +164,51 @@ const MultiGraph = ({
     // Persist updated nodes
     localStorage.setItem("nodesA", JSON.stringify(storedNodesA));
     localStorage.setItem("nodesB", JSON.stringify(storedNodesB));
-  }, [pathA, pathB, containerSize]);
+  }, [pathA, pathB, containerSize]); // Keep this useEffect to set the WINNER FLAG and CALL onWinningPathFound // but it no longer needs to update its own local 'winningPath' state.
 
   // --- Compute Winning Path ---
   useEffect(() => {
-    if (!pathA || !pathB || !playerA || !playerB) return;
+    if (
+      !pathA ||
+      !pathB ||
+      !playerA ||
+      !playerB ||
+      !pathA.edges ||
+      !pathB.edges
+    )
+      return;
 
     const allEdges = [...(pathA.edges || []), ...(pathB.edges || [])];
+
+    if (allEdges.length === 0) return;
+
+    // NEW GUARD: If the current winningPath prop is already length 2, stop recalculating.
+    if (winningPath.length > 0 && winningPath.length <= 2) {
+      console.log(
+        "MultiGraph: Shortest path already found. Skipping recalculation."
+      );
+      return;
+    }
+
     const path = findWinningPath(playerA, playerB, allEdges);
-    setWinningPath(path);
+
     if (onWinningPathFound && path.length > 0) {
+      // This call is now correctly guarded by the length check above.
       onWinningPathFound(path);
     }
-  }, [pathA, pathB, playerA, playerB]);
+  }, [
+    pathA.edges,
+    pathB.edges,
+    playerA,
+    playerB,
+    onWinningPathFound,
+    winningPath.length,
+  ]);
 
-  const winningPathKeys = new Set(
-    winningPath.map((e) => `${e.from}-${e.to}-${e.team}-${e.years}`)
+  // 1. Create a Set of canonical keys (sorted ID strings) using the PROP
+  const winningEdgeKeys = new Set(
+    winningPath.map((edge) => [edge.from.id, edge.to.id].sort().join("_"))
   );
-
   // --- Handle Win Condition ---
   useLayoutEffect(() => {
     if (!winner || winnerAlerted) return;
@@ -288,15 +315,11 @@ const MultiGraph = ({
           uniqueEdges.map((edge, i) => {
             const from = getNodePosition(edge.from.id);
             const to = getNodePosition(edge.to.id);
+            const currentKey = [edge.from.id, edge.to.id].sort().join("_");
+            const isWinningEdge = winningEdgeKeys.has(currentKey);
+            const edgeColor = isWinningEdge ? "gold" : "black"; // <- Determine the color
             const edgeKey = `${edge.from.id}-${edge.to.id}-${edge.team}-${edge.years}`;
-            const isAEdge = pathA.edges.some(
-              (e) => e.from.id === edge.from.id && e.to.id === edge.to.id
-            );
-            const color = winningPathKeys.has(edgeKey)
-              ? "gold"
-              : isAEdge
-              ? "red"
-              : "blue";
+
             //console.log(`EDGE BEING PASSED IS `, JSON.stringify(edge, null, 2))
             return (
               <GraphEdge
@@ -306,7 +329,7 @@ const MultiGraph = ({
                 team={edge.team}
                 teamLogo={edge.logoUrl}
                 years={edge.years}
-                color={color}
+                color={edgeColor}
               />
             );
           })}
@@ -321,7 +344,6 @@ const MultiGraph = ({
             });
 
             return mergedNodes.map((n) => {
-    
               const isPlayerA = n.id === playerA;
               const isPlayerB = n.id === playerB;
 

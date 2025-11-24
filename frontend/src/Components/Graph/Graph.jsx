@@ -1,135 +1,156 @@
+// Graph.jsx (Full Code with Changes)
+
 import React, { useRef, useState, useEffect } from "react";
 import GraphNode from "./GraphNode";
 import GraphEdge from "./GraphEdge";
 
-const Graph = ({ pathJson, playerA, playerB }) => {
-  const containerRef = useRef(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
-  const [nodes, setNodes] = useState([]);
-  const [draggingNode, setDraggingNode] = useState(null);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+// Receive the new isMobile prop
+const Graph = ({ pathJson, playerA, playerB, isMobile }) => {
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [nodes, setNodes] = useState([]);
+  const [draggingNode, setDraggingNode] = useState(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  // Handle container resize
-  useEffect(() => {
-    if (!containerRef.current) return;
+  // Handle container resize
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-    const handleResize = () => {
-      setContainerWidth(containerRef.current.offsetWidth);
-      setContainerHeight(containerRef.current.offsetHeight);
-    };
+    const handleResize = () => {
+      setContainerWidth(containerRef.current.offsetWidth);
+      setContainerHeight(containerRef.current.offsetHeight);
+    };
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  // Compute initial node positions
-  useEffect(() => {
-    if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
-      return;
+  // Compute initial node positions
+  useEffect(() => {
+    if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
+      return;
 
-    const numNodes = pathJson.nodes.length;
-    const spacing = containerWidth / (numNodes + 1);
-    const svgMidY = containerHeight / 2;
+    const numNodes = pathJson.nodes.length;
 
-    setNodes(
-      pathJson.nodes.map((player, index) => ({
-        id: player.id,
-        name: player.name,
-        image_url: player.image_url,
-        x: spacing * (index + 1),
-        y: svgMidY,
-      }))
-    );
-  }, [pathJson, containerWidth, containerHeight]);
+    if (isMobile) {
+      // VERTICAL LAYOUT FOR MOBILE
+      const spacingY = containerHeight / (numNodes + 1);
+      const svgMidX = containerWidth / 2;
 
-  if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
-    return <div ref={containerRef} className="w-full h-full" />;
+      setNodes(
+        pathJson.nodes.map((player, index) => ({
+          id: player.id,
+          name: player.name,
+          image_url: player.image_url,
+          x: svgMidX,
+          y: spacingY * (index + 1),
+        }))
+      );
+    } else {
+      // HORIZONTAL LAYOUT FOR DESKTOP
+      const spacingX = containerWidth / (numNodes + 1);
+      const svgMidY = containerHeight / 2;
 
-  // Build connections
-  const relationships = pathJson.relationships || [];
-  const connections = nodes.slice(0, -1).map((fromNode, i) => ({
-    from: fromNode,
-    to: nodes[i + 1],
-    team: relationships[i]?.team || "",
-    team_logo: relationships[i]?.team_logo || "",
-    year: relationships[i]?.overlapping_years || "",
-  }));
+      setNodes(
+        pathJson.nodes.map((player, index) => ({
+          id: player.id,
+          name: player.name,
+          image_url: player.image_url,
+          x: spacingX * (index + 1),
+          y: svgMidY,
+        }))
+      );
+    }
+  }, [pathJson, containerWidth, containerHeight, isMobile]);
 
-  // Drag handlers
-  const handleMouseDown = (e, node) => {
-    e.stopPropagation();
-    const svg = e.currentTarget.closest("svg");
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
-    setDraggingNode(node.id);
-    setOffset({ x: cursor.x - node.x, y: cursor.y - node.y });
-  };
+  if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
+    return <div ref={containerRef} className="w-full h-full" />;
 
-  const handleMouseMove = (e) => {
-    if (!draggingNode) return;
-    const svg = e.currentTarget;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+  // Build connections
+  const relationships = pathJson.relationships || [];
+  const connections = nodes.slice(0, -1).map((fromNode, i) => ({
+    from: fromNode,
+    to: nodes[i + 1],
+    team: relationships[i]?.team || "",
+    team_logo: relationships[i]?.team_logo || "",
+    year: relationships[i]?.overlapping_years || "",
+  }));
 
-    setNodes((prev) =>
-      prev.map((n) =>
-        n.id === draggingNode
-          ? { ...n, x: cursor.x - offset.x, y: cursor.y - offset.y }
-          : n
-      )
-    );
-  };
+  // Drag handlers
+  const handleMouseDown = (e, node) => {
+    e.stopPropagation();
+    const svg = e.currentTarget.closest("svg");
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+    setDraggingNode(node.id);
+    setOffset({ x: cursor.x - node.x, y: cursor.y - node.y });
+  };
 
-  const handleMouseUp = () => setDraggingNode(null);
+  const handleMouseMove = (e) => {
+    if (!draggingNode) return;
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
 
-  return (
-    <div ref={containerRef} className="w-full h-full">
-      <svg
-        width="100%"
-        height="100%"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      >
-        {/* Edges */}
+    setNodes((prev) =>
+      prev.map((n) =>
+        n.id === draggingNode
+          ? { ...n, x: cursor.x - offset.x, y: cursor.y - offset.y }
+          : n
+      )
+    );
+  };
 
-        {connections.map((c, i) => (
-          <GraphEdge
-            key={i}
-            from={c.from}
-            to={c.to}
-            team={c.team}
-            teamLogo={c.team_logo}
-            years={c.year}
-            strokeWidth={4}
-          />
-        ))}
+  const handleMouseUp = () => setDraggingNode(null);
 
-        {/* Player nodes (with photo + name) */}
-        {nodes.map((n) => {
-      
-          const isPlayerA = n.id === playerA;
-          const isPlayerB = n.id === playerB;
+  return (
+    <div ref={containerRef} className="w-full h-full">
+      <svg
+        width="100%"
+        height="100%"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      >
+        {/* Edges */}
 
-          const color = isPlayerA || isPlayerB ? "gold" : "black";
+        {connections.map((c, i) => (
+          <GraphEdge
+            key={i}
+            from={c.from}
+            to={c.to}
+            team={c.team}
+            teamLogo={c.team_logo}
+            years={c.year}
+            strokeWidth={4}
+          />
+        ))}
 
-          return (
-            <GraphNode
-              key={n.id}
-              node={n}
-              color={color}
-              onMouseDown={handleMouseDown}
-            />
-          );
-        })}
-      </svg>
-    </div>
-  );
+        {/* Player nodes (with photo + name) */}
+        {nodes.map((n) => {
+      
+          const isPlayerA = n.id === playerA;
+          const isPlayerB = n.id === playerB;
+
+          const color = isPlayerA || isPlayerB ? "gold" : "black";
+
+          return (
+            <GraphNode
+              key={n.id}
+              node={n}
+              color={color}
+              onMouseDown={handleMouseDown}
+            />
+          );
+        })}
+      </svg>
+    </div>
+  );
 };
 
 export default Graph;
