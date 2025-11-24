@@ -1,13 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 const GraphNode = ({ node, onMouseDown, color }) => {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+
+  const [offset, setOffset] = useState({ dx: 0, dy: 0 });
+  const animRef = useRef();
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Liquidy float animation
+  useEffect(() => {
+    let t = 0;
+
+    const animate = () => {
+      t += 0.05;
+      const dx = Math.sin(t + node.id) * 2; // horizontal sway
+      const dy = Math.cos(t * 1.3 + node.id) * 2; // vertical sway
+      setOffset({ dx, dy });
+      animRef.current = requestAnimationFrame(animate);
+    };
+
+    animRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [node.id]);
 
   // Determine size dynamically
   const isMobile = screenWidth < 640;
@@ -19,15 +38,16 @@ const GraphNode = ({ node, onMouseDown, color }) => {
   const fontSize = isMobile ? "8px" : isTablet ? "10px" : "12px";
 
   const rectRadius = 12;
-
-  // Dynamically calculate the space below the image
   const bottomSpaceHeight = height - imageHeight;
+
+  const x = node.x + offset.dx;
+  const y = node.y + offset.dy;
 
   return (
     <g onMouseDown={(e) => onMouseDown(e, node)} style={{ cursor: "grab" }}>
       <rect
-        x={node.x - width / 2}
-        y={node.y - height / 2}
+        x={x - width / 2}
+        y={y - height / 2}
         width={width}
         height={height}
         rx={rectRadius}
@@ -43,7 +63,7 @@ const GraphNode = ({ node, onMouseDown, color }) => {
           <clipPath id={`clip-${node.id}`}>
             <path
               d={`
-                M${node.x - width / 2},${node.y - height / 2 + rectRadius}
+                M${x - width / 2},${y - height / 2 + rectRadius}
                 a${rectRadius},${rectRadius} 0 0 1 ${rectRadius},-${rectRadius}
                 h${width - rectRadius * 2}
                 a${rectRadius},${rectRadius} 0 0 1 ${rectRadius},${rectRadius}
@@ -55,8 +75,8 @@ const GraphNode = ({ node, onMouseDown, color }) => {
           </clipPath>
           <image
             href={node.image_url}
-            x={node.x - width / 2}
-            y={node.y - height / 2}
+            x={x - width / 2}
+            y={y - height / 2}
             width={width}
             height={imageHeight}
             preserveAspectRatio="xMidYMid slice"
@@ -66,8 +86,8 @@ const GraphNode = ({ node, onMouseDown, color }) => {
       )}
 
       <foreignObject
-        x={node.x - width / 2 + 3}
-        y={node.y - height / 2 + imageHeight}
+        x={x - width / 2 + 3}
+        y={y - height / 2 + imageHeight}
         width={width - 6}
         height={bottomSpaceHeight}
         style={{ overflow: "hidden" }}
