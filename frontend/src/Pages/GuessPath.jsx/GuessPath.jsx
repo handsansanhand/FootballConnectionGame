@@ -16,6 +16,7 @@ function GuessPath() {
   const [winningModal, setWinningModal] = useState(false);
   const [guessedPlayer, setGuessedPlayer] = useState(null);
   const [isWinner, setIsWinner] = useState(false);
+  const [stopLoadingWinningModal, setStopLoadingWinningModal] = useState(false);
   const [winningPath, setWinningPath] = useState(() => {
     // 1. Check for stored winningPath first (the shortest path ever found)
     const stored = localStorage.getItem("winningPath");
@@ -124,7 +125,11 @@ function GuessPath() {
       console.log(
         `uwon! Winning path found with length: ${winningPath.length}`
       );
-      setWinningModal(true);
+     
+      if(!stopLoadingWinningModal) { setWinningModal(true);
+        setStopLoadingWinningModal(true);
+      }
+      
     }
     // Note: We still watch isWinner and winningPath so the effect runs when needed.
   }, [isWinner, winningPath, winningModal]);
@@ -147,6 +152,7 @@ function GuessPath() {
     localStorage.removeItem("winningPath");
     setResetCount((prev) => prev + 1);
     setShowModal(true);
+    setStopLoadingWinningModal(false);
   };
   const resetPathsOnly = async () => {
     if (!player1 || !player2) return;

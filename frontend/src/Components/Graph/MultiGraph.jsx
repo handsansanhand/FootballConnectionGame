@@ -191,10 +191,13 @@ const MultiGraph = ({
     }
 
     const path = findWinningPath(playerA, playerB, allEdges);
-    console.log(`MY RETURNED WINNING PATH IS OF LENGTH ${path.length}`)
+    console.log(`MY RETURNED WINNING PATH IS OF LENGTH ${path.length}`);
     if (onWinningPathFound && path.length > 0) {
       // This call is now correctly guarded by the length check above.
-      console.log(`IN MULTI GRAPH I HAVE FOUND A WINNING PATH ` , JSON.stringify(path, null,2))
+      console.log(
+        `IN MULTI GRAPH I HAVE FOUND A WINNING PATH `,
+        JSON.stringify(path, null, 2)
+      );
       onWinningPathFound(path);
     }
   }, [
@@ -346,8 +349,10 @@ const MultiGraph = ({
 
             return mergedNodes.map((n) => {
               const nodeIdString = String(n.id);
-              const isPlayerA = nodeIdString === playerA;
-              const isPlayerB = nodeIdString === playerB;
+              const normalizedPlayerA = String(playerA);
+              const normalizedPlayerB = String(playerB);
+              const isPlayerA = nodeIdString === normalizedPlayerA;
+              const isPlayerB = nodeIdString === normalizedPlayerB;
 
               const color = isPlayerA || isPlayerB ? "gold" : "black";
               return (
