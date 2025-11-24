@@ -14,9 +14,6 @@ function WinningModal({
   const [playerAName, setPlayerAName] = useState(``);
   const [playerBName, setPlayerBName] = useState(``);
 
-  useEffect(() => {
-    console.log(`IN WIN MODAL WINNING PATH IS ` , winningPath)
-  }, []);
 
   useEffect(() => {
      console.log(`IN WIN MODAL WINNING PATH IS ` , winningPath)

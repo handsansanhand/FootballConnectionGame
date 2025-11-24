@@ -10,7 +10,7 @@ import MultiPathDisplay from "../../Components/PathDisplay/MultiPathDisplay";
 import WinningModal from "../../Components/Modals/WinningModal";
 import PathTracker from "../../Components/PathTracker/PathTracker";
 import InfoButton from "../../Components/Buttons/InfoButton";
-function GuessPath() {
+function GuessPath({ resetCount, setResetCount }) {
   // initialize state from localStorage if available
   const [showModal, setShowModal] = useState(false);
   const [winningModal, setWinningModal] = useState(false);
@@ -34,7 +34,6 @@ function GuessPath() {
   });
   const [wrongGuessTrigger, setWrongGuessTrigger] = useState(0);
   const [correctGuessTrigger, setCorrectGuessTrigger] = useState(0);
-  const [resetCount, setResetCount] = useState(0);
   const [resultMessage, setResultMessage] = useState("");
   const [path, setPath] = useState(() => {
     const storedPath = localStorage.getItem("path");
@@ -119,23 +118,22 @@ function GuessPath() {
     //  console.log("=====================");
   }, []);
   useEffect(() => {
-    // Must have a valid win and path
     if (!isWinner || !winningPath || winningPath.length === 0) return;
 
-    // If we've already shown a modal for THIS path, don’t do it again.
     if (stopLoadingWinningModal) return;
 
-    console.log(`Opening WIN modal for a path of length ${winningPath.length}`);
-
+    console.log(`Opening WINNING modal immediately.`);
     setWinningModal(true);
     setStopLoadingWinningModal(true);
-  }, [isWinner, winningPath]);
+  }, [isWinner, winningPath, stopLoadingWinningModal]);
 
   const resetPlayers = () => {
+    setResetCount((prev) => prev + 1);
     setIsWinner(false);
     setPlayer1(null);
     setPlayer2(null);
     setPath(null);
+    setWinningPath([]);
     setResultMessage(``);
     setConnectedGraph({
       pathA: { players: [], edges: [], teams: [], overlapping_years: [] },
@@ -147,6 +145,7 @@ function GuessPath() {
     localStorage.removeItem("nodesA");
     localStorage.removeItem("nodesB");
     localStorage.removeItem("winningPath");
+
     setResetCount((prev) => prev + 1);
     setShowModal(true);
     setStopLoadingWinningModal(false);
@@ -212,6 +211,7 @@ function GuessPath() {
     };
   });
 
+  console.log("WINNINGMODAL PROP:", winningModal);
   return (
     <div className="h-screen flex flex-col overflow-hidden p-2">
       <div className="flex items-center justify-between w-full mx-auto">
@@ -264,26 +264,19 @@ function GuessPath() {
           );
           if (!newPath || newPath.length === 0) return;
 
-          // 🛑 CRITICAL FIX: If a path has already been established AND the
-          // win state is currently active, we assume this is a re-render
-          // loop trying to re-assert the win, so we stop.
-          // When the user closes the modal, setIsWinner(false) runs, allowing
-          // the logic below to run again on the next *valid* guess.
-          if (isWinner && winningPath.length > 0) {
-            console.log(
-              "Win already asserted and path established. Skipping re-trigger."
-            );
-            return;
-          } // Compare it to the current best path length stored in state.
 
           const prevLength =
             winningPath.length > 0 ? winningPath.length : Infinity; // If the newly found path is shorter (or is the first path found)...
 
           if (newPath.length < prevLength || prevLength === Infinity) {
-            console.log(`a better path was found`);
+           // console.log(`a better path was found`);
             localStorage.setItem("winningPath", JSON.stringify(newPath));
             setWinningPath(newPath);
             setIsWinner(true);
+            setTimeout(() => {
+              setWinningModal(true);
+              setStopLoadingWinningModal(true);
+            }, 0);
             setStopLoadingWinningModal(false);
           } else if (newPath.length === prevLength) {
             // ...or if it's an equal-length path that was just discovered.

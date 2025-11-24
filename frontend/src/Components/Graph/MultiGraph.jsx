@@ -182,16 +182,8 @@ const MultiGraph = ({
 
     if (allEdges.length === 0) return;
 
-    // NEW GUARD: If the current winningPath prop is already length 2, stop recalculating.
-    if (winningPath.length > 0 && winningPath.length <= 2) {
-      console.log(
-        "MultiGraph: Shortest path already found. Skipping recalculation."
-      );
-      return;
-    }
-
     const path = findWinningPath(playerA, playerB, allEdges);
-    console.log(`MY RETURNED WINNING PATH IS OF LENGTH ${path.length}`);
+    //console.log(`MY RETURNED WINNING PATH IS OF LENGTH ${path.length}`);
     if (onWinningPathFound && path.length > 0) {
       // This call is now correctly guarded by the length check above.
       console.log(
