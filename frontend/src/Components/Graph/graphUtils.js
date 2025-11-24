@@ -34,16 +34,16 @@ export function simplifyPathJSON(path) {
 }
 
 export function findWinningPath(start, end, edges) {
- // console.log(`IN GRAPH UTILS . FIND WINNING PATH . ATTEMPTING TO ...`);
+  // console.log(`IN GRAPH UTILS . FIND WINNING PATH . ATTEMPTING TO ...`);
   start = typeof start === "object" ? start.id : start;
   end = typeof end === "object" ? end.id : end;
 
   start = Number(start); // <-- FIX: Force to Number
   end = Number(end); // <-- FIX: Force to Number
 
- // console.log(`starting from : ${start} and it is a ${typeof start}`);
- // console.log(`ending at : ${end} and it is a ${typeof end}`);
- // console.log(`edges are :`, JSON.stringify(edges, null, 2));
+  // console.log(`starting from : ${start} and it is a ${typeof start}`);
+  // console.log(`ending at : ${end} and it is a ${typeof end}`);
+  // console.log(`edges are :`, JSON.stringify(edges, null, 2));
 
   // Build adjacency list
   const graph = {};
@@ -120,23 +120,55 @@ export const findConnectedNode = (playerId, edges, existingNodes) => {
   return null;
 };
 
+/**
+ * Place a node near a connected node without overlapping others
+ * @param {Object} node - The node to place near (must have x, y)
+ * @param {Array} allNodes - Array of all existing nodes ({x, y, id})
+ * @param {number} containerWidth
+ * @param {number} containerHeight
+ * @param {number} minSpacing - Minimum distance from other nodes
+ * @param {number} maxSpacing - Max distance from connected node
+ * @returns {Object} - {x, y}
+ */
 export const placeNearNode = (
   node,
+  allNodes,
   containerWidth,
   containerHeight,
-  minSpacing = 50,
+  minSpacing = 80,
   maxSpacing = 120
 ) => {
-  const angle = Math.random() * 2 * Math.PI;
-  const radius = minSpacing + Math.random() * (maxSpacing - minSpacing);
+  let tries = 0;
+  let x, y;
 
-  let x = node.x + radius * Math.cos(angle);
-  let y = node.y + radius * Math.sin(angle);
+  while (tries < 50) {
+    const angle = Math.random() * 2 * Math.PI;
+    const radius = minSpacing + Math.random() * (maxSpacing - minSpacing);
 
-  // Clamp to container bounds
-  x = Math.min(Math.max(x, 0), containerWidth);
-  y = Math.min(Math.max(y, 0), containerHeight);
+    x = node.x + radius * Math.cos(angle);
+    y = node.y + radius * Math.sin(angle);
 
+    // Clamp to container bounds
+    x = Math.min(Math.max(x, 0), containerWidth);
+    y = Math.min(Math.max(y, 0), containerHeight);
+
+    // Check for overlaps
+    let safe = true;
+    for (const other of allNodes) {
+      const dx = x - other.x;
+      const dy = y - other.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < minSpacing) {
+        safe = false;
+        break;
+      }
+    }
+
+    if (safe) return { x, y };
+    tries++;
+  }
+
+  // fallback: return last computed position (even if overlaps)
   return { x, y };
 };
 

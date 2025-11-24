@@ -63,87 +63,56 @@ const MultiGraph = ({
       const midX = containerSize.width / 2;
       const midY = containerSize.height / 2;
 
-      const baseSpacing = 160;
-      const shiftAmount = 60;
-      const minDistance = 120; // 🆕 how far apart nodes must be
-
-      // Combine all known nodes so we can check overlaps globally
       const allNodes = [...nodesA, ...nodesB, ...existingNodes];
 
       const newNodes = path.players
         .filter((p) => !existingNodes.some((n) => n.id === p.id || n.id === p))
         .map((p, i) => {
-          let playerObj =
+          const playerObj =
             typeof p === "object"
               ? p
               : { id: p, name: String(p), image_url: null };
-          let x, y;
+
           const connectedNode = findConnectedNode(
             playerObj.id,
             edges,
             existingNodes
           );
 
+          let pos;
           if (connectedNode) {
-            const horizontal = Math.random() > 0.3;
-            const direction = Math.random() > 0.5 ? 1 : -1;
-
-            if (horizontal) {
-              connectedNode.x += direction * shiftAmount;
-              connectedNode.y += Math.random() * 40 - 20;
-
-              x = connectedNode.x - direction * (baseSpacing + shiftAmount);
-              y = connectedNode.y + (Math.random() * 80 - 40);
-            } else {
-              connectedNode.y += direction * shiftAmount;
-              connectedNode.x += Math.random() * 40 - 20;
-
-              x = connectedNode.x + (Math.random() * 40 - 20);
-              y = connectedNode.y - direction * (baseSpacing + shiftAmount);
-            }
+            // Increase min/max spacing to spawn further away from connected node
+            pos = placeNearNode(
+              connectedNode,
+              allNodes,
+              containerSize.width,
+              containerSize.height,
+              200, // min spacing
+              350 // max spacing
+            );
           } else {
-            // fallback near center
-            x = isA ? midX - baseSpacing * i : midX + baseSpacing * i;
-            y = isA ? midY - 60 : midY + 60;
+            // fallback near center if no connected node
+            pos = {
+              x: isA
+                ? midX - 160 * i + Math.random() * 40 - 20
+                : midX + 160 * i + Math.random() * 40 - 20,
+              y: isA
+                ? midY - 60 + Math.random() * 40 - 20
+                : midY + 60 + Math.random() * 40 - 20,
+            };
           }
-
-          // --- Collision avoidance ---
-          const repel = (x, y) => {
-            let safe = false;
-            let tries = 0;
-            while (!safe && tries < 50) {
-              safe = true;
-              for (const other of allNodes) {
-                const dx = x - other.x;
-                const dy = y - other.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < minDistance) {
-                  // too close — push further away
-                  const angle = Math.atan2(dy, dx);
-                  x += Math.cos(angle) * (minDistance - dist);
-                  y += Math.sin(angle) * (minDistance - dist);
-                  safe = false;
-                }
-              }
-              tries++;
-            }
-            return { x, y };
-          };
-
-          const adjusted = repel(x, y);
-          x = adjusted.x;
-          y = adjusted.y;
-          const normalizedNode = {
+          
+          const newNode = {
             id: playerObj.id,
             name: playerObj.name,
             image_url: playerObj.image_url,
-            x,
-            y,
+            ...pos,
           };
-          // Add this new node to allNodes so future nodes avoid it
-          allNodes.push(normalizedNode);
 
-          return normalizedNode;
+          // Add to allNodes so future nodes avoid it
+          allNodes.push(newNode);
+
+          return newNode;
         });
 
       return [...existingNodes, ...newNodes];
