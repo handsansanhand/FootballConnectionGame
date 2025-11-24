@@ -129,6 +129,7 @@ function ShortestPath() {
         path={path}
         errorMessage={errorMessage}
         isMulti={false}
+        isMobile={isMobile}
       />
 
       {/* Player inputs */}
