@@ -25,7 +25,16 @@ function ShortestPath() {
   );
   const [path, setPath] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
+  // Update screen width on resize
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = screenWidth < 640;
   useEffect(() => {
     if (player1 && player2) {
       console.log(JSON.stringify(player1, 2, null));
@@ -130,7 +139,9 @@ function ShortestPath() {
           setPlayer={setPlayer1}
           handleReset={handleReset}
           hasRandomChoice={true}
+          stacked={isMobile}
           initialValue={existingPlayerAName ? existingPlayerAName : ""}
+          
         />
         <PlayerInput
           label="Player 2"
@@ -138,6 +149,7 @@ function ShortestPath() {
           setPlayer={setPlayer2}
           handleReset={handleReset}
           hasRandomChoice={true}
+          stacked={isMobile}
           initialValue={existingPlayerBName ? existingPlayerBName : ""}
         />
       </div>
