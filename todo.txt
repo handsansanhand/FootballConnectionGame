@@ -8,3 +8,8 @@ redecorate everything
     : result messages fade in + out after a delay
     : group all nodes to connected teams (NOT SURE IF THIS WILL LOOK WORSE)
         : have teams be a node and players link to it
+
+
+BUGS:
+    game -> win -> new game (no refreshes) (maybe with same players) -> win again -> old path shows -> refreshing shows a random path
+    not refresh -> win -> not correct path displayed on winning modal
