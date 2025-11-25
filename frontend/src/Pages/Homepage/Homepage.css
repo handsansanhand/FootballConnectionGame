@@ -1,3 +1,8 @@
+.App {
+  position: relative;
+  z-index: 10; /* ensures title and buttons appear above lines */
+}
+
 .homepage-background {
   min-height: 100vh;
   width: 100%;
@@ -5,7 +10,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
+z-index: 0;
   /* Soccer field green */
   background-color: #1db954;
 
