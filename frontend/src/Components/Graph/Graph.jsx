@@ -171,7 +171,7 @@ const Graph = ({ pathJson, playerA, playerB, isMobile }) => {
             team={c.team}
             teamLogo={c.team_logo}
             years={c.year}
-            strokeWidth={4}
+            strokeWidth={3.5}
           />
         ))}
 

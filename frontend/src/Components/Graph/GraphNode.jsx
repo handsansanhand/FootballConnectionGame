@@ -44,7 +44,11 @@ const GraphNode = ({ node, onMouseDown, color, onTouchStart }) => {
   const y = node.y + offset.dy;
 
   return (
-    <g onMouseDown={(e) => onMouseDown(e, node)}  onTouchStart={(e) => onTouchStart(e, node)} style={{ cursor: "grab" }}>
+    <g
+      onMouseDown={(e) => onMouseDown(e, node)}
+      onTouchStart={(e) => onTouchStart(e, node)}
+      style={{ cursor: "grab" }}
+    >
       <rect
         x={x - width / 2}
         y={y - height / 2}
@@ -52,10 +56,9 @@ const GraphNode = ({ node, onMouseDown, color, onTouchStart }) => {
         height={height}
         rx={rectRadius}
         ry={rectRadius}
-        fill="white"
+        fill="black"
         stroke={color}
-        strokeWidth={2}
-        opacity={0.95}
+        strokeWidth={3.5}
       />
 
       {node.image_url && (
@@ -95,7 +98,7 @@ const GraphNode = ({ node, onMouseDown, color, onTouchStart }) => {
         <div
           xmlns="http://www.w3.org/1999/xhtml"
           style={{
-            color: "black",
+            color: "white",
             fontSize,
             fontWeight: "bold",
             textAlign: "center",
