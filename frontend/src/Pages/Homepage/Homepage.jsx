@@ -1,22 +1,37 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./Homepage.css";
 
 function Homepage() {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768); // e.g., sm breakpoint
+    handleResize(); // set on mount
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <div className="homepage-background min-h-screen w-full flex flex-col justify-center items-center">
-      {/* Right penalty box (needs its own div for pseudo-element) */}
-      <div className="penalty-right"></div>
-      <div className="six-yard-left"></div>
-      <div className="six-yard-right"></div>
+      {!isMobile && (
+        <>
+          <div className="penalty-left"></div>
+          <div className="penalty-right"></div>
+          <div className="six-yard-left"></div>
+          <div className="six-yard-right"></div>
+          <div className="penalty-spot-left"></div>
+          <div className="penalty-spot-right"></div>
+          <div className="corner-top-left"></div>
+          <div className="corner-top-right"></div>
+          <div className="corner-bottom-left"></div>
+          <div className="corner-bottom-right"></div>
+        </>
+      )}
 
-        {/* Penalty spots */}
-  <div className="penalty-spot-left"></div>
-  <div className="penalty-spot-right"></div>
-
-  {/* Center spot */}
-  <div className="center-spot"></div>
+      {/* Center spot (always rendered) */}
+      <div className="center-spot"></div>
 
       {/* Page content */}
       <div className="App h-[60vh] flex flex-col items-center w-full max-w-4xl px-4">
