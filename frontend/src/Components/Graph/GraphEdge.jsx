@@ -8,8 +8,29 @@ const GraphEdge = ({
   years,
   teamLogo,
   color = "black",
-  strokeWidth = 4,
+  strokeWidth = 2,
 }) => {
+  const [screenWidth, setScreenWidth] = React.useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = screenWidth < 640;
+  const isTablet = screenWidth < 1024;
+
+  const rectWidth = isMobile ? 70 : isTablet ? 90 : 110;
+  const logoSize = isMobile ? 20 : isTablet ? 25 : 30;
+  const fontSize = isMobile ? 8 : isTablet ? 10 : 12;
+
+  // Spacing between elements inside the rect
+  const spacing = 6;
+
+  // Dynamically compute rect height: logo + team text + years + padding
+  const rectHeight = logoSize + fontSize * 2 + spacing * 4;
+
   // Midpoint for label/logo
   const midX = (from.x + to.x) / 2;
   const midY = (from.y + to.y) / 2;
@@ -20,7 +41,9 @@ const GraphEdge = ({
   const flip = dx < 0;
   const textRotation = flip ? angle + 180 : angle;
 
-  useEffect(() => {}, []);
+  const paddingTop = spacing;
+  const extraLogoSpacing = 3;
+
   return (
     <g>
       {/* Edge line */}
@@ -33,50 +56,63 @@ const GraphEdge = ({
         strokeWidth={strokeWidth}
       />
 
+      {/* Label + Logo */}
       <g transform={`rotate(${textRotation}, ${midX}, ${midY})`}>
-        {/* Background rectangle */}
         <rect
-          x={midX - 50} // wider box
-          y={midY - 45} // more top padding
-          width={100} // wider for long names
-          height={70} // taller to fit logo + 2 lines
+          x={midX - rectWidth / 2}
+          y={midY - rectHeight / 2}
+          width={rectWidth}
+          height={rectHeight}
           rx={8}
           ry={8}
           fill="white"
           stroke="black"
-          strokeWidth={1}
+          strokeWidth={strokeWidth}
         />
 
-        {/* Logo */}
         {teamLogo && (
           <image
             href={teamLogo}
-            x={midX - 12} // centered horizontally
-            y={midY - 35} // move logo higher
-            width="24"
-            height="24"
+            x={midX - logoSize / 2}
+            y={midY - rectHeight / 2 + paddingTop}
+            width={logoSize}
+            height={logoSize}
             clipPath="circle(50%)"
           />
         )}
 
-        {/* Team name */}
         <text
           x={midX}
-          y={midY} // below logo
+          y={
+            midY -
+            rectHeight / 2 +
+            spacing +
+            logoSize +
+            spacing +
+            extraLogoSpacing
+          }
           textAnchor="middle"
-          fontSize="12"
+          fontSize={fontSize}
           fontWeight="bold"
           fill="black"
         >
           {team}
         </text>
 
-        {/* Years */}
         <text
           x={midX}
-          y={midY + 18} // more spacing below team name
+          y={
+            midY -
+            rectHeight / 2 +
+            spacing +
+            logoSize +
+            spacing +
+            extraLogoSpacing +
+            fontSize +
+            spacing
+          }
           textAnchor="middle"
-          fontSize="12"
+          fontSize={fontSize}
           fill="black"
         >
           {formatYear(years)}
