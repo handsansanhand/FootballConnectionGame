@@ -101,7 +101,7 @@ const MultiGraph = ({
                 : midY + 60 + Math.random() * 40 - 20,
             };
           }
-          
+
           const newNode = {
             id: playerObj.id,
             name: playerObj.name,
@@ -262,6 +262,54 @@ const MultiGraph = ({
       )
     );
   });
+  const handleTouchMove = (e) => {
+    if (!dragging.id) return;
+
+    const touch = e.touches[0];
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+
+    pt.x = touch.clientX;
+    pt.y = touch.clientY;
+
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    const { width, height } = containerSize;
+    const clampedX = clamp(cursor.x - dragging.offset.x, 0, width);
+    const clampedY = clamp(cursor.y - dragging.offset.y, 0, height);
+
+    const updateNodes = (nodes, source) =>
+      nodes.map((n) =>
+        n.id === dragging.id ? { ...n, x: clampedX, y: clampedY } : n
+      );
+
+    if (dragging.source === "A") {
+      const updated = updateNodes(nodesA);
+      setNodesA(updated);
+      localStorage.setItem("nodesA", JSON.stringify(updated));
+    } else {
+      const updated = updateNodes(nodesB);
+      setNodesB(updated);
+      localStorage.setItem("nodesB", JSON.stringify(updated));
+    }
+  };
+  const handleTouchStart = (e, node) => {
+    const touch = e.touches[0];
+    const svg = e.currentTarget.closest("svg");
+
+    const pt = svg.createSVGPoint();
+    pt.x = touch.clientX;
+    pt.y = touch.clientY;
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    const source = nodesA.some((n) => n.id === node.id) ? "A" : "B";
+
+    setDragging({
+      id: node.id,
+      source,
+      offset: { x: cursor.x - node.x, y: cursor.y - node.y },
+    });
+  };
   return (
     <div
       ref={containerRef}
@@ -274,6 +322,8 @@ const MultiGraph = ({
         height="100%"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleMouseUp}
       >
         {/* --- Render Edges --- */}
         {layoutReady &&
@@ -322,6 +372,7 @@ const MultiGraph = ({
                   node={n}
                   color={color}
                   onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart}
                 />
               );
             });

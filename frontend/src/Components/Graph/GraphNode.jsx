@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
-const GraphNode = ({ node, onMouseDown, color }) => {
+const GraphNode = ({ node, onMouseDown, color, onTouchStart }) => {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   const [offset, setOffset] = useState({ dx: 0, dy: 0 });
@@ -44,7 +44,7 @@ const GraphNode = ({ node, onMouseDown, color }) => {
   const y = node.y + offset.dy;
 
   return (
-    <g onMouseDown={(e) => onMouseDown(e, node)} style={{ cursor: "grab" }}>
+    <g onMouseDown={(e) => onMouseDown(e, node)}  onTouchStart={(e) => onTouchStart(e, node)} style={{ cursor: "grab" }}>
       <rect
         x={x - width / 2}
         y={y - height / 2}
