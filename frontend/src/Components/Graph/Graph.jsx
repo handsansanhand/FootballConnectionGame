@@ -1,156 +1,199 @@
-// Graph.jsx (Full Code with Changes)
-
 import React, { useRef, useState, useEffect } from "react";
 import GraphNode from "./GraphNode";
 import GraphEdge from "./GraphEdge";
 
-// Receive the new isMobile prop
 const Graph = ({ pathJson, playerA, playerB, isMobile }) => {
-  const containerRef = useRef(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
-  const [nodes, setNodes] = useState([]);
-  const [draggingNode, setDraggingNode] = useState(null);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const [nodes, setNodes] = useState([]);
+  const [draggingNode, setDraggingNode] = useState(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  // Handle container resize
-  useEffect(() => {
-    if (!containerRef.current) return;
+  // Resize Listener
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-    const handleResize = () => {
-      setContainerWidth(containerRef.current.offsetWidth);
-      setContainerHeight(containerRef.current.offsetHeight);
-    };
+    const handleResize = () => {
+      setContainerWidth(containerRef.current.offsetWidth);
+      setContainerHeight(containerRef.current.offsetHeight);
+    };
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  // Compute initial node positions
-  useEffect(() => {
-    if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
-      return;
+  // Initial Node Layout
+  useEffect(() => {
+    if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
+      return;
 
-    const numNodes = pathJson.nodes.length;
+    const numNodes = pathJson.nodes.length;
 
-    if (isMobile) {
-      // VERTICAL LAYOUT FOR MOBILE
-      const spacingY = containerHeight / (numNodes + 1);
-      const svgMidX = containerWidth / 2;
+    if (isMobile) {
+      const spacingY = containerHeight / (numNodes + 1);
 
-      setNodes(
-        pathJson.nodes.map((player, index) => ({
-          id: player.id,
-          name: player.name,
-          image_url: player.image_url,
-          x: svgMidX,
-          y: spacingY * (index + 1),
-        }))
-      );
-    } else {
-      // HORIZONTAL LAYOUT FOR DESKTOP
-      const spacingX = containerWidth / (numNodes + 1);
-      const svgMidY = containerHeight / 2;
+      const leftX = containerWidth * 0.25;
+      const rightX = containerWidth * 0.75;
 
-      setNodes(
-        pathJson.nodes.map((player, index) => ({
-          id: player.id,
-          name: player.name,
-          image_url: player.image_url,
-          x: spacingX * (index + 1),
-          y: svgMidY,
-        }))
-      );
-    }
-  }, [pathJson, containerWidth, containerHeight, isMobile]);
+      setNodes(
+        pathJson.nodes.map((p, i) => ({
+          id: p.id,
+          name: p.name,
+          image_url: p.image_url,
+          x: i % 2 === 0 ? leftX : rightX, // EVEN index left, ODD index right
+          y: spacingY * (i + 1),
+        }))
+      );
+    } else {
+      // DESKTOP HORIZONTAL
+      const spacingX = containerWidth / (numNodes + 1);
+      const midY = containerHeight / 2;
 
-  if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
-    return <div ref={containerRef} className="w-full h-full" />;
+      setNodes(
+        pathJson.nodes.map((p, i) => ({
+          id: p.id,
+          name: p.name,
+          image_url: p.image_url,
+          x: spacingX * (i + 1),
+          y: midY,
+        }))
+      );
+    }
+  }, [pathJson, containerWidth, containerHeight, isMobile]);
 
-  // Build connections
-  const relationships = pathJson.relationships || [];
-  const connections = nodes.slice(0, -1).map((fromNode, i) => ({
-    from: fromNode,
-    to: nodes[i + 1],
-    team: relationships[i]?.team || "",
-    team_logo: relationships[i]?.team_logo || "",
-    year: relationships[i]?.overlapping_years || "",
-  }));
+  if (!pathJson?.nodes || containerWidth === 0 || containerHeight === 0)
+    return <div ref={containerRef} className="w-full h-full" />;
 
-  // Drag handlers
-  const handleMouseDown = (e, node) => {
-    e.stopPropagation();
-    const svg = e.currentTarget.closest("svg");
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
-    setDraggingNode(node.id);
-    setOffset({ x: cursor.x - node.x, y: cursor.y - node.y });
-  };
+  // Build edges
+  const relationships = pathJson.relationships || [];
+  const connections = nodes.slice(0, -1).map((fromNode, i) => ({
+    from: fromNode,
+    to: nodes[i + 1],
+    team: relationships[i]?.team || "",
+    team_logo: relationships[i]?.team_logo || "",
+    year: relationships[i]?.overlapping_years || "",
+  }));
 
-  const handleMouseMove = (e) => {
-    if (!draggingNode) return;
-    const svg = e.currentTarget;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+  // ------------------------------------
+  // DESKTOP DRAG
+  // ------------------------------------
+  const handleMouseDown = (e, node) => {
+    e.stopPropagation();
+    const svg = e.currentTarget.closest("svg");
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+    setDraggingNode(node.id);
+    setOffset({ x: cursor.x - node.x, y: cursor.y - node.y });
+  };
 
-    setNodes((prev) =>
-      prev.map((n) =>
-        n.id === draggingNode
-          ? { ...n, x: cursor.x - offset.x, y: cursor.y - offset.y }
-          : n
-      )
-    );
-  };
+  const handleMouseMove = (e) => {
+    if (!draggingNode) return;
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
 
-  const handleMouseUp = () => setDraggingNode(null);
+    setNodes((prev) =>
+      prev.map((n) =>
+        n.id === draggingNode
+          ? { ...n, x: cursor.x - offset.x, y: cursor.y - offset.y }
+          : n
+      )
+    );
+  };
 
-  return (
-    <div ref={containerRef} className="w-full h-full">
-      <svg
-        width="100%"
-        height="100%"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-      >
-        {/* Edges */}
+  const handleMouseUp = () => setDraggingNode(null);
 
-        {connections.map((c, i) => (
-          <GraphEdge
-            key={i}
-            from={c.from}
-            to={c.to}
-            team={c.team}
-            teamLogo={c.team_logo}
-            years={c.year}
-            strokeWidth={4}
-          />
-        ))}
+  // ------------------------------------
+  // MOBILE TOUCH DRAG
+  // ------------------------------------
+  const handleTouchStart = (e, node) => {
+    const touch = e.touches[0];
+    const svg = e.currentTarget.closest("svg");
 
-        {/* Player nodes (with photo + name) */}
-        {nodes.map((n) => {
-      
-          const isPlayerA = n.id === playerA;
-          const isPlayerB = n.id === playerB;
+    const pt = svg.createSVGPoint();
+    pt.x = touch.clientX;
+    pt.y = touch.clientY;
 
-          const color = isPlayerA || isPlayerB ? "gold" : "black";
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
 
-          return (
-            <GraphNode
-              key={n.id}
-              node={n}
-              color={color}
-              onMouseDown={handleMouseDown}
-            />
-          );
-        })}
-      </svg>
-    </div>
-  );
+    setDraggingNode(node.id);
+    setOffset({ x: cursor.x - node.x, y: cursor.y - node.y });
+  };
+
+  const handleTouchMove = (e) => {
+    if (!draggingNode) return;
+
+    const touch = e.touches[0];
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+
+    pt.x = touch.clientX;
+    pt.y = touch.clientY;
+
+    const cursor = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    setNodes((prev) =>
+      prev.map((n) =>
+        n.id === draggingNode
+          ? { ...n, x: cursor.x - offset.x, y: cursor.y - offset.y }
+          : n
+      )
+    );
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full h-full"
+      style={{ touchAction: "none" }} // important!
+    >
+      <svg
+        width="100%"
+        height="100%"
+        style={{ touchAction: "none" }}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleMouseUp}
+      >
+        {/* Edges */}
+        {connections.map((c, i) => (
+          <GraphEdge
+            key={i}
+            from={c.from}
+            to={c.to}
+            team={c.team}
+            teamLogo={c.team_logo}
+            years={c.year}
+            strokeWidth={4}
+          />
+        ))}
+
+        {/* Player Nodes */}
+        {nodes.map((n) => {
+          const isPlayerA = n.id === playerA;
+          const isPlayerB = n.id === playerB;
+          const color = isPlayerA || isPlayerB ? "gold" : "black";
+
+          return (
+            <GraphNode
+              key={n.id}
+              node={n}
+              color={color}
+              onMouseDown={handleMouseDown}
+              onTouchStart={handleTouchStart} // <-- added here
+            />
+          );
+        })}
+      </svg>
+    </div>
+  );
 };
 
 export default Graph;
