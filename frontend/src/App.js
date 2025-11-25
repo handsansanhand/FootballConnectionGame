@@ -11,7 +11,7 @@ function App() {
     <Router basename="/">
       <div
         className="main-content min-h-screen "
-        style={{ backgroundColor: "" }}
+        style={{ backgroundColor: "rgba(32, 33, 36)"  }}
       >
         <Routes>
           <Route path="/" element={<Homepage />} />

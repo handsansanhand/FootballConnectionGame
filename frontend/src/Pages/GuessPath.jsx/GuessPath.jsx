@@ -258,10 +258,6 @@ function GuessPath({ resetCount, setResetCount }) {
         isMulti={true}
         onWin={(won) => setIsWinner(won)}
         onWinningPathFound={(newPath) => {
-          console.log(
-            `THERE HAS BEEN A WINNING PATH FOUND, NEW PATH: `,
-            JSON.stringify(newPath, null, 2)
-          );
           if (!newPath || newPath.length === 0) return;
 
 

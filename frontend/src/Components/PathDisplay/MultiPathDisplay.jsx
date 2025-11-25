@@ -25,17 +25,15 @@ function MultiPathDisplay({
   }, [resultMessage]);
 
   return (
-    <div className="  relative 
-  bg-gray-100 
-  rounded 
-  border-4 
-  w-full 
-  h-full 
-  max-h-full 
-  flex flex-col 
-  items-center 
-  justify-center 
-  text-center">
+    <div
+      className="relative rounded w-full min-h-[550px] h-[75vh] flex items-center justify-center text-center"
+      style={{
+        backgroundColor: "#1db954",
+        border: "2px solid white",
+        backgroundImage:
+          "repeating-linear-gradient(90deg, rgba(255,255,255,1) 1px, rgba(255,255,255,1) 2px, transparent 4px, transparent 150px)",
+      }}
+    >
       {/* Graph area */}
       {errorMessage ? (
         <p className="text-red-600 font-semibold">{errorMessage}</p>
@@ -58,7 +56,7 @@ function MultiPathDisplay({
       )}
 
       {/* Best Path Tracker */}
-      <div className="mt-2 absolute bottom-1 ">
+      <div className="absolute bottom-1 ">
         <PathTracker winningPath={winningPath} resetTrigger={resetTrigger} />
       </div>
 

@@ -1,1 +1,145 @@
+.homepage-background {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
+  /* Soccer field green */
+  background-color: #1db954;
+
+  /* Field lines + center line */
+  background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.2) 0px,
+      rgba(255, 255, 255, 0.2) 2px,
+      transparent 2px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.2) 0px,
+      rgba(255, 255, 255, 0.2) 2px,
+      transparent 2px,
+      transparent 60px
+    ),
+    linear-gradient(
+      to right,
+      transparent calc(50% - 3px),
+      white 50%,
+      white calc(50% + 3px),
+      transparent calc(50% + 3px)
+    );
+  background-size: 100% 100%;
+  position: relative;
+}
+
+/* Center circle using pseudo-element for crisp edges */
+.homepage-background::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px; /* diameter of circle */
+  height: 320px;
+  border: 6px solid white; /* thickness of the circle */
+  border-radius: 50%; /* makes it circular */
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Left penalty box */
+.homepage-background::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0; /* flush to left edge */
+  width: 15%; /* box width */
+  height: 50%;
+  border: 6px solid white; /* match center circle thickness */
+  border-left: none; /* optional: remove left edge */
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Right penalty box */
+.homepage-background .penalty-right {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0; /* flush to right edge */
+  width: 15%;
+  height: 50%;
+  border: 6px solid white; /* match center circle thickness */
+  border-right: none; /* optional: remove right edge */
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Left 6-yard box */
+.homepage-background .six-yard-left {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0; /* flush to left edge */
+  width: 6%; /* smaller width than 18-yard box */
+  height: 30%; /* smaller height than 18-yard box */
+  border: 6px solid white; /* same thickness */
+  border-left: none;        /* optional: remove left edge */
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Right 6-yard box */
+.homepage-background .six-yard-right {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0; /* flush to right edge */
+  width: 6%; /* smaller width than 18-yard box */
+ height: 30%; /* smaller height than 18-yard box */
+  border: 6px solid white; /* same thickness */
+  border-right: none;       /* optional: remove right edge */
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Left penalty spot */
+.homepage-background .penalty-spot-left {
+  position: absolute;
+  top: 50%;
+  left: 12%; /* roughly inside the 18-yard box */
+  width: 1%;
+  height: 2%;
+  background-color: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Right penalty spot */
+.homepage-background .penalty-spot-right {
+  position: absolute;
+  top: 50%;
+  right: 12%; /* roughly inside the right 18-yard box */
+  width: 1%;
+  height: 2%;
+  background-color: white;
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+  pointer-events: none;
+}
+
+/* Center spot */
+.homepage-background .center-spot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1%;
+  height: 2%;
+  background-color: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
