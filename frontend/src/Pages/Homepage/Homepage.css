@@ -188,3 +188,23 @@ z-index: 0;
   pointer-events: none;
   border-top-left-radius: 100%;
 }
+@keyframes fadeInSoft {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-delayed-1 {
+  animation: fadeInSoft 0.5s ease forwards;
+  opacity: 0;
+  animation-delay: 0.2s;
+}
+
+.fade-delayed-2 {
+  animation: fadeInSoft 0.7s ease forwards;
+  opacity: 0;
+  animation-delay: 1s;
+}

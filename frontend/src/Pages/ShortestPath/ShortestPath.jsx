@@ -113,7 +113,7 @@ function ShortestPath() {
         </div>
 
         {/* Center: Title */}
-        <h1 className="text-2xl font-bold text-center flex-1 m-0 text-white">
+        <h1 className="text-2xl font-bold text-center flex-1 m-0 text-white ">
           Shortest Path
         </h1>
 
