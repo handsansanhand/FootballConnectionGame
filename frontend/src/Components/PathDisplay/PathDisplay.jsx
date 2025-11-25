@@ -8,7 +8,8 @@ function PathDisplay({ player1, player2, path, errorMessage, isMobile }) {
       <div
         className="relative rounded w-full min-h-[550px] h-[75vh] flex items-center justify-center text-center"
         style={{
-          backgroundColor: "rgba(18, 195, 1, 0.65)",
+          backgroundColor: "#1db954",
+          border: "2px solid white",
           backgroundImage:
             "repeating-linear-gradient(90deg, rgba(255,255,255,1) 1px, rgba(255,255,255,1) 2px, transparent 4px, transparent 150px)"
         }}
@@ -23,7 +24,7 @@ function PathDisplay({ player1, player2, path, errorMessage, isMobile }) {
             isMobile={isMobile}
           />
         ) : (
-          <p className="text-gray-500">
+          <p className="text-red-800">
             No path calculated yet. Enter players below.
           </p>
         )}

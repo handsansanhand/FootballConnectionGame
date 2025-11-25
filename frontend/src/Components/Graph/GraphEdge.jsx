@@ -8,7 +8,7 @@ const GraphEdge = ({
   years,
   teamLogo,
   color = "black",
-  strokeWidth = 2,
+  strokeWidth = 3,
 }) => {
   const [screenWidth, setScreenWidth] = React.useState(window.innerWidth);
 
@@ -77,7 +77,7 @@ const GraphEdge = ({
             y={midY - rectHeight / 2 + paddingTop}
             width={logoSize}
             height={logoSize}
-            clipPath="circle(50%)"
+           
           />
         )}
 
