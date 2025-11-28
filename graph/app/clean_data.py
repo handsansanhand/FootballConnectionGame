@@ -16,4 +16,4 @@ df = df.merge(logos, on="team_name", how="left")
 # Save updated dataset
 merged_path = os.path.join(data_path, "all_leagues_with_logos.csv")
 df.to_csv(merged_path, index=False)
-print(f"✅ Merged dataset with team logos saved to {merged_path}")
+print(f"Merged dataset with team logos saved to {merged_path}")

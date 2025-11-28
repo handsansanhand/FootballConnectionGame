@@ -32,11 +32,11 @@ def safe_get(url, retries=10, delay=5, timeout=10):
             if r.status_code == 200:
                 return r
             else:
-                print(f"⚠️ HTTP {r.status_code} on attempt {attempt}/{retries}")
+                print(f"HTTP {r.status_code} on attempt {attempt}/{retries}")
         except requests.exceptions.RequestException as e:
-            print(f"⚠️ Request failed ({e}) — attempt {attempt}/{retries}")
+            print(f"Request failed ({e}) — attempt {attempt}/{retries}")
         time.sleep(delay)
-    print(f"❌ Failed to fetch {url} after {retries} retries.")
+    print(f"Failed to fetch {url} after {retries} retries.")
     return None
 
 
@@ -50,12 +50,12 @@ def save_csv(league_name, data):
         for stint_list in data.values():
             for stint in stint_list:
                 writer.writerow(stint)
-    print(f"💾 Saved player-team records to {output_file}")
+    print(f"Saved player-team records to {output_file}")
 
 
 def scrape_league(league_name, league_code):
     print(f"\n==============================")
-    print(f"⚽ Starting scrape for {league_name}")
+    print(f"Starting scrape for {league_name}")
     print(f"==============================")
 
     player_team_data = {}
@@ -80,7 +80,7 @@ def scrape_league(league_name, league_code):
 
             r = safe_get(url)
             if not r:
-                print(f"❌ Failed to fetch page {page} for {season_year}. Aborting entire program.")
+                print(f"Failed to fetch page {page} for {season_year}. Aborting entire program.")
                 year_successful = False
                 break
 
@@ -205,12 +205,12 @@ def scrape_league(league_name, league_code):
             time.sleep(1.5)
 
         if not year_successful:
-            print(f"🛑 Error during {season_year} for {league_name}. Stopping league early.")
+            print(f"Error during {season_year} for {league_name}. Stopping league early.")
             return False  # league failed
 
         save_csv(league_name, player_team_data)
 
-    print(f"\n✅ Finished scraping {league_name}")
+    print(f"\nFinished scraping {league_name}")
     return True
 
 
@@ -218,11 +218,11 @@ def scrape_league(league_name, league_code):
 for name, code in leagues:
     success = scrape_league(name, code)
     if not success:
-        print(f"❌ Stopping entire program due to failure in {name}")
+        print(f"Stopping entire program due to failure in {name}")
         break
 
     # Optional: short cooldown between leagues
-    print(f"⏸️ Cooling down before next league...\n")
+    print(f"Cooling down before next league...\n")
     time.sleep(10)
 
 print("\nALL LEAGUES PROCESSED.")

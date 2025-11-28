@@ -112,5 +112,5 @@ for team, group in df.groupby("team_name"):
 pairs_path = os.path.join(os.getcwd(), "datasets", "teammates.csv")
 pd.DataFrame(rows, columns=["player1", "player2", "team", "overlapping_years"]).to_csv(pairs_path, index=False)
 
-print(f"✅ Teammate pairs CSV saved to {pairs_path}")
+print(f"Teammate pairs CSV saved to {pairs_path}")
 print(f"Total teammate pairs: {len(rows):,}")
