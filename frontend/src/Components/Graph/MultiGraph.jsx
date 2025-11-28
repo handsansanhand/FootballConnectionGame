@@ -92,13 +92,12 @@ const MultiGraph = ({
             );
           } else {
             // fallback near center if no connected node
+            const startingSpacing = 300; // adjust as needed
             pos = {
               x: isA
-                ? midX - 160 * i + Math.random() * 40 - 20
-                : midX + 160 * i + Math.random() * 40 - 20,
-              y: isA
-                ? midY - 60 + Math.random() * 40 - 20
-                : midY + 60 + Math.random() * 40 - 20,
+                ? midX - startingSpacing + Math.random() * 60 - 30
+                : midX + startingSpacing + Math.random() * 60 - 30,
+              y: midY + Math.random() * 40 - 20,
             };
           }
 

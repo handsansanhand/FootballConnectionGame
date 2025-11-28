@@ -106,15 +106,15 @@ function ShortestPath() {
 
   return (
     <div className="p-2">
-      <div className="flex items-center justify-between w-full mx-auto">
+      <div className="flex items-center justify-between w-full mx-auto mb-2">
         {/* Left: Home button */}
         <div>
           <HomeButton />
         </div>
 
         {/* Center: Title */}
-        <h1 className="text-2xl font-bold text-center flex-1 m-0 text-white ">
-          Shortest Path
+        <h1 className="text-3xl font-bold text-center flex-1 m-0 text-white ">
+          Shortest Path Calculator
         </h1>
 
         {/* Right: Info button */}
