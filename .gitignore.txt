@@ -5,7 +5,8 @@ yarn-debug.log
 yarn-error.log
 graph/datasets/*.csv
 # Environment
-.env
+graph/.env
+frontend/.env
 
 # Logs
 logs/
