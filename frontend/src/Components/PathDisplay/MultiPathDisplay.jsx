@@ -103,7 +103,7 @@ function MultiPathDisplay({
 
       {/* Result message */}
       {resultM && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 px-4 py-2 rounded shadow-md border border-gray-300 dark:border-gray-600">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-2 rounded shadow-md border border-gray-300 dark:border-gray-600">
           <p className="text-sm text-gray-800 dark:text-gray-100">{resultM}</p>
         </div>
       )}

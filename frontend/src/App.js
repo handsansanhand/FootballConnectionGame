@@ -3,6 +3,7 @@ import "./App.css";
 import Homepage from "./Pages/Homepage/Homepage";
 import ShortestPath from "./Pages/ShortestPath/ShortestPath";
 import GuessPath from "./Pages/GuessPath.jsx/GuessPath";
+
 import { useState } from "react";
 function App() {
   const [resetCount, setResetCount] = useState(0);
@@ -11,7 +12,8 @@ function App() {
     <Router basename="/">
       <div
         className="main-content min-h-screen "
-        style={{ backgroundColor: "rgba(32, 33, 36)"  }}
+        style={{ backgroundColor: "rgba(38, 38, 41)"
+          }}
       >
         <Routes>
           <Route path="/" element={<Homepage />} />
