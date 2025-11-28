@@ -25,5 +25,5 @@ combined_df.sort_values(by="team_name", inplace=True)
 output_path = os.path.join(os.getcwd(), "team_logos_combined.csv")
 combined_df.to_csv(output_path, index=False)
 
-print(f"✅ Combined team logos saved to {output_path}")
+print(f"Combined team logos saved to {output_path}")
 print(f"Total unique teams: {len(combined_df)}")
