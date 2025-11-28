@@ -23,8 +23,8 @@ function PlayerInput({
   //console.log(`INITIAL VAL = `, initialValue)
 },[])
   return (
-    <div className="flex-1 border-4 border-black mt-3">
-      <div className="bg-gray-50 dark:bg-white-700 rounded-lg p-4 rounded-none">
+    <div className="flex-1 border-4 border-black rounded-lg mt-2">
+      <div className="bg-gray-50 rounded-lg p-4 h-full">
         <h2 className="text-xl font-bold mb-2">
           {label}
         </h2>

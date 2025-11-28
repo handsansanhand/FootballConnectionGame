@@ -1,10 +1,14 @@
+import { PiSoccerBallFill } from "react-icons/pi";
+
 function InfoModal({ text, title, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-lg border-4 border-black text-black shadow-lg w-full max-w-lg mx-4">
         {/* Header */}
         <div className="flex items-center justify-center p-4 border-b dark:border-gray-600">
+          <PiSoccerBallFill size={40} />
           <h3 className="text-2xl font-semibold text-center w-full">{title}</h3>
+          <PiSoccerBallFill size={40} />
         </div>
 
         {/* Body */}

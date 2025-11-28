@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./Homepage.css";
+import InfoButton from "../../Components/Buttons/InfoButton";
 
 function Homepage() {
   const navigate = useNavigate();
@@ -52,19 +53,25 @@ function Homepage() {
         <div className="fade-delayed-2 flex items-center justify-center gap-12 absolute top-1/2 transform -translate-y-1/2 w-full max-w-4xl px-4">
           <button
             type="button"
-            className="w-[250px] min-h-[60px] text-center text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-base px-4 py-3 break-words transition-colors duration-300 border-4 border-black rounded-none focus:outline-none"
+            className="w-[250px] min-h-[60px] text-center text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-base px-4 py-3 break-words transition-colors duration-300 border-4 border-black rounded-lg focus:outline-none"
             onClick={() => navigate("/guessPath")}
           >
-            Find path between two players
+            Connect The Players
           </button>
           <button
             type="button"
-            className="w-[250px] min-h-[60px] text-center text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-base px-4 py-3 break-words transition-colors duration-300 border-4 border-black rounded-none focus:outline-none"
+            className="w-[250px] min-h-[60px] text-center text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-base px-4 py-3 break-words transition-colors duration-300 border-4 border-black rounded-lg focus:outline-none"
             onClick={() => navigate("/shortestPath")}
           >
-            Calculate shortest path between two players
+            Shortest Path Calculator
           </button>
         </div>
+      </div>
+      {/* ABOUT + DISCLAIMER BUTTON*/}
+      <div
+        className="absolute bottom-4 left-4"
+      >
+        <InfoButton textChoice={2} />
       </div>
     </div>
   );

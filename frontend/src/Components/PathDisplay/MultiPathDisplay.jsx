@@ -21,7 +21,17 @@ function MultiPathDisplay({
   const [resultM, setResultM] = useState(``);
 
   useEffect(() => {
+    if (!resultMessage) return;
+
     setResultM(resultMessage);
+
+    // Set a timer to clear the message after 2 seconds
+    const timer = setTimeout(() => {
+      setResultM("");
+    }, 3000);
+
+    // Cleanup timer if resultMessage changes or component unmounts
+    return () => clearTimeout(timer);
   }, [resultMessage]);
 
   return (
@@ -36,7 +46,7 @@ function MultiPathDisplay({
     >
       {/* Graph area */}
       {errorMessage ? (
-        <p className="text-red-600 font-semibold">{errorMessage}</p>
+        <p className="text-red-700 font-semibold">{errorMessage}</p>
       ) : path ? (
         <MultiGraph
           pathA={path.pathA}
@@ -65,17 +75,7 @@ function MultiPathDisplay({
         <button
           type="button"
           onClick={onNewGameClick}
-          className="    w-full
-    inline-block 
-    bg-white text-black 
-    hover:bg-black hover:text-white hover:border-white 
-    font-medium 
-    text-xs px-2 py-1.5   /* mobile size */
-    md:text-sm md:px-5 md:py-2.5 /* desktop/tablet size */
-    transition-colors duration-300 
-    border-4 border-black 
-    rounded-none 
-    focus:outline-none"
+          className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"
         >
           {" "}
           New Game
@@ -85,17 +85,8 @@ function MultiPathDisplay({
         <button
           type="button"
           onClick={onResetPathsClick}
-          className="    w-full
-    inline-block 
-    bg-white text-black 
-    hover:bg-black hover:text-white hover:border-white 
-    font-medium 
-    text-xs px-2 py-1.5   /* mobile size */
-    md:text-sm md:px-5 md:py-2.5 /* desktop/tablet size */
-    transition-colors duration-300 
-    border-4 border-black 
-    rounded-none 
-    focus:outline-none"
+className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"
+    
         >
           Reset Paths
         </button>
@@ -103,7 +94,7 @@ function MultiPathDisplay({
 
       {/* Result message */}
       {resultM && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-2 rounded shadow-md border border-gray-300 dark:border-gray-600">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black px-4 py-2 rounded-lg shadow-md border border-white">
           <p className="text-sm text-gray-800 dark:text-gray-100">{resultM}</p>
         </div>
       )}

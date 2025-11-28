@@ -15,7 +15,7 @@ function PathDisplay({ player1, player2, path, errorMessage, isMobile }) {
         }}
       >
         {errorMessage ? (
-          <p className="text-red-600 font-semibold">{errorMessage}</p>
+          <p className="text-red-700 font-semibold">{errorMessage}</p>
         ) : path ? (
           <Graph
             pathJson={path}
@@ -24,7 +24,7 @@ function PathDisplay({ player1, player2, path, errorMessage, isMobile }) {
             isMobile={isMobile}
           />
         ) : (
-          <p className="text-red-800">
+          <p className="text-red-700 font-semibold">
             No path calculated yet. Enter players below.
           </p>
         )}
