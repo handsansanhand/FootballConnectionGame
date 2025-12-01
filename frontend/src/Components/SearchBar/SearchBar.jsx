@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer, getRandomPlayer } from "../../Scripts/players";
 import ErrorPopup from "../Modals/ErrorPopup";
+import { OrbitProgress } from "react-loading-indicators";
 
 function SearchBar({
   onSubmit,
@@ -9,7 +10,7 @@ function SearchBar({
   initialValue,
   newGameTrigger,
   onValidChange,
-  stacked = false, // <-- new prop
+  stacked = false,
 }) {
   const [query, setQuery] = useState(initialValue || "");
   const [results, setResults] = useState([]);
@@ -18,6 +19,8 @@ function SearchBar({
   const debounceRef = useRef(null);
   const suppressSearchRef = useRef(false);
   const [error, setError] = useState(null);
+  const [isRandomLoading, setIsRandomLoading] = useState(false);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   useEffect(() => {
     setQuery("");
@@ -51,15 +54,17 @@ function SearchBar({
 
     debounceRef.current = setTimeout(async () => {
       try {
+        setIsSearchLoading(true);
         const playerList = await searchPlayer(searchText);
         setResults(playerList);
         setDropdownOpen(playerList.length > 0);
       } catch (error) {
         console.error("Error searching player:", error);
-        setError("Server is unreachable");   // trigger toast
+        setError("Server is unreachable"); // trigger toast
+        setIsSearchLoading(false);
       }
     }, 300);
-
+    setIsSearchLoading(false);
     return () => clearTimeout(debounceRef.current);
   }, [query]);
 
@@ -82,6 +87,7 @@ function SearchBar({
 
   const handleRandom = async () => {
     try {
+      setIsRandomLoading(true);
       const random = await getRandomPlayer();
       if (random?.name) {
         setQuery(random.name);
@@ -94,8 +100,10 @@ function SearchBar({
       }
     } catch (error) {
       console.error("Failed to fetch random player:", error);
-      setError("Server is unreachable");     //trigger toast
+      setError("Server is unreachable. Please try again later."); //trigger toast
+      setIsRandomLoading(false);
     }
+    setIsRandomLoading(false);
   };
 
   const handleReset = () => {
@@ -109,26 +117,28 @@ function SearchBar({
   const isValid = !!selectedPlayer;
 
   return (
-    <div className={`w-full flex ${stacked ? "flex-col gap-2" : "items-center"}`}>
+    <div
+      className={`w-full flex ${stacked ? "flex-col gap-2" : "items-center"}`}
+    >
+      {/* Search Input with loader */}
       <div className={`relative flex-1 ${stacked ? "w-full" : ""}`}>
         <input
           type="search"
           value={query}
           onChange={handleChange}
           className={`w-full p-4 text-md border-4 rounded-none
-            ${
-              isValid
-                ? "border-green-500 bg-green-50"
-                : "border-black bg-gray-50"
-            }
-            focus:outline-none focus:ring-0
-          `}
+      ${isValid ? "border-green-500 bg-green-50" : "border-black bg-gray-50"}
+      focus:outline-none focus:ring-0`}
           placeholder="Search for a player..."
         />
 
         {dropdownOpen && (
           <div className="absolute bottom-full left-0 w-full mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow max-h-60 overflow-auto">
-            {results.length > 0 ? (
+            {isSearchLoading ? (
+              <div className="flex items-center justify-center p-3">
+                <OrbitProgress color="#000" size="small" text="" textColor="" />
+              </div>
+            ) : results.length > 0 ? (
               results.map((player) => (
                 <div
                   key={player.id}
@@ -166,9 +176,22 @@ function SearchBar({
           <button
             type="button"
             onClick={handleRandom}
-            className="py-2 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium"
+            className="py-6 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center justify-center min-w-[4rem]"
+            disabled={isRandomLoading}
           >
-            Random
+            <div className="w-16 h-4 flex items-center justify-center">
+              {isRandomLoading ? (
+                <OrbitProgress
+                  color="#fff"
+                  size="small"
+                  text=""
+                  textColor=""
+                  className="block"
+                />
+              ) : (
+                <span className="leading-none">Random</span> // remove extra line-height
+              )}
+            </div>
           </button>
         )}
 
