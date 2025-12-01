@@ -17,3 +17,19 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Comic Sans MS',
     monospace;
 }
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes fadeOut {
+  100% { opacity: 1; }
+  0% { opacity: 0; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-fadeOut {
+  animation: fadeOut 0.2s ease-out;
+}

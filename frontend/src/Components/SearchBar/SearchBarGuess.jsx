@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer, getRandomPlayer } from "../../Scripts/players";
+import ErrorPopup from "../Modals/ErrorPopup";
 
 function SearchBarGuess({
   onSubmit,
@@ -18,6 +19,7 @@ function SearchBarGuess({
   const suppressSearchRef = useRef(false);
   const debounceRef = useRef(null);
   const containerRef = useRef(null);
+  const [error, setError] = useState(null);
   // Measure input width
   useEffect(() => {
     if (inputRef.current) setInputWidth(inputRef.current.offsetWidth);
@@ -89,7 +91,8 @@ function SearchBarGuess({
         const playerList = await searchPlayer(query);
         setResults(playerList);
       } catch (error) {
-        console.error("Error searching player:", error);
+        console.error("Failed to fetch random player:", error);
+        setError("Server is unreachable. Please try again later."); //trigger toast
       }
     }, 300);
 
@@ -122,6 +125,7 @@ function SearchBarGuess({
       }
     } catch (error) {
       console.error("Failed to fetch random player:", error);
+      setError("Server is unreachable. Please try again later."); //trigger toast
     }
   };
 
@@ -200,6 +204,7 @@ function SearchBarGuess({
           Enter
         </button>
       </div>
+      <ErrorPopup message={error} onClose={() => setError(null)} />
     </div>
   );
 }

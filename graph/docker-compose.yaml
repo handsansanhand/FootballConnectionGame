@@ -5,7 +5,7 @@ services:
     image: neo4j:5
     container_name: neo4j-footy
     environment:
-      - NEO4J_AUTH=neo4j/password
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASS}
       - NEO4J_server_memory_heap_initial__size=256m
       - NEO4J_server_memory_heap_max__size=512m
       - NEO4J_server_memory_pagecache_size=512m

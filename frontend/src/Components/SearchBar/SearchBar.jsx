@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { searchPlayer, getRandomPlayer } from "../../Scripts/players";
+import ErrorPopup from "../Modals/ErrorPopup";
 
 function SearchBar({
   onSubmit,
@@ -16,6 +17,7 @@ function SearchBar({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const debounceRef = useRef(null);
   const suppressSearchRef = useRef(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setQuery("");
@@ -54,6 +56,7 @@ function SearchBar({
         setDropdownOpen(playerList.length > 0);
       } catch (error) {
         console.error("Error searching player:", error);
+        setError("Server is unreachable");   // trigger toast
       }
     }, 300);
 
@@ -91,6 +94,7 @@ function SearchBar({
       }
     } catch (error) {
       console.error("Failed to fetch random player:", error);
+      setError("Server is unreachable");     //trigger toast
     }
   };
 
@@ -176,6 +180,7 @@ function SearchBar({
           Reset
         </button>
       </div>
+      <ErrorPopup message={error} onClose={() => setError(null)} />
     </div>
   );
 }
