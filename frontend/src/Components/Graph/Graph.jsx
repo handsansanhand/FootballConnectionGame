@@ -9,6 +9,7 @@ const Graph = ({ pathJson, playerA, playerB, isMobile }) => {
   const [nodes, setNodes] = useState([]);
   const [draggingNode, setDraggingNode] = useState(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isLoading, setIsLoading] = useState(false);
 
   // Resize Listener
   useEffect(() => {

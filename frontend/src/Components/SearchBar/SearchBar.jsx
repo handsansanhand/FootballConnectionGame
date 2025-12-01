@@ -63,8 +63,12 @@ function SearchBar({
         setError("Server is unreachable"); // trigger toast
         setIsSearchLoading(false);
       }
+      finally {
+        setIsSearchLoading(false);
+      }
+
     }, 300);
-    setIsSearchLoading(false);
+
     return () => clearTimeout(debounceRef.current);
   }, [query]);
 

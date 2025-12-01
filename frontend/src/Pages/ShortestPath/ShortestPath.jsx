@@ -5,12 +5,13 @@ import PathDisplay from "../../Components/PathDisplay/PathDisplay";
 import HomeButton from "../../Components/Buttons/HomeButton";
 import { edgesToGraphFormat } from "../../Components/Graph/graphUtils";
 import InfoButton from "../../Components/Buttons/InfoButton";
-
+import LoadingPopup from "../../Components/Modals/LoadingPopup";
 function ShortestPath() {
   // read query parameters on mount
   const searchParams = new URLSearchParams(window.location.search);
   const initialPlayer1 = searchParams.get("playerA");
   const initialPlayer2 = searchParams.get("playerB");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [existingPlayerAName, setExistingPlayerAName] = useState("");
   const [existingPlayerBName, setExistingPlayerBName] = useState("");
@@ -25,7 +26,7 @@ function ShortestPath() {
   );
   const [path, setPath] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-    const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
   // Update screen width on resize
   useEffect(() => {
@@ -45,6 +46,7 @@ function ShortestPath() {
       console.log(`getting shortest path between ${id1} and ${id2}`);
       const fetchPath = async () => {
         try {
+          setIsLoading(true); // start loading
           setErrorMessage("");
 
           // Only use cached path if it matches the exact players
@@ -60,15 +62,13 @@ function ShortestPath() {
             const formattedExistingPath = edgesToGraphFormat(edges);
 
             const formattedActualShortestPath = await getShortestPath(id1, id2);
-            
-            const actualPlayerA = formattedActualShortestPath.playerA;
-            const actualPlayerB = formattedActualShortestPath.playerB;
-            const actualPlayerAName = actualPlayerA.name;
-            const actualPlayerBName = actualPlayerB.name;
 
-            setExistingPlayerAName(actualPlayerAName)
-            setExistingPlayerBName(actualPlayerBName)
-            // Only use the cached path if it was for the same two players
+            const actualPlayerAName = formattedActualShortestPath.playerA.name;
+            const actualPlayerBName = formattedActualShortestPath.playerB.name;
+
+            setExistingPlayerAName(actualPlayerAName);
+            setExistingPlayerBName(actualPlayerBName);
+
             if (
               formattedExistingPath.player1 === player1 &&
               formattedExistingPath.player2 === player2
@@ -86,10 +86,12 @@ function ShortestPath() {
 
           // otherwise fetch a new shortest path
           const result = await getShortestPath(id1, id2);
-          console.log("res: ", JSON.stringify(result, 2, null));
           setPath(result);
         } catch (error) {
           console.error("Error fetching shortest path:", error);
+          setErrorMessage("Failed to fetch path.");
+        } finally {
+          setIsLoading(false); // stop loading
         }
       };
 
@@ -123,6 +125,12 @@ function ShortestPath() {
         </div>
       </div>
       {/* Path display */}
+      {isLoading && (
+        <LoadingPopup
+          message="Calculating shortest path..."
+          onClose={() => setIsLoading(false)}
+        />
+      )}
       <PathDisplay
         player1={player1}
         player2={player2}
@@ -142,7 +150,6 @@ function ShortestPath() {
           hasRandomChoice={true}
           stacked={isMobile}
           initialValue={existingPlayerAName ? existingPlayerAName : ""}
-          
         />
         <PlayerInput
           label="Player 2"
