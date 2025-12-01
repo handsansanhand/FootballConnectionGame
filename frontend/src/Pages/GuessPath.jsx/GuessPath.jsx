@@ -238,7 +238,7 @@ const handleGuess = async (path, guessedPlayer) => {
           Connect The Players
         </h1>
 
-        {/* Right: Info buttton */}
+        {/* Right: Info butttton */}
         <div>
           <InfoButton textChoice={0} />
         </div>
