@@ -238,12 +238,12 @@ const handleGuess = async (path, guessedPlayer) => {
           Connect The Players
         </h1>
 
-        {/* Right: Info button */}
+        {/* Right: Info buttton */}
         <div>
           <InfoButton textChoice={0} />
         </div>
       </div>
-      {isLoading && <LoadingPopup message="Loading..." />}
+      {isLoading && <LoadingPopup message="Loading..." />} 
       <EnterPlayerModal
         show={showModal}
         onClose={() => setShowModal(false)}
