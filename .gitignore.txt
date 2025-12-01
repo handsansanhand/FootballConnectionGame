@@ -12,6 +12,9 @@ graph/app/.env
 frontend/.env
 .env
 
+*.env
+*.csv
+
 # Logs
 logs/
 *.log
