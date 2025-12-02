@@ -1,5 +1,5 @@
-const backendHost = process.env.REACT_APP_BACKEND_HOST;
-const backendPort = process.env.REACT_APP_BACKEND_PORT;
+const backendHost = process.env.REACT_APP_BACKEND_HOST | 'localhost';
+const backendPort = process.env.REACT_APP_BACKEND_PORT | '3030';
 
 export default async function handler(req, res) {
   const backendBase = `http://${backendHost}:${backendPort}`;

@@ -1,14 +1,11 @@
 import EnterPlayerModal from "../../Components/Modals/EnterPlayerModal";
-import Graph from "../../Components/Graph/Graph";
 import HomeButton from "../../Components/Buttons/HomeButton";
-import PathDisplay from "../../Components/PathDisplay/PathDisplay";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import PlayerInput from "../../Components/PlayerInput/PlayerInput";
 import { initializeGuessPath, makeGuess } from "../../Scripts/guessPlayer";
 import { simplifyPathJSON } from "../../Components/Graph/graphUtils";
 import MultiPathDisplay from "../../Components/PathDisplay/MultiPathDisplay";
 import WinningModal from "../../Components/Modals/WinningModal";
-import PathTracker from "../../Components/PathTracker/PathTracker";
 import InfoButton from "../../Components/Buttons/InfoButton";
 import LoadingPopup from "../../Components/Modals/LoadingPopup";
 function GuessPath({ resetCount, setResetCount }) {

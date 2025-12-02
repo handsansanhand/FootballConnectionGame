@@ -1,5 +1,4 @@
 import PlayerInput from "../PlayerInput/PlayerInput";
-import SearchBar from "../SearchBar/SearchBar";
 import { useEffect, useState } from "react";
 
 function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
@@ -19,7 +18,6 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
   useEffect(() => {
     setPlayer1(null);
     setPlayer2(null);
-    console.log(`IS MOBILE: `, isMobile);
   }, [newGameTrigger]);
 
   const handleSubmit = (e) => {
