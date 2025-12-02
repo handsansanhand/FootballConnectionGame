@@ -2,7 +2,7 @@ const backendPort = process.env.REACT_APP_BACKEND_PORT;
 const backendHost = process.env.REACT_APP_BACKEND_HOST;
 
 export async function initializeGuessPath(playerA, playerB) {
-  const initURL = `http://${backendHost}:${backendPort}/findPath/initialize`;
+  const initURL = `https://${backendHost}:${backendPort}/findPath/initialize`;
   try {
     const response = await fetch(initURL, {
       method: "POST",
@@ -25,7 +25,7 @@ export async function initializeGuessPath(playerA, playerB) {
   }
 }
 export async function makeGuess(currentJSON, guessedPlayer) {
-  const playerGuessURL = `http://${backendHost}:${backendPort}/findPath`;
+  const playerGuessURL = `https://${backendHost}:${backendPort}/findPath`;
   const updatedJSON = {
     ...currentJSON,
     guessedPlayer: guessedPlayer,
