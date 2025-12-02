@@ -2,7 +2,7 @@ const backendPort = process.env.REACT_APP_BACKEND_PORT;
 const backendHost = process.env.REACT_APP_BACKEND_HOST;
 
 export async function initializeGuessPath(playerA, playerB) {
-  const initURL = `https://${backendHost}:${backendPort}/findPath/initialize`;
+  const initURL = `/api/findPath/initialize`;
   try {
     const response = await fetch(initURL, {
       method: "POST",
