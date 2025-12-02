@@ -1,13 +1,6 @@
 version: "3.9"
 
 services:
-  frontend:
-    build: ./frontend
-    container_name: footy-frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - api
   neo4j:
     image: neo4j:5
     container_name: neo4j-footy-database
@@ -42,3 +35,5 @@ services:
 
 volumes:
   graph_neo4j_data:
+    external: true
+
