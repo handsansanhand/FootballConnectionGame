@@ -25,7 +25,7 @@ export async function initializeGuessPath(playerA, playerB) {
   }
 }
 export async function makeGuess(currentJSON, guessedPlayer) {
-  const playerGuessURL = `https://${backendHost}:${backendPort}/findPath`;
+  const playerGuessURL = `/api/findPath`;
   const updatedJSON = {
     ...currentJSON,
     guessedPlayer: guessedPlayer,
