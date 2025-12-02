@@ -1,5 +1,3 @@
-const backendPort = process.env.REACT_APP_BACKEND_PORT;
-const backendHost = process.env.REACT_APP_BACKEND_HOST;
 
 export async function searchPlayer(playerName) {
   const playerSearchUrl = `/api/players?query=${playerName}`;

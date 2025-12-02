@@ -1,5 +1,4 @@
-const backendPort = process.env.REACT_APP_BACKEND_PORT;
-const backendHost = process.env.REACT_APP_BACKEND_HOST;
+
 
 export async function initializeGuessPath(playerA, playerB) {
   const initURL = `/api/findPath/initialize`;
@@ -11,7 +10,6 @@ export async function initializeGuessPath(playerA, playerB) {
     });
     if (!response.ok) throw new Error("Failed to initialize path");
     const result = await response.json();
-  //  console.log(`INITIALIZATION FROM API: `, JSON.stringify(result,null,2))
     return result;
   } catch (err) {
     console.error("Initialization failed:", err);
@@ -31,7 +29,6 @@ export async function makeGuess(currentJSON, guessedPlayer) {
     guessedPlayer: guessedPlayer,
   };
   try {
-   // console.log("Posting to backend:", JSON.stringify(updatedJSON, null, 2));
     const response = await fetch(playerGuessURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -42,7 +39,6 @@ export async function makeGuess(currentJSON, guessedPlayer) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     const result = await response.json();
-   // console.log(`GUESS RESULT FROM API: `, JSON.stringify(result,2,null))
     return result;
   } catch (error) {
     console.error("Error making guess:", error);

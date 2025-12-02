@@ -20,11 +20,11 @@ function GuessPath({ resetCount, setResetCount }) {
   const [stopLoadingWinningModal, setStopLoadingWinningModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [winningPath, setWinningPath] = useState(() => {
-    // 1. Check for stored winningPath first (the shortest path ever found)
+    // Check for stored winningPath first (the shortest path ever found)
     const stored = localStorage.getItem("winningPath");
     if (stored) return JSON.parse(stored);
 
-    // 2. Fallback: Check if the *current* path is a winner and use its edges
+    // Fallback: Check if the *current* path is a winner and use its edges
     const storedPath = localStorage.getItem("path");
     if (storedPath) {
       const parsedPath = JSON.parse(storedPath);
@@ -67,28 +67,29 @@ function GuessPath({ resetCount, setResetCount }) {
     setResultMessage(resultMessage);
   }, [resultMessage]);
   //a guess has been made
-const handleGuess = async (path, guessedPlayer) => {
-  if (!guessedPlayer) return;
+  const handleGuess = async (path, guessedPlayer) => {
+    if (!guessedPlayer) return;
 
-  try {
-    setIsLoading(true);
-    const res = await makeGuess(path, guessedPlayer);
+    try {
+      setIsLoading(true);
+      const res = await makeGuess(path, guessedPlayer);
 
-    if (res.success) {
-      setResultMessage(`Found a connection for ${guessedPlayer.name}`);
-      setCorrectGuessTrigger((prev) => prev + 1);
-      setPath(res);
-    } else {
-      setResultMessage(`Could not find a connection for ${guessedPlayer.name}`);
-      setWrongGuessTrigger((prev) => prev + 1);
+      if (res.success) {
+        setResultMessage(`Found a connection for ${guessedPlayer.name}`);
+        setCorrectGuessTrigger((prev) => prev + 1);
+        setPath(res);
+      } else {
+        setResultMessage(
+          `Could not find a connection for ${guessedPlayer.name}`
+        );
+        setWrongGuessTrigger((prev) => prev + 1);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   //after players are initialized
   const handlePlayersSubmit = async (p1, p2) => {
@@ -122,20 +123,16 @@ const handleGuess = async (path, guessedPlayer) => {
   }, [path]);
   //DEBUG
   useEffect(() => {
-    //console.log("==== localStorage ====");
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       const value = localStorage.getItem(key);
-      //   console.log(key, ":", value);
     }
-    //  console.log("=====================");
   }, []);
   useEffect(() => {
     if (!isWinner || !winningPath || winningPath.length === 0) return;
 
     if (stopLoadingWinningModal) return;
 
-    console.log(`Opening WINNING modal immediately.`);
     setWinningModal(true);
     setStopLoadingWinningModal(true);
   }, [isWinner, winningPath, stopLoadingWinningModal]);
@@ -165,8 +162,6 @@ const handleGuess = async (path, guessedPlayer) => {
   };
   const resetPathsOnly = async () => {
     if (!player1 || !player2) return;
-
-    console.log("Resetting paths but keeping players...");
 
     // Reinitialize path for the same players
     const newPath = await initializeGuessPath(player1, player2);
@@ -225,7 +220,6 @@ const handleGuess = async (path, guessedPlayer) => {
   });
   return (
     <div className="h-screen flex flex-col overflow-hidden p-2">
-      
       {/*Header */}
       <div className="flex items-center justify-between w-full mx-auto mb-2">
         {/* Left: Home button */}
@@ -243,7 +237,7 @@ const handleGuess = async (path, guessedPlayer) => {
           <InfoButton textChoice={0} />
         </div>
       </div>
-      {isLoading && <LoadingPopup message="Loading..." />} 
+      {isLoading && <LoadingPopup message="Loading..." />}
       <EnterPlayerModal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -278,7 +272,6 @@ const handleGuess = async (path, guessedPlayer) => {
             winningPath.length > 0 ? winningPath.length : Infinity; // If the newly found path is shorter (or is the first path found)...
 
           if (newPath.length < prevLength || prevLength === Infinity) {
-            // console.log(`a better path was found`);
             localStorage.setItem("winningPath", JSON.stringify(newPath));
             setWinningPath(newPath);
             setIsWinner(true);

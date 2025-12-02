@@ -15,7 +15,6 @@ function WinningModal({
   const [playerBName, setPlayerBName] = useState(``);
 
   useEffect(() => {
-    console.log(`IN WIN MODAL WINNING PATH IS `, winningPath);
     if (winningPath.length !== 0) {
       setFinalScore(winningPath.length - 1);
       formatWinningPath(winningPath);
@@ -25,7 +24,6 @@ function WinningModal({
       setPlayerAName(from);
       setPlayerBName(to);
     } else {
-      console.log(`the path is empty`);
     }
   }, [winningPath]);
 

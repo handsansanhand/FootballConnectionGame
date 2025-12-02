@@ -1,7 +1,4 @@
-import SearchBar from "../../Components/SearchBar/SearchBar";
-import { useNavigate } from "react-router-dom";
 import Graph from "../Graph/Graph";
-import { useEffect } from "react";
 function PathDisplay({ player1, player2, path, errorMessage, isMobile }) {
   return (
     <>

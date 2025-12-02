@@ -38,12 +38,10 @@ function ShortestPath() {
   const isMobile = screenWidth < 640;
   useEffect(() => {
     if (player1 && player2) {
-      console.log(JSON.stringify(player1, 2, null));
       const id1 =
         typeof player1 === "object" && player1 !== null ? player1.id : player1;
       const id2 =
         typeof player2 === "object" && player2 !== null ? player2.id : player2;
-      console.log(`getting shortest path between ${id1} and ${id2}`);
       const fetchPath = async () => {
         try {
           setIsLoading(true); // start loading

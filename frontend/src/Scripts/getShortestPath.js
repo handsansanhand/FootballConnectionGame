@@ -1,5 +1,4 @@
-const backendPort = process.env.REACT_APP_BACKEND_PORT;
-const backendHost = process.env.REACT_APP_BACKEND_HOST;
+
 
 export async function getShortestPath(player1, player2) {
   const encodedPlayer1 = encodeURIComponent(player1);

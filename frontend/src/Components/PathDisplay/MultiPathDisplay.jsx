@@ -1,6 +1,4 @@
-import SearchBar from "../../Components/SearchBar/SearchBar";
-import { useNavigate } from "react-router-dom";
-import Graph from "../Graph/Graph";
+
 import MultiGraph from "../Graph/MultiGraph";
 import PathTracker from "../../Components/PathTracker/PathTracker";
 import { useEffect, useState } from "react";

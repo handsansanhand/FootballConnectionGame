@@ -55,9 +55,7 @@ const MultiGraph = ({
   useEffect(() => {
     const { width, height } = containerSize;
     if (!pathA || !pathB || width === 0 || height === 0) return;
-    const midY = height / 2;
-    const spacing = width / 2;
-    //console.log(`path is this: `, JSON.stringify(pathA, null, 2));
+
     // Helper to add new nodes if they don't exist
     const addMissingNodes = (existingNodes, path, edges, isA) => {
       const midX = containerSize.width / 2;
@@ -151,13 +149,9 @@ const MultiGraph = ({
     if (allEdges.length === 0) return;
 
     const path = findWinningPath(playerA, playerB, allEdges);
-    //console.log(`MY RETURNED WINNING PATH IS OF LENGTH ${path.length}`);
+
     if (onWinningPathFound && path.length > 0) {
       // This call is now correctly guarded by the length check above.
-      console.log(
-        `IN MULTI GRAPH I HAVE FOUND A WINNING PATH `,
-        JSON.stringify(path, null, 2)
-      );
       onWinningPathFound(path);
     }
   }, [
@@ -169,7 +163,7 @@ const MultiGraph = ({
     winningPath.length,
   ]);
 
-  // 1. Create a Set of canonical keys (sorted ID strings) using the PROP
+  // Create a Set of canonical keys (sorted ID strings) using the PROP
   const winningEdgeKeys = new Set(
     winningPath.map((edge) => [edge.from.id, edge.to.id].sort().join("_"))
   );
@@ -334,7 +328,6 @@ const MultiGraph = ({
             const edgeColor = isWinningEdge ? "gold" : "black"; // <- Determine the color
             const edgeKey = `${edge.from.id}-${edge.to.id}-${edge.team}-${edge.years}`;
 
-            //console.log(`EDGE BEING PASSED IS `, JSON.stringify(edge, null, 2))
             return (
               <GraphEdge
                 key={i}

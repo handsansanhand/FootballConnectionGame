@@ -4,9 +4,6 @@ import InfoModal from "../Modals/InfoModal";
 function InfoButton({ textChoice }) {
   const [showModal, setShowModal] = useState(false);
 
-  const toggleModal = (input) => {
-    setShowModal(input);
-  };
 
   const titles = ["How To Play", "How To Use", "Information"];
   const infoText = [
