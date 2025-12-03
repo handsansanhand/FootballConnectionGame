@@ -28,49 +28,51 @@ function SearchBar({
     setDropdownOpen(false);
   }, [newGameTrigger]);
 
-  useEffect(() => {
-    if (initialValue) {
-      const name =
-        typeof initialValue === "string" ? initialValue : initialValue.name;
-      setQuery(name);
-      setSelectedPlayer(initialValue);
+useEffect(() => {
+  if (initialValue) {
+    const name =
+      typeof initialValue === "string" ? initialValue : initialValue.name;
+    setQuery(name);
+    setSelectedPlayer(initialValue);
+
+    // prevent dropdown from opening automatically
+    setDropdownOpen(false);
+  }
+}, [initialValue]);
+
+useEffect(() => {
+  if (suppressSearchRef.current) {
+    suppressSearchRef.current = false;
+    return;
+  }
+
+  const searchText = query.trim();
+
+  // only search if user typed (ignore if query is from initialValue)
+  if (!searchText || searchText.length < 2) {
+    setResults([]);
+    setDropdownOpen(false);
+    return;
+  }
+
+  if (debounceRef.current) clearTimeout(debounceRef.current);
+
+  debounceRef.current = setTimeout(async () => {
+    try {
+      setIsSearchLoading(true);
+      const playerList = await searchPlayer(searchText);
+      setResults(playerList);
+      setDropdownOpen(playerList.length > 0);
+    } catch (error) {
+      console.error("Error searching player:", error);
+      setError("Server is unreachable");
+    } finally {
+      setIsSearchLoading(false);
     }
-  }, [initialValue]);
+  }, 300);
 
-  useEffect(() => {
-    if (suppressSearchRef.current) {
-      suppressSearchRef.current = false;
-      return;
-    }
-
-    const searchText = typeof query === "string" ? query.trim() : "";
-    if (searchText.length < 2) {
-      setResults([]);
-      setDropdownOpen(false);
-      return;
-    }
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-
-    debounceRef.current = setTimeout(async () => {
-      try {
-        setIsSearchLoading(true);
-        const playerList = await searchPlayer(searchText);
-        setResults(playerList);
-        setDropdownOpen(playerList.length > 0);
-      } catch (error) {
-        console.error("Error searching player:", error);
-        setError("Server is unreachable"); // trigger toast
-        setIsSearchLoading(false);
-      }
-      finally {
-        setIsSearchLoading(false);
-      }
-
-    }, 300);
-
-    return () => clearTimeout(debounceRef.current);
-  }, [query]);
+  return () => clearTimeout(debounceRef.current);
+}, [query]);
 
   const handleSelectPlayer = (player) => {
     suppressSearchRef.current = true;
@@ -83,11 +85,16 @@ function SearchBar({
     onValidChange && onValidChange(player.id);
   };
 
-  const handleChange = (e) => {
-    setQuery(e.target.value);
+const handleChange = (e) => {
+  const value = e.target.value;
+  setQuery(value);
+
+  //only clear selectedPlayer if user actually types something different
+  if (!selectedPlayer || selectedPlayer.name !== value) {
     setSelectedPlayer(null);
-    setDropdownOpen(true);
-  };
+    setDropdownOpen(value.length >= 2);
+  }
+};
 
   const handleRandom = async () => {
     try {
@@ -122,7 +129,9 @@ function SearchBar({
 
   return (
     <div
-      className={`w-full flex ${stacked ? "flex-col " : "items-center"}`}
+      className={`sm:rounded-lg w-full flex ${
+        stacked ? "flex-col " : "items-center"
+      }`}
     >
       {/* Search Input with loader */}
       <div className={`relative flex-1 ${stacked ? "w-full" : ""}`}>

@@ -17,8 +17,8 @@ function PlayerInput({
   stacked = false,
 }) {
   return (
-    <div className="flex-1 border-4 border-black rounded-lg">
-      <div className="bg-gray-50 rounded-lg p-2 sm:p-4 h-full">
+    <div className="flex-1 border-4 border-black sm:rounded-lg">
+      <div className={`bg-gray-50 ${isMobile ? '' : 'rounded-lg'} p-2 sm:p-4 h-full`}>
         {!isMobile && (
           <h2 className="text-md sm:text-xl font-bold mb-2">{label}</h2>
         )}

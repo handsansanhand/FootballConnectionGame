@@ -140,26 +140,36 @@ function ShortestPath() {
 
       {/* Player inputs */}
       {isMobile ? (
-        <div className="flex flex-col gap-1 mt-2">
+        <div className="flex flex-col gap-0 mt-2 ">
           {/* Toggle buttons */}
-          <div className="flex justify-center gap-1">
+          <div className="flex justify-center gap-0 rounded-none">
             <button
               onClick={() => setActivePlayerInput("player1")}
-              className={`flex-1 py-1 rounded-lg font-medium transition ${
+              className={`flex-1 py-1 font-medium transition border-black border-4 border-b-0 ${
                 activePlayerInput === "player1"
-                  ? "bg-blue-600 text-white"
+                  ? "text-white"
                   : "bg-gray-300 text-black"
               }`}
+              style={
+                activePlayerInput === "player1"
+                  ? { backgroundColor: "#1db954" } // your custom green
+                  : {}
+              }
             >
               Player 1
             </button>
             <button
               onClick={() => setActivePlayerInput("player2")}
-              className={`flex-1 rounded-lg font-medium transition ${
+              className={`flex-1 font-medium transition border-4 border-black border-b-0 border-l-0 ${
                 activePlayerInput === "player2"
-                  ? "bg-blue-600 text-white"
+                  ? "text-white"
                   : "bg-gray-300 text-black"
               }`}
+              style={
+                activePlayerInput === "player2"
+                  ? { backgroundColor: "#1db954" } // your custom green
+                  : {}
+              }
             >
               Player 2
             </button>
