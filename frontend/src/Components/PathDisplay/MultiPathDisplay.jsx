@@ -34,7 +34,7 @@ function MultiPathDisplay({
 
   return (
     <div
-      className="relative rounded w-full min-h-[550px] h-[75vh] flex items-center justify-center text-center"
+      className="relative rounded w-full h-[75vh] flex items-center justify-center text-center"
       style={{
         backgroundColor: "#1db954",
         border: "2px solid white",

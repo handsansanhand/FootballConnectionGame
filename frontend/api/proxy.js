@@ -3,7 +3,7 @@ const backendPort = process.env.REACT_APP_BACKEND_PORT || '3030';
 
 export default async function handler(req, res) {
   const backendBase = `http://${backendHost}:${backendPort}`;
-
+  console.log(`making request to `, backendBase)
   // forward the request path, removing /api
   const targetUrl = backendBase + req.url.replace("/api", "");
 

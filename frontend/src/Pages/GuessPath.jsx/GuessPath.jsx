@@ -216,7 +216,7 @@ function GuessPath({ resetCount, setResetCount }) {
     };
   });
   return (
-    <div className="h-screen flex flex-col overflow-hidden p-2">
+    <div className="flex flex-col overflow-hidden p-2">
       {/*Header */}
       <div className="flex items-center justify-between w-full mx-auto mb-2">
         {/* Left: Home button */}

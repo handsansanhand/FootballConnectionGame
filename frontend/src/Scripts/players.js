@@ -1,6 +1,7 @@
+import { API_BASE } from "../config/api";
 
 export async function searchPlayer(playerName) {
-  const playerSearchUrl = `/api/players?query=${playerName}`;
+  const playerSearchUrl = `${API_BASE}/players?query=${playerName}`;
 
   const response = await fetch(playerSearchUrl);
   if (!response.ok) {
@@ -13,7 +14,8 @@ export async function searchPlayer(playerName) {
 }
 
 export async function getRandomPlayer() {
-  const randomPlayerSearchUrl = `/api/players/random`;
+  const randomPlayerSearchUrl = `${API_BASE}/players/random`;
+
   const response = await fetch(randomPlayerSearchUrl);
   if (!response.ok) {
     throw new Error(

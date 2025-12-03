@@ -1,7 +1,8 @@
+import { API_BASE } from "../config/api";
 
 
 export async function initializeGuessPath(playerA, playerB) {
-  const initURL = `/api/findPath/initialize`;
+  const initURL = `${API_BASE}/findPath/initialize`;
   try {
     const response = await fetch(initURL, {
       method: "POST",
@@ -23,7 +24,7 @@ export async function initializeGuessPath(playerA, playerB) {
   }
 }
 export async function makeGuess(currentJSON, guessedPlayer) {
-  const playerGuessURL = `/api/findPath`;
+  const playerGuessURL = `${API_BASE}/findPath`;
   const updatedJSON = {
     ...currentJSON,
     guessedPlayer: guessedPlayer,

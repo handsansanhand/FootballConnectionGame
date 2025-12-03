@@ -31,7 +31,11 @@ const MultiGraph = ({
   const [layoutReady, setLayoutReady] = useState(false);
   // --- Helpers ---
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+  const isMobile = window.innerWidth < 768;
 
+  const MIN_SPAWN = isMobile ? 80 : 200;
+  const MAX_SPAWN = isMobile ? 140 : 350;
+  const CENTER_SPACING = isMobile ? 120 : 300;
   const getNodePosition = (id) =>
     nodesA.find((n) => n.id === id) ||
     nodesB.find((n) => n.id === id) || { x: 0, y: 0 };
@@ -85,16 +89,16 @@ const MultiGraph = ({
               allNodes,
               containerSize.width,
               containerSize.height,
-              200, // min spacing
-              350 // max spacing
+              MIN_SPAWN, // min spacing
+              MAX_SPAWN // max spacing
             );
           } else {
             // fallback near center if no connected node
             const startingSpacing = 300; // adjust as needed
             pos = {
               x: isA
-                ? midX - startingSpacing + Math.random() * 60 - 30
-                : midX + startingSpacing + Math.random() * 60 - 30,
+                ? midX - CENTER_SPACING + Math.random() * 60 - 30
+                : midX + CENTER_SPACING + Math.random() * 60 - 30,
               y: midY + Math.random() * 40 - 20,
             };
           }
@@ -241,7 +245,7 @@ const MultiGraph = ({
     return <div ref={containerRef} className="w-full h-full" />;
   // Combine and deduplicate edges
   const combinedEdges = [...pathA.edges, ...pathB.edges];
-  const isMobile = window.innerWidth < 768;
+
   // Create a unique set based on from/to ids (direction-agnostic)
   const uniqueEdges = combinedEdges.filter((edge, index, self) => {
     const key1 = `${edge.from.id}-${edge.to.id}`;
@@ -307,16 +311,20 @@ const MultiGraph = ({
     <div
       ref={containerRef}
       className="  w-full h-full bg-grey-100 rounded-lg shadow-inner
-  overflow-x-auto overflow-y-hidden   // default (mobile)
-  md:overflow-x-hidden                // disable scrolling on medium+ screens"
+  overflow-x-hidden                // disable scrolling on medium+ screens"
+  style={{ touchAction: "none" }} 
     >
       <svg
-        width={isMobile ? "1200" : "100%"}
+        width="100%"
         height="100%"
+        preserveAspectRatio="none"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onTouchMove={handleTouchMove}
+        onTouchMove={(e) => {
+          handleTouchMove(e);
+        }}
         onTouchEnd={handleMouseUp}
+        style={{ touchAction: "none" }} // <-- add this too
       >
         {/* --- Render Edges --- */}
         {layoutReady &&

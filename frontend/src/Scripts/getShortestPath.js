@@ -1,9 +1,10 @@
+import { API_BASE } from "../config/api";
 
 
 export async function getShortestPath(player1, player2) {
   const encodedPlayer1 = encodeURIComponent(player1);
   const encodedPlayer2 = encodeURIComponent(player2);
-  const shortestPathURL = `/api/shortestPath?player1=${encodedPlayer1}&player2=${encodedPlayer2}`
+  const shortestPathURL = `${API_BASE}/shortestPath?player1=${encodedPlayer1}&player2=${encodedPlayer2}`
 
   const response = await fetch(shortestPathURL);
   if (!response.ok) {
