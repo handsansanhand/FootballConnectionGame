@@ -44,8 +44,8 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
       <div className="relative p-4 w-full max-w-4xl max-h-full">
         <div className="relative bg-white rounded-lg shadow-lg border-4 border-black ">
           {/* Header */}
-          <div className="w-full flex justify-center items-center text-center p-4 md:p-5 border-b rounded-t border-gray-200 dark:border-gray-600">
-            <h3 className="text-2xl font-semibold text-center">
+          <div className="w-full flex justify-center items-center text-center p-2 sm:p-4 md:p-5 border-b rounded-t border-gray-200 dark:border-gray-600">
+            <h3 className="text-xl sm:text-2xl font-semibold text-center">
               Enter Two Players
             </h3>
           </div>

@@ -122,7 +122,7 @@ function SearchBar({
 
   return (
     <div
-      className={`w-full flex ${stacked ? "flex-col gap-2" : "items-center"}`}
+      className={`w-full flex ${stacked ? "flex-col " : "items-center"}`}
     >
       {/* Search Input with loader */}
       <div className={`relative flex-1 ${stacked ? "w-full" : ""}`}>
@@ -130,7 +130,7 @@ function SearchBar({
           type="search"
           value={query}
           onChange={handleChange}
-          className={`w-full p-4 text-md border-4 rounded-none
+          className={`w-full p-3 sm:p-4 text-sm sm:text-md bg-white text-black border-4 rounded-none
       ${isValid ? "border-green-500 bg-green-50" : "border-black bg-gray-50"}
       focus:outline-none focus:ring-0`}
           placeholder="Search for a player..."
@@ -172,15 +172,15 @@ function SearchBar({
 
       {/* Buttons */}
       <div
-        className={`flex gap-2 ${
-          stacked ? "flex-row mt-2 justify-center gap-x-4" : "ml-2"
+        className={`flex gap-1 ${
+          stacked ? "flex-row mt-1 justify-center gap-x-4" : "ml-2"
         }`}
       >
         {hasRandomChoice && (
           <button
             type="button"
             onClick={handleRandom}
-            className="py-6 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center justify-center min-w-[4rem]"
+            className="py-2 sm:py-5 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center justify-center min-w-[4rem]"
             disabled={isRandomLoading}
           >
             <div className="w-16 h-4 flex items-center justify-center">
@@ -202,7 +202,7 @@ function SearchBar({
         <button
           type="button"
           onClick={handleReset}
-          className="py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-sm"
+          className="px-4 sm:px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-sm"
         >
           Reset
         </button>

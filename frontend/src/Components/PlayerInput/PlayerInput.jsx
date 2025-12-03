@@ -11,20 +11,17 @@ function PlayerInput({
   wrongGuessTrigger,
   correctGuessTrigger,
   hasGuess, // new prop
+  isMobile,
   initialValue,
   newGameTrigger,
-  stacked=false
-})
-
-
-{
-  
+  stacked = false,
+}) {
   return (
     <div className="flex-1 border-4 border-black rounded-lg">
       <div className="bg-gray-50 rounded-lg p-2 sm:p-4 h-full">
-        <h2 className="text-md sm:text-xl font-bold mb-2">
-          {label}
-        </h2>
+        {!isMobile && (
+          <h2 className="text-md sm:text-xl font-bold mb-2">{label}</h2>
+        )}
 
         {hasGuess ? (
           <SearchBarGuess

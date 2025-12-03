@@ -256,7 +256,7 @@ function GuessPath({ resetCount, setResetCount }) {
 
       {/* Path segment here */}
       <MultiPathDisplay
-      className="mb-1 sm:mb-2"
+      className="mb-2 sm:mb-3"
         player1={player1}
         player2={player2}
         path={connectedGraph}

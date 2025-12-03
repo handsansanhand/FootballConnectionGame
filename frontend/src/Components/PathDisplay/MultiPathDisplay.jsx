@@ -45,7 +45,7 @@ function MultiPathDisplay({
     >
       {/* Graph area */}
       {errorMessage ? (
-        <p className="text-red-700 font-semibold">{errorMessage}</p>
+        <p className="text-md sm:text-lg text-red-700 font-semibold">{errorMessage}</p>
       ) : path ? (
         <MultiGraph
           pathA={path.pathA}

@@ -12,7 +12,7 @@ function ShortestPath() {
   const initialPlayer1 = searchParams.get("playerA");
   const initialPlayer2 = searchParams.get("playerB");
   const [isLoading, setIsLoading] = useState(false);
-
+  const [activePlayerInput, setActivePlayerInput] = useState("player1"); // toggle state
   const [existingPlayerAName, setExistingPlayerAName] = useState("");
   const [existingPlayerBName, setExistingPlayerBName] = useState("");
 
@@ -105,21 +105,21 @@ function ShortestPath() {
   };
 
   return (
-    <div className="p-2">
-      <div className="flex items-center justify-between w-full mx-auto mb-2">
+    <div className="p-1">
+      <div className="flex items-center justify-between w-full mx-auto mb-0.5 sm:mb-2">
         {/* Left: Home button */}
         <div>
           <HomeButton />
         </div>
 
         {/* Center: Title */}
-        <h1 className="text-3xl font-bold text-center flex-1 m-0 text-white ">
+        <h1 className="text-lg sm:text-3xl font-bold text-center flex-1 m-0 text-white ">
           Shortest Path Calculator
         </h1>
 
-        {/* Right: Info button */}
+        {/* Right: Info butttton */}
         <div>
-          <InfoButton textChoice={1} />
+          <InfoButton textChoice={0} />
         </div>
       </div>
       {/* Path display */}
@@ -139,26 +139,81 @@ function ShortestPath() {
       />
 
       {/* Player inputs */}
-      <div className="flex flex-col md:flex-row gap-2 text-center rounded-none">
-        <PlayerInput
-          label="Player 1"
-          playerKey="player1"
-          setPlayer={setPlayer1}
-          handleReset={handleReset}
-          hasRandomChoice={true}
-          stacked={isMobile}
-          initialValue={existingPlayerAName ? existingPlayerAName : ""}
-        />
-        <PlayerInput
-          label="Player 2"
-          playerKey="player2"
-          setPlayer={setPlayer2}
-          handleReset={handleReset}
-          hasRandomChoice={true}
-          stacked={isMobile}
-          initialValue={existingPlayerBName ? existingPlayerBName : ""}
-        />
-      </div>
+      {isMobile ? (
+        <div className="flex flex-col gap-1 mt-2">
+          {/* Toggle buttons */}
+          <div className="flex justify-center gap-1">
+            <button
+              onClick={() => setActivePlayerInput("player1")}
+              className={`flex-1 py-1 rounded-lg font-medium transition ${
+                activePlayerInput === "player1"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-black"
+              }`}
+            >
+              Player 1
+            </button>
+            <button
+              onClick={() => setActivePlayerInput("player2")}
+              className={`flex-1 rounded-lg font-medium transition ${
+                activePlayerInput === "player2"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-black"
+              }`}
+            >
+              Player 2
+            </button>
+          </div>
+
+          {/* Show the active input */}
+          {activePlayerInput === "player1" && (
+            <PlayerInput
+              label="Player 1"
+              playerKey="player1"
+              setPlayer={setPlayer1}
+              handleReset={handleReset}
+              hasRandomChoice={true}
+              stacked={true}
+              isMobile={isMobile}
+              initialValue={existingPlayerAName ? existingPlayerAName : ""}
+            />
+          )}
+          {activePlayerInput === "player2" && (
+            <PlayerInput
+              label="Player 2"
+              playerKey="player2"
+              setPlayer={setPlayer2}
+              handleReset={handleReset}
+              hasRandomChoice={true}
+              isMobile={isMobile}
+              stacked={true}
+              initialValue={existingPlayerBName ? existingPlayerBName : ""}
+            />
+          )}
+        </div>
+      ) : (
+        // Desktop: side by side
+        <div className="flex flex-row gap-2 mt-2 text-center">
+          <PlayerInput
+            label="Player 1"
+            playerKey="player1"
+            setPlayer={setPlayer1}
+            handleReset={handleReset}
+            hasRandomChoice={true}
+            stacked={false}
+            initialValue={existingPlayerAName ? existingPlayerAName : ""}
+          />
+          <PlayerInput
+            label="Player 2"
+            playerKey="player2"
+            setPlayer={setPlayer2}
+            handleReset={handleReset}
+            hasRandomChoice={true}
+            stacked={false}
+            initialValue={existingPlayerBName ? existingPlayerBName : ""}
+          />
+        </div>
+      )}
     </div>
   );
 }
