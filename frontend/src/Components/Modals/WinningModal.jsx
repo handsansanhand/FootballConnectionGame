@@ -42,13 +42,13 @@ function WinningModal({
       >
         {/* Header */}
         <div className="items-center p-4 md:p-5 border-b border-gray-200 text-center">
-          <h3 className="text-3xl font-semibold text-gray-900">Path Found!</h3>
+          <h3 className="text-2xl sm:text-3xl font-semibold text-gray-900">Path Found!</h3>
         </div>
 
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-4 md:p-5 flex flex-col items-center justify-start space-y-4">
           {/* Player names, path entries, etc. */}
-          <div className="text-xl text-center font-bold text-black-500">
+          <div className="text-l sm:text-xl text-center font-bold text-black-500">
             {playerAName || "?"} to {playerBName || "?"}
           </div>
 
@@ -56,12 +56,12 @@ function WinningModal({
             winningPath.map((edge, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center bg-gray-50 rounded-xl shadow-sm p-3 w-full md:w-3/4"
+                className="flex flex-col items-center bg-gray-50 rounded-xl shadow-sm p-1 w-full md:w-3/4"
               >
                 <div className="flex items-center justify-center space-x-4 bg-gray-50 rounded-xl shadow-sm p-3 w-full md:w-3/4">
                   {/* From Name */}
                   <div className="flex flex-col items-center w-24">
-                    <span className="text-lg font-semibold text-black text-center break-words">
+                    <span className="text-sm sm:text-lg font-semibold text-black text-center break-words">
                       {edge.from.name}
                     </span>
                   </div>
@@ -73,13 +73,13 @@ function WinningModal({
 
                   {/* To Name */}
                   <div className="flex flex-col items-center w-24">
-                    <span className="text-lg font-semibold text-black text-center break-words">
+                    <span className="text-sm sm:text-lg font-semibold text-black text-center break-words">
                       {edge.to.name}
                     </span>
                   </div>
                 </div>
 
-                <span className="text-sm text-gray-600 mt-2">
+                <span className="text-xs sm:text-sm text-gray-600">
                   Team: <span className="font-medium">{edge.team}</span> |
                   Years: <span className="font-medium">{edge.years}</span>
                 </span>
@@ -89,7 +89,7 @@ function WinningModal({
             <p>No winning path found.</p>
           )}
 
-          <div className="text-xl font-bold text-gray-800  text-center ">
+          <div className="text-l sm:text-xl font-bold text-gray-800  text-center ">
             Path found in {finalScore} connection{finalScore !== 1 ? "s" : ""}.
           </div>
         </div>
