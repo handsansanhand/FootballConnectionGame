@@ -138,7 +138,7 @@ function SearchBarGuess({
           type="search"
           value={query}
           onChange={handleChange}
-          className={`w-full p-4 text-md bg-white text-black border-4 rounded-none
+          className={`w-full p-3 sm:p-4 text-sm sm:text-md bg-white text-black border-4 rounded-none
         ${
           wrongGuess
             ? "border-red-500"
@@ -195,7 +195,7 @@ function SearchBarGuess({
         <button
           type="button"
           onClick={() => selectedPlayer && handleButtonClick()}
-          className={`h-14 px-8 rounded-lg text-white font-medium text-sm transition-colors ${
+          className={`py-3 sm:py-5 px-2 sm:px-8 rounded-lg text-white font-medium text-sm transition-colors ${
             selectedPlayer
               ? "bg-green-600 hover:bg-green-700"
               : "bg-gray-400 cursor-not-allowed"

@@ -216,16 +216,16 @@ function GuessPath({ resetCount, setResetCount }) {
     };
   });
   return (
-    <div className="flex flex-col overflow-hidden p-2">
+    <div className="flex flex-col overflow-hidden p-1 sm:p-2">
       {/*Header */}
-      <div className="flex items-center justify-between w-full mx-auto mb-2">
+      <div className="flex items-center justify-between w-full mx-auto mb-0.5 sm:mb-2">
         {/* Left: Home button */}
         <div>
           <HomeButton />
         </div>
 
         {/* Center: Title */}
-        <h1 className="text-3xl font-bold text-center flex-1 m-0 text-white ">
+        <h1 className="text-lg sm:text-3xl font-bold text-center flex-1 m-0 text-white ">
           Connect The Players
         </h1>
 
@@ -256,6 +256,7 @@ function GuessPath({ resetCount, setResetCount }) {
 
       {/* Path segment here */}
       <MultiPathDisplay
+      className="mb-1 sm:mb-2"
         player1={player1}
         player2={player2}
         path={connectedGraph}

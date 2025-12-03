@@ -3,6 +3,7 @@ import MultiGraph from "../Graph/MultiGraph";
 import PathTracker from "../../Components/PathTracker/PathTracker";
 import { useEffect, useState } from "react";
 function MultiPathDisplay({
+  className,
   player1,
   player2,
   path,
@@ -34,7 +35,7 @@ function MultiPathDisplay({
 
   return (
     <div
-      className="relative rounded w-full h-[75vh] flex items-center justify-center text-center"
+      className={`relative rounded w-full h-[75vh] flex items-center justify-center text-center ${className}`}
       style={{
         backgroundColor: "#1db954",
         border: "2px solid white",
@@ -73,7 +74,7 @@ function MultiPathDisplay({
         <button
           type="button"
           onClick={onNewGameClick}
-          className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"
+          className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-xs sm:text-sm sm:px-4 px-2 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"
         >
           {" "}
           New Game
@@ -83,7 +84,7 @@ function MultiPathDisplay({
         <button
           type="button"
           onClick={onResetPathsClick}
-className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"
+className="w-full inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-xs sm:text-sm sm:px-4 px-2 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"
     
         >
           Reset Paths

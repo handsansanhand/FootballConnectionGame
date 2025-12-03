@@ -40,8 +40,7 @@ function PathTracker({ winningPath, resetTrigger }) {
     }
   }, [resetTrigger]);
   return (
-    <div className="w-full inline-block text-black bg-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"  >
-
+    <div className="w-full inline-block text-black bg-white font-medium text-xs sm:text-sm sm:px-4 px-2 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"  >
       Best Path: {bestConnections === Infinity ? "??" : bestConnections}
     </div>
   );

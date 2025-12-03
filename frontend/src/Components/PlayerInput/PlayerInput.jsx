@@ -20,9 +20,9 @@ function PlayerInput({
 {
   
   return (
-    <div className="flex-1 border-4 border-black rounded-lg mt-2">
-      <div className="bg-gray-50 rounded-lg p-4 h-full">
-        <h2 className="text-xl font-bold mb-2">
+    <div className="flex-1 border-4 border-black rounded-lg">
+      <div className="bg-gray-50 rounded-lg p-2 sm:p-4 h-full">
+        <h2 className="text-md sm:text-xl font-bold mb-2">
           {label}
         </h2>
 
