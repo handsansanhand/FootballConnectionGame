@@ -129,7 +129,7 @@ const Graph = ({ pathJson, playerA, playerB, isMobile }) => {
 
   const handleTouchMove = (e) => {
     if (!draggingNode) return;
-      e.preventDefault();  
+
     const touch = e.touches[0];
     const svg = e.currentTarget;
     const pt = svg.createSVGPoint();
