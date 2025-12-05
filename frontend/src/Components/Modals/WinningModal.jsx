@@ -36,29 +36,33 @@ function WinningModal({
         show ? "flex" : "hidden"
       }`}
     >
-      <div
-        className="relative bg-white rounded-lg shadow-lg border-4 border-black text-black flex flex-col"
-        style={{ maxHeight: "85vh", width: "50vw", minWidth: "300px" }}
-      >
+      <div className="relative p-4 w-full max-w-4xl max-h-full">
         {/* Header */}
-        <div className="items-center p-4 md:p-5 border-b border-gray-200 text-center">
-          <h3 className="text-2xl sm:text-3xl font-semibold text-gray-900">Path Found!</h3>
+        <div className="w-full flex justify-center items-center text-center">
+          <h3 className="text-xl sm:text-2xl font-semibold text-center bg-white border-black border-4 border-b-0 px-5 py-0.5 sm:py-2">
+            Path Found!
+          </h3>
         </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-5 flex flex-col items-center justify-start space-y-4">
+        <div className="flex-1 overflow-y-auto p-2 sm:p-5  bg-white border-4 border-black flex flex-col items-center justify-start space-y-4">
           {/* Player names, path entries, etc. */}
           <div className="text-l sm:text-xl text-center font-bold text-black-500">
             {playerAName || "?"} to {playerBName || "?"}
+            
           </div>
-
+        
           {winningPath && winningPath.length > 0 ? (
             winningPath.map((edge, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center bg-gray-50 rounded-xl shadow-sm p-1 w-full md:w-3/4"
+                className="flex flex-col items-center  rounded-xl shadow-sm p-1 w-full md:w-3/4"
+                 style={{ backgroundColor: "#1db954" }}
               >
-                <div className="flex items-center justify-center space-x-4 bg-gray-50 rounded-xl shadow-sm p-3 w-full md:w-3/4">
+                <div
+                  className="flex items-center justify-center space-x-2 rounded-lg shadow-sm p-3 w-full md:w-3/4"
+                  style={{ backgroundColor: "#1db954" }}
+                >
                   {/* From Name */}
                   <div className="flex flex-col items-center w-24">
                     <span className="text-sm sm:text-lg font-semibold text-black text-center break-words">
@@ -68,7 +72,7 @@ function WinningModal({
 
                   {/* Arrow */}
                   <div className="flex flex-col items-center justify-center w-8">
-                    <span className="text-4xl font-bold text-gray-600">→</span>
+                    <span className="text-4xl font-bold text-black">→</span>
                   </div>
 
                   {/* To Name */}
@@ -79,7 +83,10 @@ function WinningModal({
                   </div>
                 </div>
 
-                <span className="text-xs sm:text-sm text-gray-600">
+                <span
+                  className="text-xs sm:text-sm text-gray-600 rounded-b-lg px-4 py-1"
+                  style={{ backgroundColor: "#1db954" }}
+                >
                   Team: <span className="font-medium">{edge.team}</span> |
                   Years: <span className="font-medium">{edge.years}</span>
                 </span>
@@ -95,19 +102,19 @@ function WinningModal({
         </div>
 
         {/* Button row */}
-        <div className="flex justify-between p-4 border-t border-gray-200">
+        <div className="flex justify-between">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-4 border-black rounded-none border-t-0 focus:outline-none"
+          >
+            Close
+          </button>
           <ViewShortestPathButton
             playerA={playerA}
             playerB={playerB}
             path={winningPath}
           />
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors duration-300 border-2 border-black rounded-lg focus:outline-none"
-         >
-            Close
-          </button>
         </div>
       </div>
     </div>
