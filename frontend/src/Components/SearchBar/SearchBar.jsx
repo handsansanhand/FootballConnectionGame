@@ -22,7 +22,11 @@ function SearchBar({
   const [isRandomLoading, setIsRandomLoading] = useState(false);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
-
+    useEffect(() => {
+    setQuery("");
+    setSelectedPlayer(null);
+    setDropdownOpen(false);
+  }, [newGameTrigger]);
   useEffect(() => {
     if (initialValue) {
       const name =
@@ -127,9 +131,9 @@ const handleChange = (e) => {
           type="search"
           value={query}
           onChange={handleChange}
-          className={`w-full p-3 sm:p-4 text-sm sm:text-md bg-white text-black border-4 rounded-none
+          className={`w-full p-3 sm:p-4 text-md sm:text-md bg-white text-black border-4 rounded-none
       ${isValid ? "border-green-500 bg-green-50" : "border-black bg-gray-50"}
-      focus:outline-none focus:ring-0`}
+      focus:outline-none focus:ring-0 appearance-none`}
           placeholder="Search for a player..."
         />
 

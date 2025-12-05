@@ -3,7 +3,7 @@ function PathDisplay({ player1, player2, path, errorMessage, isMobile, onOpenPla
   return (
     <>
       <div
-        className="relative rounded w-full h-[90vh] sm:h-[75vh] flex items-center justify-center text-center"
+        className="relative rounded w-full h-[85vh] sm:h-[75vh] flex items-center justify-center text-center"
         style={{
           backgroundColor: "#1db954",
           border: "2px solid white",

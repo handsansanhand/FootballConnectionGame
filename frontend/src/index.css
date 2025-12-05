@@ -33,3 +33,11 @@ code {
 .animate-fadeOut {
   animation: fadeOut 0.2s ease-out;
 }
+
+/* global.css or tailwind overrides */
+input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0 !important; /* force no rounding */
+}
