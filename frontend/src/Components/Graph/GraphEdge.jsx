@@ -21,12 +21,12 @@ const GraphEdge = ({
   const isMobile = screenWidth < 640;
   const isTablet = screenWidth < 1024;
 
-  const rectWidth = isMobile ? 70 : isTablet ? 90 : 110;
+  const rectWidth = isMobile ? 80 : isTablet ? 90 : 120;
   const logoSize = isMobile ? 20 : isTablet ? 25 : 30;
   const fontSize = isMobile ? 8 : isTablet ? 10 : 12;
 
   // Spacing between elements inside the rect
-  const spacing = 6;
+  const spacing = isMobile ? 3 : 7;
 
   // Dynamically compute rect height: logo + team text + years + padding
   const rectHeight = logoSize + fontSize * 2 + spacing * 4;

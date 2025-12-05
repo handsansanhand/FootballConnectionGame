@@ -120,11 +120,7 @@ const handleChange = (e) => {
   const isValid = !!selectedPlayer;
 
   return (
-    <div
-      className={`sm:rounded-lg w-full flex ${
-        stacked ? "flex-col " : "items-center"
-      }`}
-    >
+<div className={`${stacked ? "flex-col" : "items-center"} w-full flex rounded-none sm:rounded-lg`}>
       {/* Search Input with loader */}
       <div className={`relative flex-1 ${stacked ? "w-full" : ""}`}>
         <input
@@ -138,7 +134,7 @@ const handleChange = (e) => {
         />
 
         {dropdownOpen && (
-          <div className="absolute bottom-full left-0 w-full mt-1 z-10 bg-white rounded-t-lg border-4 border-b-0 border-black shadow max-h-60 overflow-auto">
+          <div className="absolute bottom-full left-0 w-full mt-1 z-10 bg-white border-4 border-b-0 border-black shadow max-h-60 overflow-auto">
             {isSearchLoading ? (
               <div className="flex items-center justify-center p-3">
                 <OrbitProgress color="#000" size="small" text="" textColor="" />
