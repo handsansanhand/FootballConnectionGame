@@ -22,7 +22,7 @@ function SearchBar({
   const [isRandomLoading, setIsRandomLoading] = useState(false);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     setQuery("");
     setSelectedPlayer(null);
     setDropdownOpen(false);
@@ -36,39 +36,39 @@ function SearchBar({
     }
   }, [initialValue]);
 
-useEffect(() => {
-  if (suppressSearchRef.current) {
-    suppressSearchRef.current = false;
-    return;
-  }
-
-  const searchText = query.trim();
-
-  // only search if user typed (ignore if query is from initialValue)
-  if (!searchText || searchText.length < 2) {
-    setResults([]);
-    setDropdownOpen(false);
-    return;
-  }
-
-  if (debounceRef.current) clearTimeout(debounceRef.current);
-
-  debounceRef.current = setTimeout(async () => {
-    try {
-      setIsSearchLoading(true);
-      const playerList = await searchPlayer(searchText);
-      setResults(playerList);
-      setDropdownOpen(playerList.length > 0);
-    } catch (error) {
-      console.error("Error searching player:", error);
-      setError("Server is unreachable");
-    } finally {
-      setIsSearchLoading(false);
+  useEffect(() => {
+    if (suppressSearchRef.current) {
+      suppressSearchRef.current = false;
+      return;
     }
-  }, 300);
 
-  return () => clearTimeout(debounceRef.current);
-}, [query]);
+    const searchText = query.trim();
+
+    // only search if user typed (ignore if query is from initialValue)
+    if (!searchText || searchText.length < 2) {
+      setResults([]);
+      setDropdownOpen(false);
+      return;
+    }
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(async () => {
+      try {
+        setIsSearchLoading(true);
+        const playerList = await searchPlayer(searchText);
+        setResults(playerList);
+        setDropdownOpen(playerList.length > 0);
+      } catch (error) {
+        console.error("Error searching player:", error);
+        setError("Server is unreachable");
+      } finally {
+        setIsSearchLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [query]);
 
   const handleSelectPlayer = (player) => {
     suppressSearchRef.current = true;
@@ -81,16 +81,16 @@ useEffect(() => {
     onValidChange && onValidChange(player.id);
   };
 
-const handleChange = (e) => {
-  const value = e.target.value;
-  setQuery(value);
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
 
-  //only clear selectedPlayer if user actually types something different
-  if (!selectedPlayer || selectedPlayer.name !== value) {
-    setSelectedPlayer(null);
-    setDropdownOpen(value.length >= 2);
-  }
-};
+    //only clear selectedPlayer if user actually types something different
+    if (!selectedPlayer || selectedPlayer.name !== value) {
+      setSelectedPlayer(null);
+      setDropdownOpen(value.length >= 2);
+    }
+  };
 
   const handleRandom = async () => {
     try {
@@ -124,14 +124,18 @@ const handleChange = (e) => {
   const isValid = !!selectedPlayer;
 
   return (
-<div className={`${stacked ? "flex-col" : "items-center"} w-full flex rounded-none sm:rounded-lg`}>
+    <div
+      className={`${
+        stacked ? "flex-col" : ""
+      } w-full flex rounded-none sm:rounded-lg`}
+    >
       {/* Search Input with loader */}
       <div className={`relative flex-1 ${stacked ? "w-full" : ""}`}>
         <input
           type="search"
           value={query}
           onChange={handleChange}
-          className={`w-full p-3 sm:p-4 text-md sm:text-md bg-white text-black border-4 rounded-none
+          className={`w-full p-3 sm:p-4 text-md sm:text-md bg-white text-black border-4 sm:border-r-0 rounded-none
       ${isValid ? "border-green-500 bg-green-50" : "border-black bg-gray-50"}
       focus:outline-none focus:ring-0 appearance-none`}
           placeholder="Search for a player..."
@@ -173,15 +177,15 @@ const handleChange = (e) => {
 
       {/* Buttons */}
       <div
-        className={`flex gap-1 ${
-          stacked ? "flex-row mt-1 justify-center gap-x-4" : "ml-2"
+        className={`flex gap-0 rounded-none sm:border-4 sm:border-black ${
+          stacked ? "flex-row mt-2 justify-center gap-x-0" : "ml-0"
         }`}
       >
         {hasRandomChoice && (
           <button
             type="button"
             onClick={handleRandom}
-            className="py-2 sm:py-5 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center justify-center min-w-[4rem]"
+            className="py-2 sm:py-5 px-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center justify-center min-w-[4rem] border-4 border-black sm:border-0"
             disabled={isRandomLoading}
           >
             <div className="w-16 h-4 flex items-center justify-center">
@@ -203,7 +207,14 @@ const handleChange = (e) => {
         <button
           type="button"
           onClick={handleReset}
-          className="px-4 sm:px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-sm"
+          className="
+    px-4 sm:px-5 
+    bg-red-600 hover:bg-red-700 
+    text-white font-medium text-sm
+    border-4 border-black       
+    border-l-0                
+    sm:border-l-4 sm:border-t-0 sm:border-r-0 sm:border-b-0 
+  "
         >
           Reset
         </button>

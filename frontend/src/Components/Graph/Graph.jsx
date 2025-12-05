@@ -152,7 +152,6 @@ const Graph = ({ pathJson, playerA, playerB, isMobile }) => {
     <div
       ref={containerRef}
       className="w-full h-full"
-      style={{ touchAction: "none" }} // important!
     >
       <svg
         width="100%"

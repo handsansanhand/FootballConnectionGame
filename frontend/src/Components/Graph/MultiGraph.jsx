@@ -312,7 +312,6 @@ const MultiGraph = ({
       ref={containerRef}
       className="  w-full h-full bg-grey-100 rounded-lg shadow-inner
   overflow-x-hidden                // disable scrolling on medium+ screens"
-  style={{ touchAction: "none" }} 
     >
       <svg
         width="100%"

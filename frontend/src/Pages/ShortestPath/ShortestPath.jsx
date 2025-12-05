@@ -121,7 +121,7 @@ function ShortestPath() {
 
         {/* Right: Info butttton */}
         <div>
-          <InfoButton textChoice={0} />
+          <InfoButton textChoice={1} />
         </div>
       </div>
       {/* Path display */}

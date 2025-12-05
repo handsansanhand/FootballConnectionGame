@@ -1,6 +1,6 @@
 import PlayerInput from "../PlayerInput/PlayerInput";
 import { useEffect, useState } from "react";
-
+import { IoIosCloseCircleOutline } from "react-icons/io";
 function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
   const [player1, setPlayer1] = useState(null);
   const [player2, setPlayer2] = useState(null);
@@ -42,11 +42,11 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
       }`}
     >
       <div className="relative p-4 w-full max-w-4xl max-h-full">
-        <div className="relative sm:bg-white rounded-lg sm:shadow-lg sm:border-4 border-black ">
+        <div className="relative rounded-lg border-black ">
           {/* Header */}
           {!isMobile && (
-            <div className="w-full flex justify-center items-center text-center p-2 sm:p-4 md:p-5 border-b rounded-t border-gray-200">
-              <h3 className="text-xl sm:text-2xl font-semibold text-center">
+            <div className="w-full flex justify-center items-center text-center">
+              <h3 className="text-xl bg-white sm:text-2xl font-semibold text-center border-black sm:border-4 sm:border-b-0 sm:px-5 sm:py-2">
                 Enter Two Players
               </h3>
             </div>
@@ -54,7 +54,7 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
 
           {/* Body */}
           <form
-            className="p-4 md:p-5 flex flex-col h-full"
+            className="p-4 md:p-0 flex flex-col h-full"
             onSubmit={handleSubmit}
           >
             {/* Player inputs */}
@@ -124,7 +124,7 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
               </div>
             ) : (
               /* Desktop unchanged */
-              <div className="grid gap-4 flex-1 mb-4">
+              <div className="grid flex-1 ">
                 <PlayerInput
                   label="Player 1"
                   playerKey="player1"
@@ -142,23 +142,24 @@ function EnterPlayerModal({ show, onClose, onSubmit, newGameTrigger }) {
                   hasRandomChoice={true}
                   stacked={false}
                   newGameTrigger={newGameTrigger}
+                  topBorder={false}
                 />
               </div>
             )}
 
             {/* Buttons at bottom right */}
-            <div className="flex justify-between sm:mt-2">
+            <div className="flex justify-between">
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors border-t-0 border-4 duration-300 sm:border-4 border-black rounded-none focus:outline-none"
+                className={`inline-block text-black bg-white hover:bg-black hover:text-white hover:border-white font-medium text-sm px-5 py-2.5 text-center transition-colors border-t-0 border-4 duration-300 sm:border-4 sm:border-t-0 border-black rounded-none focus:outline-none `}
               >
                 Close
               </button>
               <button
                 type="submit"
                 disabled={!player1 || !player2}
-                className={`text-white inline-flex items-center font-medium border-t-0 border-4 border-black sm:border-4 sm:border-black rounded-none text-sm px-5 py-2.5 text-center focus:ring-4 focus:outline-none 
+                className={`text-white inline-flex items-center font-medium border-t-0 border-4 border-black sm:border-4 sm:border-black rounded-none text-sm px-5 py-2.5 text-center sm:border-t-0 focus:ring-4 focus:outline-none 
                 ${
                   !player1 || !player2
                     ? "bg-gray-400 cursor-not-allowed focus:ring-gray-300"

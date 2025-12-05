@@ -11,11 +11,15 @@ function InfoButton({ textChoice }) {
       "Connect two football players by finding a chain of teammates who played together.",
       "Enter two players, then guess players one by one who link them through shared teams.",
       "The game keeps track of your best connection path!",
-      "NOTE: The database only includes players who have played after 1990.",
+          <div className="font-bold">
+        NOTE: The database only includes players who have played after 1990.
+      </div>
     ],
     [
       "Enter two players, and this page will show you the shortest path between the two through overlapping teammates.",
-      "NOTE: The database only includes players who have played after 1990.",
+      <div className="font-bold">
+        NOTE: The database only includes players who have played after 1990.
+      </div>
     ],
     [
       "This tool allows users to explore connections between football players, and also calculate shortest paths between players.",
