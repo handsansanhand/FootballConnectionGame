@@ -1,5 +1,4 @@
 import React from "react";
-import { MdAutorenew } from "react-icons/md";
 
 function LoadingPopup({ message = "Loading..." }) {
   return (

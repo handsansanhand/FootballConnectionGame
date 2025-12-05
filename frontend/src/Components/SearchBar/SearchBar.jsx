@@ -22,23 +22,15 @@ function SearchBar({
   const [isRandomLoading, setIsRandomLoading] = useState(false);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
 
+
   useEffect(() => {
-    setQuery("");
-    setSelectedPlayer(null);
-    setDropdownOpen(false);
-  }, [newGameTrigger]);
-
-useEffect(() => {
-  if (initialValue) {
-    const name =
-      typeof initialValue === "string" ? initialValue : initialValue.name;
-    setQuery(name);
-    setSelectedPlayer(initialValue);
-
-    // prevent dropdown from opening automatically
-    setDropdownOpen(false);
-  }
-}, [initialValue]);
+    if (initialValue) {
+      const name =
+        typeof initialValue === "string" ? initialValue : initialValue.name;
+      setQuery(name);
+      setSelectedPlayer(initialValue);
+    }
+  }, [initialValue]);
 
 useEffect(() => {
   if (suppressSearchRef.current) {
