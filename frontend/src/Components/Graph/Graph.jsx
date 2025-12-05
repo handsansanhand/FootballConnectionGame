@@ -156,7 +156,7 @@ const Graph = ({ pathJson, playerA, playerB, isMobile }) => {
       <svg
         width="100%"
         height="100%"
-        style={{ touchAction: "none" }}
+          style={{ touchAction: draggingNode ? "none" : "auto" }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onTouchMove={handleTouchMove}
